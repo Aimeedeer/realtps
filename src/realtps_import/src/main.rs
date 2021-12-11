@@ -153,9 +153,13 @@ impl Importer {
             }
         }).await??;
 
-        courtesy_delay().await;
-
-        Ok(next_jobs)
+        if !next_jobs.is_empty() {
+            courtesy_delay().await;
+            Ok(next_jobs)
+        } else {
+            rescan_delay(chain).await;
+            Ok(vec![Job::ImportMostRecent(chain)])
+        }
     }
 
     fn provider(&self, chain: Chain) -> &Provider<Http> {
@@ -165,8 +169,20 @@ impl Importer {
 
 async fn courtesy_delay() {
     let fuzz = Uniform::from(0..1000);
-    let delay_time = 500 + fuzz.sample(&mut rand::thread_rng());
-    println!("delaying {} ms", delay_time);
-    let delay_time = Duration::from_millis(delay_time);
+    let delay_msecs = 500 + fuzz.sample(&mut rand::thread_rng());
+    println!("delaying {} ms to retrieve next block", delay_msecs);
+    let delay_time = Duration::from_millis(delay_msecs);
+    time::sleep(delay_time).await
+}
+
+async fn rescan_delay(chain: Chain) {
+    let delay_secs = match chain {
+        Chain::Ethereum => 60,
+        Chain::Polygon => 10,
+    };
+    let fuzz = Uniform::from(0..1000);
+    let delay_msecs = 1000 * delay_secs + fuzz.sample(&mut rand::thread_rng());
+    let delay_time = Duration::from_millis(delay_msecs);
+    println!("delaying {} ms to rescan", delay_msecs);
     time::sleep(delay_time).await
 }
