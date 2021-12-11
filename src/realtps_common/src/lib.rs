@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -32,7 +34,11 @@ pub struct Block {
 pub trait Db: Send + Sync + 'static {
     fn store_block(&self, block: Block) -> Result<()>;
     fn load_block(&self, block_number: u64) -> Result<Option<Block>>;
-    fn get_latest_block_number(&self, chain: Chain) -> Result<u64>;
+
+    fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()>;
+    fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>>;
+    fn store_lowest_block_number(&self, chain: Chain, block_number: u64) -> Result<()>;
+    fn load_lowest_block_number(&self, chain: Chain) -> Result<Option<u64>>;
 }
 
 pub struct JsonDb;
@@ -57,9 +63,10 @@ impl Db for JsonDb {
         todo!()
     }
 
-    fn get_latest_block_number(&self, chain: Chain) -> Result<u64> {
-        todo!()
-    }
+    fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> { todo!() }
+    fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>> { todo!() }
+    fn store_lowest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> { todo!() }
+    fn load_lowest_block_number(&self, chain: Chain) -> Result<Option<u64>> { todo!() }
 }
 
 #[cfg(test)]
