@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::sync::Arc;
 use structopt::StructOpt;
+use tokio::task;
 
 use realtps_common::{Block, Chain, Db, JsonDb};
 
@@ -59,7 +60,7 @@ async fn make_importer() -> Result<Importer> {
     ];
 
     Ok(Importer {
-        db: Box::new(JsonDb),
+        db: Arc::new(Box::new(JsonDb)),
         eth_providers: eth_providers.into_iter().collect(),
     })
 }
@@ -86,7 +87,7 @@ async fn make_provider(rpc_url: &str) -> Result<Provider<Http>> {
 }
 
 struct Importer {
-    db: Box<dyn Db>,
+    db: Arc<Box<dyn Db>>,
     eth_providers: HashMap<Chain, Provider<Http>>,
 }
 
@@ -122,12 +123,36 @@ impl Importer {
             parent_hash: format!("{}", block.parent_hash),
         };
 
-        // todo async
-        self.db.store_block(block)?;
+        let db = self.db.clone();
 
-        // todo next jobs
+        let next_jobs = task::spawn_blocking(move || -> Result<_> {
+            let parent_hash = block.parent_hash.clone();
 
-        Ok(vec![])
+            db.store_block(block)?;
+
+            if let Some(prev_block_num) = block_num.checked_sub(1) {
+                let prev_block = db.load_block(prev_block_num)?;
+
+                if let Some(prev_block) = prev_block {
+                    if prev_block.hash != parent_hash {
+                        println!("reorg of chain {} at block {}; old hash: {}; new hash: {}",
+                                 chain, prev_block_num, parent_hash, prev_block.hash);
+                        Ok(vec![Job::ImportBlock(chain, prev_block_num)])
+                    } else {
+                        println!("completed import of chain {} to block {} / {}",
+                                 chain, prev_block_num, parent_hash);
+                        Ok(vec![])
+                    }
+                } else {
+                    Ok(vec![Job::ImportBlock(chain, prev_block_num)])
+                }
+            } else {
+                println!("completed import of chain {} to genesis", chain);
+                Ok(vec![])
+            }
+        }).await??;
+
+        Ok(next_jobs)
     }
 
     fn provider(&self, chain: Chain) -> &Provider<Http> {

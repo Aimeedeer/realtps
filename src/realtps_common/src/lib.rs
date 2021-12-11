@@ -29,7 +29,7 @@ pub struct Block {
     pub parent_hash: String,
 }
 
-pub trait Db {
+pub trait Db: Send + Sync + 'static {
     fn store_block(&self, block: Block) -> Result<()>;
     fn load_block(&self, block_number: u64) -> Result<Option<Block>>;
     fn get_latest_block_number(&self, chain: Chain) -> Result<u64>;
