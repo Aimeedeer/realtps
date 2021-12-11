@@ -1,6 +1,12 @@
-use anyhow::Result;
-use realtps_common::{Block, Chain, Db, JsonDb};
+#![allow(unused)]
+
+use anyhow::{Result, anyhow};
 use structopt::StructOpt;
+use ethers::prelude::*;
+use std::sync::Arc;
+use std::collections::VecDeque;
+
+use realtps_common::{Chain, Block, Db, JsonDb};
 
 #[derive(StructOpt, Debug)]
 struct Opt {
@@ -13,21 +19,47 @@ enum Command {
     ReadBlock { number: u64 },
 }
 
-fn main() -> Result<()> {
-    let opt = Opt::from_args();
+enum Job {
+    ImportMostRecent(Chain),
+    ImportBlock(Chain, u64),
+}
 
-    println!("opt: {:?}", &opt);
+#[tokio::main]
+async fn main() -> Result<()> {
 
-    let test_block = Block {
-        chain: Chain::Ethereum,
-        block_number: 123,
-        timestamp: 333,
-        num_txs: 222,
-        hash: "hash".to_string(),
-        parent_hash: "parent_hash".to_string(),
-    };
-    let json_db = Box::new(JsonDb);
+    let mut jobs = VecDeque::from(init_jobs());
 
-    json_db.store_block(test_block)?;
+    while let Some(job) = jobs.pop_front() {
+        let new_jobs = do_job(job).await?;
+        jobs.extend(new_jobs.into_iter());
+    }
+    
     Ok(())
+}
+
+fn init_jobs() -> Vec<Job> {
+    vec![
+        Job::ImportMostRecent(Chain::Ethereum),
+        Job::ImportMostRecent(Chain::Polygon),
+    ]
+}
+
+async fn do_job(job: Job) -> Result<Vec<Job>> {
+    match job {
+        Job::ImportMostRecent(chain) => {
+            let block_num = get_current_block(chain).await?;
+            Ok(import_block(chain, block_num).await?)
+        },
+        Job::ImportBlock(chain, block_num) => {
+            Ok(import_block(chain, block_num).await?)
+        }
+    }
+}
+
+async fn get_current_block(chain: Chain) -> Result<u64> {
+    todo!()
+}
+
+async fn import_block(chain: Chain, block_num: u64) -> Result<Vec<Job>> {
+    todo!()
 }
