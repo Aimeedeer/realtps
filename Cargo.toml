@@ -1,0 +1,7 @@
+[workspace]
+
+members = [
+    "src/realtps_common",
+    "src/realtps_web",
+    "src/realtps_import",
+]
