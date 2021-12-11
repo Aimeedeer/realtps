@@ -2,14 +2,17 @@
 
 use anyhow::{anyhow, Result};
 use ethers::prelude::*;
+use rand::{
+    self,
+    distributions::{Distribution, Uniform},
+};
+use realtps_common::{Block, Chain, Db, JsonDb};
 use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
-use realtps_common::{Block, Chain, Db, JsonDb};
 use tokio::time::{self, Duration};
-use rand::{self, distributions::{Uniform, Distribution}};
 
 #[derive(StructOpt, Debug)]
 struct Opt {
@@ -137,12 +140,16 @@ impl Importer {
 
                 if let Some(prev_block) = prev_block {
                     if prev_block.hash != parent_hash {
-                        println!("reorg of chain {} at block {}; old hash: {}; new hash: {}",
-                                 chain, prev_block_num, parent_hash, prev_block.hash);
+                        println!(
+                            "reorg of chain {} at block {}; old hash: {}; new hash: {}",
+                            chain, prev_block_num, parent_hash, prev_block.hash
+                        );
                         Ok(vec![Job::ImportBlock(chain, prev_block_num)])
                     } else {
-                        println!("completed import of chain {} to block {} / {}",
-                                 chain, prev_block_num, parent_hash);
+                        println!(
+                            "completed import of chain {} to block {} / {}",
+                            chain, prev_block_num, parent_hash
+                        );
                         Ok(vec![])
                     }
                 } else {
@@ -152,7 +159,8 @@ impl Importer {
                 println!("completed import of chain {} to genesis", chain);
                 Ok(vec![])
             }
-        }).await??;
+        })
+        .await??;
 
         if !next_jobs.is_empty() {
             courtesy_delay().await;
