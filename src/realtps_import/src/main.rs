@@ -7,8 +7,9 @@ use std::collections::VecDeque;
 use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
-
 use realtps_common::{Block, Chain, Db, JsonDb};
+use tokio::time::{self, Duration};
+use rand::{self, distributions::{Uniform, Distribution}};
 
 #[derive(StructOpt, Debug)]
 struct Opt {
@@ -152,10 +153,20 @@ impl Importer {
             }
         }).await??;
 
+        courtesy_delay().await;
+
         Ok(next_jobs)
     }
 
     fn provider(&self, chain: Chain) -> &Provider<Http> {
         self.eth_providers.get(&chain).expect("provider")
     }
+}
+
+async fn courtesy_delay() {
+    let fuzz = Uniform::from(0..1000);
+    let delay_time = 500 + fuzz.sample(&mut rand::thread_rng());
+    println!("delaying {} ms", delay_time);
+    let delay_time = Duration::from_millis(delay_time);
+    time::sleep(delay_time).await
 }
