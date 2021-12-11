@@ -168,8 +168,8 @@ impl Importer {
 }
 
 async fn courtesy_delay() {
-    let fuzz = Uniform::from(0..1000);
-    let delay_msecs = 500 + fuzz.sample(&mut rand::thread_rng());
+    let jitter = Uniform::from(0..100);
+    let delay_msecs = 1000 + jitter.sample(&mut rand::thread_rng());
     println!("delaying {} ms to retrieve next block", delay_msecs);
     let delay_time = Duration::from_millis(delay_msecs);
     time::sleep(delay_time).await
@@ -180,8 +180,8 @@ async fn rescan_delay(chain: Chain) {
         Chain::Ethereum => 60,
         Chain::Polygon => 10,
     };
-    let fuzz = Uniform::from(0..1000);
-    let delay_msecs = 1000 * delay_secs + fuzz.sample(&mut rand::thread_rng());
+    let jitter = Uniform::from(0..100);
+    let delay_msecs = 1000 * delay_secs + jitter.sample(&mut rand::thread_rng());
     let delay_time = Duration::from_millis(delay_msecs);
     println!("delaying {} ms to rescan", delay_msecs);
     time::sleep(delay_time).await
