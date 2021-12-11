@@ -99,10 +99,35 @@ impl Importer {
     }
 
     async fn get_current_block(&self, chain: Chain) -> Result<u64> {
-        todo!()
+        let provider = self.provider(chain);
+        let block_number = provider.get_block_number().await?;
+        println!("block number: {}", block_number);
+        Ok(block_number.as_u64())
     }
 
     async fn import_block(&self, chain: Chain, block_num: u64) -> Result<Vec<Job>> {
-        todo!()
+        let provider = self.provider(chain);
+        let ethers_block_num = U64::from(block_num);
+        let block = provider.get_block(ethers_block_num).await?.expect("block");
+
+        let block = Block {
+            chain,
+            block_number: block_num,
+            timestamp: u64::try_from(block.timestamp).map_err(|e| anyhow!("{}", e))?,
+            num_txs: u64::try_from(block.transactions.len())?,
+            hash: format!("{}", block.hash.expect("hash")),
+            parent_hash: format!("{}", block.parent_hash),
+        };
+
+        // todo async
+        self.db.store_block(block)?;
+
+        // todo next jobs
+
+        Ok(vec![])
+    }
+
+    fn provider(&self, chain: Chain) -> &Provider<Http> {
+        self.eth_providers.get(&chain).expect("provider")
     }
 }
