@@ -5,7 +5,8 @@ use std::fs::{self, File};
 use std::io::BufWriter;
 
 #[derive(Serialize, Deserialize, Debug)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Hash)]
+#[derive(Eq, PartialEq)]
 pub enum Chain {
     Ethereum,
     Polygon,
