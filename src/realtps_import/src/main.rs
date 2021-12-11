@@ -27,10 +27,12 @@ enum Job {
 #[tokio::main]
 async fn main() -> Result<()> {
 
+    let importer = Importer { };
+
     let mut jobs = VecDeque::from(init_jobs());
 
     while let Some(job) = jobs.pop_front() {
-        let new_jobs = do_job(job).await?;
+        let new_jobs = importer.do_job(job).await?;
         jobs.extend(new_jobs.into_iter());
     }
     
@@ -44,22 +46,27 @@ fn init_jobs() -> Vec<Job> {
     ]
 }
 
-async fn do_job(job: Job) -> Result<Vec<Job>> {
-    match job {
-        Job::ImportMostRecent(chain) => {
-            let block_num = get_current_block(chain).await?;
-            Ok(import_block(chain, block_num).await?)
-        },
-        Job::ImportBlock(chain, block_num) => {
-            Ok(import_block(chain, block_num).await?)
+struct Importer {
+}
+
+impl Importer {
+    async fn do_job(&self, job: Job) -> Result<Vec<Job>> {
+        match job {
+            Job::ImportMostRecent(chain) => {
+                let block_num = self.get_current_block(chain).await?;
+                Ok(self.import_block(chain, block_num).await?)
+            },
+            Job::ImportBlock(chain, block_num) => {
+                Ok(self.import_block(chain, block_num).await?)
+            }
         }
     }
-}
 
-async fn get_current_block(chain: Chain) -> Result<u64> {
-    todo!()
-}
+    async fn get_current_block(&self, chain: Chain) -> Result<u64> {
+        todo!()
+    }
 
-async fn import_block(chain: Chain, block_num: u64) -> Result<Vec<Job>> {
-    todo!()
+    async fn import_block(&self, chain: Chain, block_num: u64) -> Result<Vec<Job>> {
+        todo!()
+    }
 }
