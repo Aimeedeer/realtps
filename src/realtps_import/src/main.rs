@@ -111,6 +111,7 @@ impl Importer {
     }
 
     async fn import_block(&self, chain: Chain, block_num: u64) -> Result<Vec<Job>> {
+        println!("importing block {} for chain {}", block_num, chain);
         let provider = self.provider(chain);
         let ethers_block_num = U64::from(block_num);
         let block = provider.get_block(ethers_block_num).await?.expect("block");
