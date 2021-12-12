@@ -39,21 +39,20 @@ pub trait Db {
 
 pub struct JsonDb;
 
-pub static JSON_DB_DIR: &'static str = "db/";
+pub static JSON_DB_DIR: &'static str = "db";
 
 impl Db for JsonDb {
     fn store_block(&self, block: Block) -> Result<()> {
-        fs::create_dir_all(JSON_DB_DIR)?;
 
-        let path = format!("{}/{}/{}", JSON_DB_DIR, block.chain, block.block_number);
-        println!("writing to file {}", path);
+        let path = format!("{}/{}", JSON_DB_DIR, block.chain);
+        fs::create_dir_all(&path)?;
 
+        let path = format!("{}/{}", path, block.block_number);
         let file = File::create(path)?;
-        let mut writer = BufWriter::new(file);
 
+        let mut writer = BufWriter::new(file);
         serde_json::to_writer(&mut writer, &block)?;
 
-        println!("file saved");
         Ok(())
     }
 
