@@ -14,6 +14,7 @@ use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
 use tokio::time::{self, Duration};
+use futures::stream::{FuturesUnordered, StreamExt};
 
 #[derive(StructOpt, Debug)]
 struct Opt {
@@ -34,11 +35,34 @@ enum Job {
 async fn main() -> Result<()> {
     let importer = make_importer().await?;
 
-    let mut jobs = VecDeque::from(init_jobs());
+    let mut jobs = FuturesUnordered::new();
 
-    while let Some(job) = jobs.pop_front() {
-        let new_jobs = importer.do_job(job).await?;
-        jobs.extend(new_jobs.into_iter());
+    for job in init_jobs().into_iter() {
+        jobs.push(importer.do_job(job));
+    }
+
+    loop {
+        let job_result = jobs.next().await;
+        if let Some(job_result) = job_result {
+            match job_result {
+                Ok(new_jobs) => {
+                    for new_job in new_jobs {
+                        jobs.push(importer.do_job(new_job));
+                    }
+                }
+                Err(e) => {
+                    eprintln!("job resulted in error: {}", e);
+                    let mut source = e.source();
+                    while let Some(source_) = source {
+                        eprintln!("source: {}", source_);
+                        source = source_.source();
+                    }
+                }
+            }
+        } else {
+            println!("no more jobs?!");
+            break;
+        }
     }
 
     Ok(())
