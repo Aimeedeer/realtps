@@ -185,6 +185,8 @@ impl Importer {
             task::spawn_blocking(move || {
                 db.store_highest_block_number(chain, head_block_number)
             }).await??;
+        } else {
+            println!("no new blocks for {}", chain);
         }
 
         rescan_delay(chain).await;
