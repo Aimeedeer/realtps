@@ -151,13 +151,13 @@ impl Importer {
                                 );
                                 break;
                             } else {
-                                println!("found incomplete block run for {} at block {}", chain, prev_block_number);
+                                println!("found incomplete previous import for {} at block {}", chain, prev_block_number);
                                 // Found a run of blocks from a previous incomplete import.
                                 // Keep going and overwrite them.
                                 // continue
                             }
                         } else {
-                            println!("found incomplete block run for {} at block {}", chain, prev_block_number);
+                            println!("found incomplete previous import for {} at block {}", chain, prev_block_number);
                             // Found a run of blocks from a previous incomplete import.
                             // Keep going and overwrite them.
                             // continue
