@@ -51,12 +51,7 @@ async fn main() -> Result<()> {
                     }
                 }
                 Err(e) => {
-                    eprintln!("job resulted in error: {}", e);
-                    let mut source = e.source();
-                    while let Some(source_) = source {
-                        eprintln!("source: {}", source_);
-                        source = source_.source();
-                    }
+                    print_error(&e);
                 }
             }
         } else {
@@ -66,6 +61,15 @@ async fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+fn print_error(e: &anyhow::Error) {
+    eprintln!("error: {}", e);
+    let mut source = e.source();
+    while let Some(source_) = source {
+        eprintln!("source: {}", source_);
+        source = source_.source();
+    }
 }
 
 fn init_jobs() -> Vec<Job> {
