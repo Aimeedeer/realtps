@@ -43,16 +43,9 @@ async fn main() -> Result<()> {
 
     loop {
         let job_result = jobs.next().await;
-        if let Some(job_result) = job_result {
-            match job_result {
-                Ok(new_jobs) => {
-                    for new_job in new_jobs {
-                        jobs.push(importer.do_job(new_job));
-                    }
-                }
-                Err(e) => {
-                    print_error(&e);
-                }
+        if let Some(new_jobs) = job_result {
+            for new_job in new_jobs {
+                jobs.push(importer.do_job(new_job));
             }
         } else {
             println!("no more jobs?!");
@@ -121,9 +114,19 @@ struct Importer {
 }
 
 impl Importer {
-    async fn do_job(&self, job: Job) -> Result<Vec<Job>> {
-        match job {
-            Job::Import(chain) => Ok(self.import(chain).await?),
+    async fn do_job(&self, job: Job) -> Vec<Job> {
+        let r = match job {
+            Job::Import(chain) => self.import(chain).await,
+        };
+
+        match r {
+            Ok(new_jobs) => new_jobs,
+            Err(e) => {
+                print_error(&e);
+                println!("error running job. repeating");
+                job_error_delay().await;
+                vec![job]
+            }
         }
     }
 
@@ -274,6 +277,14 @@ async fn retry_delay() {
     let jitter = Uniform::from(0..100);
     let delay_msecs = 100 + jitter.sample(&mut rand::thread_rng());
     println!("delaying {} ms to retry request", delay_msecs);
+    let delay_time = Duration::from_millis(delay_msecs);
+    time::sleep(delay_time).await
+}
+
+async fn job_error_delay() {
+    let jitter = Uniform::from(0..100);
+    let delay_msecs = 1000 + jitter.sample(&mut rand::thread_rng());
+    println!("delaying {} ms to retry job", delay_msecs);
     let delay_time = Duration::from_millis(delay_msecs);
     time::sleep(delay_time).await
 }
