@@ -145,10 +145,20 @@ impl Importer {
                 println!("fetching block {} for {}", block_number, chain);
 
                 let ethers_block_number = U64::from(block_number);
-                let block = provider
-                    .get_block(ethers_block_number)
-                    .await?
-                    .expect("block");
+
+                let block = loop {
+                    let block = provider
+                        .get_block(ethers_block_number)
+                        .await?;
+
+                    if let Some(block) = block {
+                        break block;
+                    } else {
+                        println!("received no block for number {} on chain {}", block_number, chain);
+                        retry_delay().await;
+                    }
+                };
+
                 let block = ethers_block_to_block(chain, block)?;
 
                 let parent_hash = block.parent_hash.clone();
@@ -253,6 +263,14 @@ async fn rescan_delay(chain: Chain) {
     let delay_msecs = 1000 * delay_secs + jitter.sample(&mut rand::thread_rng());
     let delay_time = Duration::from_millis(delay_msecs);
     println!("delaying {} ms to {} rescan", delay_msecs, chain);
+    time::sleep(delay_time).await
+}
+
+async fn retry_delay() {
+    let jitter = Uniform::from(0..100);
+    let delay_msecs = 100 + jitter.sample(&mut rand::thread_rng());
+    println!("delaying {} ms to retry request", delay_msecs);
+    let delay_time = Duration::from_millis(delay_msecs);
     time::sleep(delay_time).await
 }
 
