@@ -26,8 +26,7 @@ enum Command {
 }
 
 enum Job {
-    ImportMostRecent(Chain),
-    ImportBlock(Chain, u64),
+    Import(Chain),
 }
 
 #[tokio::main]
@@ -46,8 +45,8 @@ async fn main() -> Result<()> {
 
 fn init_jobs() -> Vec<Job> {
     vec![
-        Job::ImportMostRecent(Chain::Ethereum),
-        Job::ImportMostRecent(Chain::Polygon),
+        Job::Import(Chain::Ethereum),
+        Job::Import(Chain::Polygon),
     ]
 }
 
@@ -98,77 +97,97 @@ struct Importer {
 impl Importer {
     async fn do_job(&self, job: Job) -> Result<Vec<Job>> {
         match job {
-            Job::ImportMostRecent(chain) => {
-                let block_num = self.get_current_block(chain).await?;
-                Ok(self.import_block(chain, block_num).await?)
+            Job::Import(chain) => {
+                Ok(self.import(chain).await?)
             }
-            Job::ImportBlock(chain, block_num) => Ok(self.import_block(chain, block_num).await?),
         }
     }
 
-    async fn get_current_block(&self, chain: Chain) -> Result<u64> {
+    async fn import(&self, chain: Chain) -> Result<Vec<Job>> {
+        println!("beginning import for {}", chain);
+
         let provider = self.provider(chain);
-        let block_number = provider.get_block_number().await?;
-        println!("block number: {}", block_number);
-        Ok(block_number.as_u64())
-    }
+        let head_block_number = provider.get_block_number().await?;
+        let head_block_number = head_block_number.as_u64();
+        println!("head block number: {}", head_block_number);
 
-    async fn import_block(&self, chain: Chain, block_num: u64) -> Result<Vec<Job>> {
-        println!("importing block {} for chain {}", block_num, chain);
-        let provider = self.provider(chain);
-        let ethers_block_num = U64::from(block_num);
-        let block = provider.get_block(ethers_block_num).await?.expect("block");
+        let highest_block_number = self.db.load_highest_block_number(chain)?;
 
-        let block = Block {
-            chain,
-            block_number: block_num,
-            timestamp: u64::try_from(block.timestamp).map_err(|e| anyhow!("{}", e))?,
-            num_txs: u64::try_from(block.transactions.len())?,
-            hash: format!("{}", block.hash.expect("hash")),
-            parent_hash: format!("{}", block.parent_hash),
-        };
+        let mut block_number = head_block_number;
 
-        let db = self.db.clone();
+        loop {
+            println!("fetching block {} for {}", block_number, chain);
+            
+            let ethers_block_number = U64::from(block_number);
+            let block = provider.get_block(ethers_block_number).await?.expect("block");
+            let block = ethers_block_to_block(chain, block)?;
 
-        let next_jobs = task::spawn_blocking(move || -> Result<_> {
             let parent_hash = block.parent_hash.clone();
+            let db = self.db.clone();
+            task::spawn_blocking(move || {
+                db.store_block(block)
+            }).await??;
 
-            db.store_block(block)?;
-
-            if let Some(prev_block_num) = block_num.checked_sub(1) {
-                let prev_block = db.load_block(chain, prev_block_num)?;
+            if let Some(prev_block_number) = block_number.checked_sub(1) {
+                let db = self.db.clone();
+                let prev_block = task::spawn_blocking(move || {
+                    db.load_block(chain, prev_block_number)
+                }).await??;
 
                 if let Some(prev_block) = prev_block {
                     if prev_block.hash != parent_hash {
                         println!(
                             "reorg of chain {} at block {}; old hash: {}; new hash: {}",
-                            chain, prev_block_num, parent_hash, prev_block.hash
+                            chain, prev_block_number, parent_hash, prev_block.hash
                         );
-                        Ok(vec![Job::ImportBlock(chain, prev_block_num)])
+                        // continue - have wrong version of prev block
                     } else {
-                        println!(
-                            "completed import of chain {} to block {} / {}",
-                            chain, prev_block_num, parent_hash
-                        );
-                        Ok(vec![])
+                        if let Some(highest_block_number) = highest_block_number {
+                            if prev_block_number <= highest_block_number {
+                                println!(
+                                    "completed import of chain {} to block {} / {}",
+                                    chain, prev_block_number, parent_hash
+                                );
+                                break;
+                            } else {
+                                println!("found incomplete block run for {} at block {}", chain, prev_block_number);
+                                // Found a run of blocks from a previous incomplete import.
+                                // Keep going and overwrite them.
+                                // todo fast-forward past those blocks
+                                // continue
+                            }
+                        } else {
+                            println!("found incomplete block run for {} at block {}", chain, prev_block_number);
+                            // Found a run of blocks from a previous incomplete import.
+                            // Keep going and overwrite them.
+                            // todo fast-forward past those blocks
+                            // continue
+                        }
                     }
                 } else {
-                    Ok(vec![Job::ImportBlock(chain, prev_block_num)])
+                    // continue - don't have the prev block
                 }
+
+                println!("still need block {} for {}", prev_block_number, chain);
+                block_number = prev_block_number;
+
+                courtesy_delay().await;
+                
+                continue;
             } else {
                 println!("completed import of chain {} to genesis", chain);
-                Ok(vec![])
+                break;
             }
-        })
-        .await??;
-
-        if !next_jobs.is_empty() {
-            courtesy_delay().await;
-            Ok(next_jobs)
-        } else {
-            rescan_delay(chain).await;
-            Ok(vec![Job::ImportMostRecent(chain)])
         }
+
+        let db = self.db.clone();
+        task::spawn_blocking(move || {
+            db.store_highest_block_number(chain, head_block_number)
+        }).await??;
+
+        rescan_delay(chain).await;
+
+        Ok(vec![Job::Import(chain)])
     }
 
     fn provider(&self, chain: Chain) -> &Provider<Http> {
@@ -194,4 +213,15 @@ async fn rescan_delay(chain: Chain) {
     let delay_time = Duration::from_millis(delay_msecs);
     println!("delaying {} ms to rescan", delay_msecs);
     time::sleep(delay_time).await
+}
+
+fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> Result<Block> {
+    Ok(Block {
+        chain,
+        block_number: block.number.expect("block number").as_u64(),
+        timestamp: u64::try_from(block.timestamp).map_err(|e| anyhow!("{}", e))?,
+        num_txs: u64::try_from(block.transactions.len())?,
+        hash: format!("{}", block.hash.expect("hash")),
+        parent_hash: format!("{}", block.parent_hash),
+    })
 }
