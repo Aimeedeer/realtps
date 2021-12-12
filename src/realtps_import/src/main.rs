@@ -113,76 +113,79 @@ impl Importer {
 
         let highest_block_number = self.db.load_highest_block_number(chain)?;
 
-        let mut block_number = head_block_number;
+        if Some(head_block_number) != highest_block_number {
 
-        loop {
-            println!("fetching block {} for {}", block_number, chain);
-            
-            let ethers_block_number = U64::from(block_number);
-            let block = provider.get_block(ethers_block_number).await?.expect("block");
-            let block = ethers_block_to_block(chain, block)?;
+            let mut block_number = head_block_number;
 
-            let parent_hash = block.parent_hash.clone();
+            loop {
+                println!("fetching block {} for {}", block_number, chain);
+                
+                let ethers_block_number = U64::from(block_number);
+                let block = provider.get_block(ethers_block_number).await?.expect("block");
+                let block = ethers_block_to_block(chain, block)?;
 
-            let db = self.db.clone();
-            task::spawn_blocking(move || {
-                db.store_block(block)
-            }).await??;
+                let parent_hash = block.parent_hash.clone();
 
-            if let Some(prev_block_number) = block_number.checked_sub(1) {
                 let db = self.db.clone();
-                let prev_block = task::spawn_blocking(move || {
-                    db.load_block(chain, prev_block_number)
+                task::spawn_blocking(move || {
+                    db.store_block(block)
                 }).await??;
 
-                if let Some(prev_block) = prev_block {
-                    if prev_block.hash != parent_hash {
-                        println!(
-                            "reorg of chain {} at block {}; old hash: {}; new hash: {}",
-                            chain, prev_block_number, prev_block.hash, parent_hash
-                        );
-                        // continue - have wrong version of prev block
-                    } else {
-                        if let Some(highest_block_number) = highest_block_number {
-                            if prev_block_number <= highest_block_number {
-                                println!(
-                                    "completed import of chain {} to block {} / {}",
-                                    chain, prev_block_number, parent_hash
-                                );
-                                break;
+                if let Some(prev_block_number) = block_number.checked_sub(1) {
+                    let db = self.db.clone();
+                    let prev_block = task::spawn_blocking(move || {
+                        db.load_block(chain, prev_block_number)
+                    }).await??;
+
+                    if let Some(prev_block) = prev_block {
+                        if prev_block.hash != parent_hash {
+                            println!(
+                                "reorg of chain {} at block {}; old hash: {}; new hash: {}",
+                                chain, prev_block_number, prev_block.hash, parent_hash
+                            );
+                            // continue - have wrong version of prev block
+                        } else {
+                            if let Some(highest_block_number) = highest_block_number {
+                                if prev_block_number <= highest_block_number {
+                                    println!(
+                                        "completed import of chain {} to block {} / {}",
+                                        chain, prev_block_number, parent_hash
+                                    );
+                                    break;
+                                } else {
+                                    println!("found incomplete previous import for {} at block {}", chain, prev_block_number);
+                                    // Found a run of blocks from a previous incomplete import.
+                                    // Keep going and overwrite them.
+                                    // continue
+                                }
                             } else {
                                 println!("found incomplete previous import for {} at block {}", chain, prev_block_number);
                                 // Found a run of blocks from a previous incomplete import.
                                 // Keep going and overwrite them.
                                 // continue
                             }
-                        } else {
-                            println!("found incomplete previous import for {} at block {}", chain, prev_block_number);
-                            // Found a run of blocks from a previous incomplete import.
-                            // Keep going and overwrite them.
-                            // continue
                         }
+                    } else {
+                        // continue - don't have the prev block
                     }
+
+                    println!("still need block {} for {}", prev_block_number, chain);
+                    block_number = prev_block_number;
+
+                    courtesy_delay().await;
+                    
+                    continue;
                 } else {
-                    // continue - don't have the prev block
+                    println!("completed import of chain {} to genesis", chain);
+                    break;
                 }
-
-                println!("still need block {} for {}", prev_block_number, chain);
-                block_number = prev_block_number;
-
-                courtesy_delay().await;
-                
-                continue;
-            } else {
-                println!("completed import of chain {} to genesis", chain);
-                break;
             }
-        }
 
-        let db = self.db.clone();
-        task::spawn_blocking(move || {
-            db.store_highest_block_number(chain, head_block_number)
-        }).await??;
+            let db = self.db.clone();
+            task::spawn_blocking(move || {
+                db.store_highest_block_number(chain, head_block_number)
+            }).await??;
+        }
 
         rescan_delay(chain).await;
 
