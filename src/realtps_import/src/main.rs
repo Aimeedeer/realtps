@@ -252,7 +252,7 @@ async fn rescan_delay(chain: Chain) {
     let jitter = Uniform::from(0..100);
     let delay_msecs = 1000 * delay_secs + jitter.sample(&mut rand::thread_rng());
     let delay_time = Duration::from_millis(delay_msecs);
-    println!("delaying {} ms to rescan", delay_msecs);
+    println!("delaying {} ms to {} rescan", delay_msecs, chain);
     time::sleep(delay_time).await
 }
 
