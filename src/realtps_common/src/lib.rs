@@ -1,10 +1,10 @@
 #![allow(unused)]
 
-use anyhow::Result;
+use anyhow::{Result, bail};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fs::{self, File};
-use std::io::{BufWriter, BufReader};
+use std::io::{BufReader, BufWriter};
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
 pub enum Chain {
@@ -64,7 +64,12 @@ impl Db for JsonDb {
 
         let file = File::open(path);
         match file {
-            Err(e) => { Ok(None) }
+            Err(e) => {
+                match e.kind() {
+                    std::io::ErrorKind::NotFound => Ok(None),
+                    _ => bail!(e),
+                }
+            }
             Ok(file) => {
                 let reader = BufReader::new(file);
                 let block = serde_json::from_reader(reader)?;
@@ -73,10 +78,18 @@ impl Db for JsonDb {
         }
     }
 
-    fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> { todo!() }
-    fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>> { todo!() }
-    fn store_lowest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> { todo!() }
-    fn load_lowest_block_number(&self, chain: Chain) -> Result<Option<u64>> { todo!() }
+    fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> {
+        todo!()
+    }
+    fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>> {
+        todo!()
+    }
+    fn store_lowest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> {
+        todo!()
+    }
+    fn load_lowest_block_number(&self, chain: Chain) -> Result<Option<u64>> {
+        todo!()
+    }
 }
 
 #[cfg(test)]
