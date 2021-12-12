@@ -1,13 +1,13 @@
-use serde::{Serialize, Deserialize};
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
+use std::fmt;
 use std::fs::{self, File};
 use std::io::BufWriter;
-use std::fmt;
-    
+
 #[derive(Serialize, Deserialize, Debug)]
 pub enum Chain {
     Ethereum,
-    Polygon,    
+    Polygon,
 }
 
 impl fmt::Display for Chain {
@@ -18,7 +18,7 @@ impl fmt::Display for Chain {
         }
     }
 }
-    
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Block {
     pub chain: Chain,
@@ -45,7 +45,7 @@ impl Db for JsonDb {
 
         let path = format!("{}/{}/{}", JSON_DB_DIR, block.chain, block.block_number);
         println!("writing to file {}", path);
-        
+
         let file = File::create(path)?;
         let mut writer = BufWriter::new(file);
 
@@ -63,8 +63,6 @@ impl Db for JsonDb {
         todo!()
     }
 }
-
-
 
 #[cfg(test)]
 mod tests {
