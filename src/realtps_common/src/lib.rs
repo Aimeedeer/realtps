@@ -42,8 +42,8 @@ pub trait Db: Send + Sync + 'static {
 
 pub struct JsonDb;
 
-pub static JSON_DB_DIR: &'static str = "db";
-pub static HIGHEST_BLOCK_NUMBER: &'static str = "heighest_block_number";
+pub static JSON_DB_DIR: &str = "db";
+pub static HIGHEST_BLOCK_NUMBER: &str = "heighest_block_number";
 
 impl Db for JsonDb {
     fn store_block(&self, block: Block) -> Result<()> {
