@@ -136,7 +136,7 @@ impl Importer {
             db.store_block(block)?;
 
             if let Some(prev_block_num) = block_num.checked_sub(1) {
-                let prev_block = db.load_block(prev_block_num)?;
+                let prev_block = db.load_block(chain, prev_block_num)?;
 
                 if let Some(prev_block) = prev_block {
                     if prev_block.hash != parent_hash {

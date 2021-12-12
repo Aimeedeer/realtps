@@ -4,7 +4,7 @@ use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fs::{self, File};
-use std::io::BufWriter;
+use std::io::{BufWriter, BufReader};
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
 pub enum Chain {
@@ -33,7 +33,7 @@ pub struct Block {
 
 pub trait Db: Send + Sync + 'static {
     fn store_block(&self, block: Block) -> Result<()>;
-    fn load_block(&self, block_number: u64) -> Result<Option<Block>>;
+    fn load_block(&self, chain: Chain, block_number: u64) -> Result<Option<Block>>;
 
     fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()>;
     fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>>;
@@ -59,8 +59,18 @@ impl Db for JsonDb {
         Ok(())
     }
 
-    fn load_block(&self, block_number: u64) -> Result<Option<Block>> {
-        todo!()
+    fn load_block(&self, chain: Chain, block_number: u64) -> Result<Option<Block>> {
+        let path = format!("{}/{}/{}", JSON_DB_DIR, chain, block_number);
+
+        let file = File::open(path);
+        match file {
+            Err(e) => { Ok(None) }
+            Ok(file) => {
+                let reader = BufReader::new(file);
+                let block = serde_json::from_reader(reader)?;
+                Ok(Some(block))
+            }
+        }
     }
 
     fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> { todo!() }
