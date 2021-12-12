@@ -123,6 +123,7 @@ impl Importer {
             let block = ethers_block_to_block(chain, block)?;
 
             let parent_hash = block.parent_hash.clone();
+
             let db = self.db.clone();
             task::spawn_blocking(move || {
                 db.store_block(block)
@@ -138,7 +139,7 @@ impl Importer {
                     if prev_block.hash != parent_hash {
                         println!(
                             "reorg of chain {} at block {}; old hash: {}; new hash: {}",
-                            chain, prev_block_number, parent_hash, prev_block.hash
+                            chain, prev_block_number, prev_block.hash, parent_hash
                         );
                         // continue - have wrong version of prev block
                     } else {
@@ -153,14 +154,12 @@ impl Importer {
                                 println!("found incomplete block run for {} at block {}", chain, prev_block_number);
                                 // Found a run of blocks from a previous incomplete import.
                                 // Keep going and overwrite them.
-                                // todo fast-forward past those blocks
                                 // continue
                             }
                         } else {
                             println!("found incomplete block run for {} at block {}", chain, prev_block_number);
                             // Found a run of blocks from a previous incomplete import.
                             // Keep going and overwrite them.
-                            // todo fast-forward past those blocks
                             // continue
                         }
                     }
