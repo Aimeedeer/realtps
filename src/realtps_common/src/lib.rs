@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use anyhow::{Result, bail};
+use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fs::{self, File};
@@ -64,12 +64,10 @@ impl Db for JsonDb {
 
         let file = File::open(path);
         match file {
-            Err(e) => {
-                match e.kind() {
-                    std::io::ErrorKind::NotFound => Ok(None),
-                    _ => bail!(e),
-                }
-            }
+            Err(e) => match e.kind() {
+                std::io::ErrorKind::NotFound => Ok(None),
+                _ => bail!(e),
+            },
             Ok(file) => {
                 let reader = BufReader::new(file);
                 let block = serde_json::from_reader(reader)?;
