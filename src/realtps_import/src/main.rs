@@ -1,13 +1,13 @@
 #![allow(unused)]
 
-use anyhow::{Result, anyhow};
-use structopt::StructOpt;
+use anyhow::{anyhow, Result};
 use ethers::prelude::*;
-use std::sync::Arc;
-use std::collections::VecDeque;
 use std::collections::HashMap;
+use std::collections::VecDeque;
+use std::sync::Arc;
+use structopt::StructOpt;
 
-use realtps_common::{Chain, Block, Db, JsonDb};
+use realtps_common::{Block, Chain, Db, JsonDb};
 
 #[derive(StructOpt, Debug)]
 struct Opt {
@@ -27,7 +27,6 @@ enum Job {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-
     let importer = make_importer().await?;
 
     let mut jobs = VecDeque::from(init_jobs());
@@ -36,7 +35,7 @@ async fn main() -> Result<()> {
         let new_jobs = importer.do_job(job).await?;
         jobs.extend(new_jobs.into_iter());
     }
-    
+
     Ok(())
 }
 
@@ -49,8 +48,14 @@ fn init_jobs() -> Vec<Job> {
 
 async fn make_importer() -> Result<Importer> {
     let eth_providers = [
-        (Chain::Ethereum, make_provider(get_rpc_url(Chain::Ethereum)).await?),
-        (Chain::Polygon, make_provider(get_rpc_url(Chain::Polygon)).await?),
+        (
+            Chain::Ethereum,
+            make_provider(get_rpc_url(Chain::Ethereum)).await?,
+        ),
+        (
+            Chain::Polygon,
+            make_provider(get_rpc_url(Chain::Polygon)).await?,
+        ),
     ];
 
     Ok(Importer {
@@ -91,10 +96,8 @@ impl Importer {
             Job::ImportMostRecent(chain) => {
                 let block_num = self.get_current_block(chain).await?;
                 Ok(self.import_block(chain, block_num).await?)
-            },
-            Job::ImportBlock(chain, block_num) => {
-                Ok(self.import_block(chain, block_num).await?)
             }
+            Job::ImportBlock(chain, block_num) => Ok(self.import_block(chain, block_num).await?),
         }
     }
 

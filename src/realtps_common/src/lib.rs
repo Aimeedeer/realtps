@@ -4,9 +4,7 @@ use std::fmt;
 use std::fs::{self, File};
 use std::io::BufWriter;
 
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(Copy, Clone, Hash)]
-#[derive(Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
 pub enum Chain {
     Ethereum,
     Polygon,
@@ -43,7 +41,6 @@ pub static JSON_DB_DIR: &'static str = "db";
 
 impl Db for JsonDb {
     fn store_block(&self, block: Block) -> Result<()> {
-
         let path = format!("{}/{}", JSON_DB_DIR, block.chain);
         fs::create_dir_all(&path)?;
 
