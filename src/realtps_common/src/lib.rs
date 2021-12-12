@@ -74,8 +74,12 @@ impl Db for JsonDb {
         }
     }
 
-    fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> { todo!() }
-    fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>> { todo!() }
+    fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> {
+        todo!()
+    }
+    fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>> {
+        todo!()
+    }
 }
 
 #[cfg(test)]
