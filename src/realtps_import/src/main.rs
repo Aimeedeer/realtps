@@ -109,6 +109,11 @@ impl Importer {
         let highest_block_number = self.db.load_highest_block_number(chain)?;
 
         if Some(head_block_number) != highest_block_number {
+
+            let initial_sync = highest_block_number.is_none();
+            const INITIAL_SYNC_BLOCKS: u64 = 100;
+            let mut synced = 0;
+
             let mut block_number = head_block_number;
 
             loop {
@@ -125,6 +130,13 @@ impl Importer {
 
                 let db = self.db.clone();
                 task::spawn_blocking(move || db.store_block(block)).await??;
+
+                synced += 1;
+
+                if initial_sync && synced == INITIAL_SYNC_BLOCKS {
+                    println!("finished initial sync for {}", chain);
+                    break;
+                }
 
                 if let Some(prev_block_number) = block_number.checked_sub(1) {
                     let db = self.db.clone();
@@ -201,7 +213,7 @@ impl Importer {
 
 async fn courtesy_delay() {
     let jitter = Uniform::from(0..100);
-    let delay_msecs = 1000 + jitter.sample(&mut rand::thread_rng());
+    let delay_msecs = 100 + jitter.sample(&mut rand::thread_rng());
     println!("delaying {} ms to retrieve next block", delay_msecs);
     let delay_time = Duration::from_millis(delay_msecs);
     time::sleep(delay_time).await
