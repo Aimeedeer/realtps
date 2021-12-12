@@ -2,6 +2,7 @@
 
 use anyhow::{anyhow, Result};
 use ethers::prelude::*;
+use ethers::utils::hex::ToHex;
 use rand::{
     self,
     distributions::{Distribution, Uniform},
@@ -237,7 +238,7 @@ fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> R
         block_number: block.number.expect("block number").as_u64(),
         timestamp: u64::try_from(block.timestamp).map_err(|e| anyhow!("{}", e))?,
         num_txs: u64::try_from(block.transactions.len())?,
-        hash: format!("{}", block.hash.expect("hash")),
-        parent_hash: format!("{}", block.parent_hash),
+        hash: block.hash.expect("hash").encode_hex(),
+        parent_hash: block.parent_hash.encode_hex(),
     })
 }
