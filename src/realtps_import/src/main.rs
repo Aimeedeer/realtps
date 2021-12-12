@@ -253,42 +253,6 @@ impl Importer {
     }
 }
 
-async fn courtesy_delay() {
-    let jitter = Uniform::from(0..100);
-    let delay_msecs = 100 + jitter.sample(&mut rand::thread_rng());
-    println!("delaying {} ms to retrieve next block", delay_msecs);
-    let delay_time = Duration::from_millis(delay_msecs);
-    time::sleep(delay_time).await
-}
-
-async fn rescan_delay(chain: Chain) {
-    let delay_secs = match chain {
-        Chain::Ethereum => 60,
-        Chain::Polygon => 10,
-    };
-    let jitter = Uniform::from(0..100);
-    let delay_msecs = 1000 * delay_secs + jitter.sample(&mut rand::thread_rng());
-    let delay_time = Duration::from_millis(delay_msecs);
-    println!("delaying {} ms to {} rescan", delay_msecs, chain);
-    time::sleep(delay_time).await
-}
-
-async fn retry_delay() {
-    let jitter = Uniform::from(0..100);
-    let delay_msecs = 100 + jitter.sample(&mut rand::thread_rng());
-    println!("delaying {} ms to retry request", delay_msecs);
-    let delay_time = Duration::from_millis(delay_msecs);
-    time::sleep(delay_time).await
-}
-
-async fn job_error_delay() {
-    let jitter = Uniform::from(0..100);
-    let delay_msecs = 1000 + jitter.sample(&mut rand::thread_rng());
-    println!("delaying {} ms to retry job", delay_msecs);
-    let delay_time = Duration::from_millis(delay_msecs);
-    time::sleep(delay_time).await
-}
-
 fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> Result<Block> {
     Ok(Block {
         chain,
@@ -299,3 +263,39 @@ fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> R
         parent_hash: block.parent_hash.encode_hex(),
     })
 }
+
+async fn delay(base_ms: u64) {
+    let jitter = Uniform::from(0..100);
+    let delay_msecs = base_ms + jitter.sample(&mut rand::thread_rng());
+    let delay_time = Duration::from_millis(delay_msecs);
+    time::sleep(delay_time).await
+}
+
+async fn courtesy_delay() {
+    let msecs = 100;
+    println!("delaying {} ms to retrieve next block", msecs);
+    delay(msecs).await
+}
+
+async fn rescan_delay(chain: Chain) {
+    let delay_secs = match chain {
+        Chain::Ethereum => 60,
+        Chain::Polygon => 10,
+    };
+    let msecs = 1000 * delay_secs;
+    println!("delaying {} ms to {} rescan", msecs, chain);
+    delay(msecs).await
+}
+
+async fn retry_delay() {
+    let msecs = 100;
+    println!("delaying {} ms to retry request", msecs);
+    delay(msecs).await
+}
+
+async fn job_error_delay() {
+    let msecs = 1000;
+    println!("delaying {} ms to retry job", msecs);
+    delay(msecs);
+}
+
