@@ -166,7 +166,7 @@ impl Importer {
     async fn do_job(&self, job: Job) -> Vec<Job> {
         let r = match job {
             Job::Import(chain) => self.import(chain).await,
-            Job::Calculate => todo!(),
+            Job::Calculate => self.calculate().await,
         };
 
         match r {
@@ -301,6 +301,19 @@ impl Importer {
     fn provider(&self, chain: Chain) -> &Provider<Http> {
         self.eth_providers.get(&chain).expect("provider")
     }
+
+    async fn calculate(&self) -> Result<Vec<Job>> {
+        use tokio::task::JoinHandle;
+        let tasks: Vec<JoinHandle<Result<()>>> = all_chains().into_iter().map(|chain| {
+            task::spawn(calculate_for_chain(self.db.clone(), chain))
+        }).collect();
+
+        todo!()
+    }
+}
+
+async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<()> {
+    todo!()
 }
 
 fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> Result<Block> {
