@@ -382,6 +382,9 @@ async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<Chain
             if prev_block.block_number == 0 {
                 break prev_block.timestamp;
             }
+
+            current_block_number = prev_block_number;
+            current_block = prev_block;
         } else {
             break current_block.timestamp;
         }
