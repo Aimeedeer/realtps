@@ -2,6 +2,7 @@
 
 use anyhow::{anyhow, Result, Context};
 use ethers::prelude::*;
+use ethers::utils::hex::ToHex;
 use rand::{
     self,
     distributions::{Distribution, Uniform},
@@ -15,6 +16,7 @@ use structopt::StructOpt;
 use tokio::task;
 use tokio::time::{self, Duration};
 use serde_derive::{Deserialize, Serialize};
+use futures::stream::{FuturesUnordered, StreamExt};
 
 #[derive(StructOpt, Debug)]
 struct Opt {
@@ -43,14 +45,34 @@ async fn main() -> Result<()> {
     let ref rpc_config = toml::from_str::<RpcConfig>(RPC_CONFIG).context("parsing RPC configuration")?;
     let importer = make_importer(rpc_config).await?;
 
-    let mut jobs = VecDeque::from(init_jobs());
+    let mut jobs = FuturesUnordered::new();
 
-    while let Some(job) = jobs.pop_front() {
-        let new_jobs = importer.do_job(job).await?;
-        jobs.extend(new_jobs.into_iter());
+    for job in init_jobs().into_iter() {
+        jobs.push(importer.do_job(job));
+    }
+
+    loop {
+        let job_result = jobs.next().await;
+        if let Some(new_jobs) = job_result {
+            for new_job in new_jobs {
+                jobs.push(importer.do_job(new_job));
+            }
+        } else {
+            println!("no more jobs?!");
+            break;
+        }
     }
 
     Ok(())
+}
+
+fn print_error(e: &anyhow::Error) {
+    eprintln!("error: {}", e);
+    let mut source = e.source();
+    while let Some(source_) = source {
+        eprintln!("source: {}", source_);
+        source = source_.source();
+    }
 }
 
 fn init_jobs() -> Vec<Job> {
@@ -100,9 +122,19 @@ struct Importer {
 }
 
 impl Importer {
-    async fn do_job(&self, job: Job) -> Result<Vec<Job>> {
-        match job {
-            Job::Import(chain) => Ok(self.import(chain).await?),
+    async fn do_job(&self, job: Job) -> Vec<Job> {
+        let r = match job {
+            Job::Import(chain) => self.import(chain).await,
+        };
+
+        match r {
+            Ok(new_jobs) => new_jobs,
+            Err(e) => {
+                print_error(&e);
+                println!("error running job. repeating");
+                job_error_delay().await;
+                vec![job]
+            }
         }
     }
 
@@ -117,22 +149,44 @@ impl Importer {
         let highest_block_number = self.db.load_highest_block_number(chain)?;
 
         if Some(head_block_number) != highest_block_number {
+
+            let initial_sync = highest_block_number.is_none();
+            const INITIAL_SYNC_BLOCKS: u64 = 100;
+            let mut synced = 0;
+
             let mut block_number = head_block_number;
 
             loop {
                 println!("fetching block {} for {}", block_number, chain);
 
                 let ethers_block_number = U64::from(block_number);
-                let block = provider
-                    .get_block(ethers_block_number)
-                    .await?
-                    .expect("block");
+
+                let block = loop {
+                    let block = provider
+                        .get_block(ethers_block_number)
+                        .await?;
+
+                    if let Some(block) = block {
+                        break block;
+                    } else {
+                        println!("received no block for number {} on chain {}", block_number, chain);
+                        retry_delay().await;
+                    }
+                };
+
                 let block = ethers_block_to_block(chain, block)?;
 
                 let parent_hash = block.parent_hash.clone();
 
                 let db = self.db.clone();
                 task::spawn_blocking(move || db.store_block(block)).await??;
+
+                synced += 1;
+
+                if initial_sync && synced == INITIAL_SYNC_BLOCKS {
+                    println!("finished initial sync for {}", chain);
+                    break;
+                }
 
                 if let Some(prev_block_number) = block_number.checked_sub(1) {
                     let db = self.db.clone();
@@ -207,12 +261,28 @@ impl Importer {
     }
 }
 
-async fn courtesy_delay() {
+fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> Result<Block> {
+    Ok(Block {
+        chain,
+        block_number: block.number.expect("block number").as_u64(),
+        timestamp: u64::try_from(block.timestamp).map_err(|e| anyhow!("{}", e))?,
+        num_txs: u64::try_from(block.transactions.len())?,
+        hash: block.hash.expect("hash").encode_hex(),
+        parent_hash: block.parent_hash.encode_hex(),
+    })
+}
+
+async fn delay(base_ms: u64) {
     let jitter = Uniform::from(0..100);
-    let delay_msecs = 1000 + jitter.sample(&mut rand::thread_rng());
-    println!("delaying {} ms to retrieve next block", delay_msecs);
+    let delay_msecs = base_ms + jitter.sample(&mut rand::thread_rng());
     let delay_time = Duration::from_millis(delay_msecs);
     time::sleep(delay_time).await
+}
+
+async fn courtesy_delay() {
+    let msecs = 100;
+    println!("delaying {} ms to retrieve next block", msecs);
+    delay(msecs).await
 }
 
 async fn rescan_delay(chain: Chain) {
@@ -220,20 +290,20 @@ async fn rescan_delay(chain: Chain) {
         Chain::Ethereum => 60,
         Chain::Polygon => 10,
     };
-    let jitter = Uniform::from(0..100);
-    let delay_msecs = 1000 * delay_secs + jitter.sample(&mut rand::thread_rng());
-    let delay_time = Duration::from_millis(delay_msecs);
-    println!("delaying {} ms to rescan", delay_msecs);
-    time::sleep(delay_time).await
+    let msecs = 1000 * delay_secs;
+    println!("delaying {} ms to {} rescan", msecs, chain);
+    delay(msecs).await
 }
 
-fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> Result<Block> {
-    Ok(Block {
-        chain,
-        block_number: block.number.expect("block number").as_u64(),
-        timestamp: u64::try_from(block.timestamp).map_err(|e| anyhow!("{}", e))?,
-        num_txs: u64::try_from(block.transactions.len())?,
-        hash: format!("{}", block.hash.expect("hash")),
-        parent_hash: format!("{}", block.parent_hash),
-    })
+async fn retry_delay() {
+    let msecs = 100;
+    println!("delaying {} ms to retry request", msecs);
+    delay(msecs).await
 }
+
+async fn job_error_delay() {
+    let msecs = 1000;
+    println!("delaying {} ms to retry job", msecs);
+    delay(msecs);
+}
+
