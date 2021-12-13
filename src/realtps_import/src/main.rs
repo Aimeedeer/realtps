@@ -20,18 +20,21 @@ use tokio::task;
 use tokio::time::{self, Duration};
 
 #[derive(StructOpt, Debug)]
-struct Opt {
+struct Opts {
     #[structopt(subcommand)]
-    cmd: Command,
+    cmd: Option<Command>,
 }
 
 #[derive(StructOpt, Debug)]
 enum Command {
-    ReadBlock { number: u64 },
+    Run,
+    Import,
+    Calculate,
 }
 
 enum Job {
     Import(Chain),
+    Calculate,
 }
 
 static RPC_CONFIG_PATH: &str = "rpc_config.toml";
@@ -43,12 +46,20 @@ struct RpcConfig {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let ref rpc_config = load_rpc_config(RPC_CONFIG_PATH)?;
-    let importer = make_importer(rpc_config).await?;
+    let opts = Opts::from_args();
+    let cmd = opts.cmd.unwrap_or(Command::Run);
+
+    let rpc_config = load_rpc_config(RPC_CONFIG_PATH)?;
+
+    Ok(run(cmd, rpc_config).await?)
+}
+
+async fn run(cmd: Command, rpc_config: RpcConfig) -> Result<()> {
+    let importer = make_importer(&rpc_config).await?;
 
     let mut jobs = FuturesUnordered::new();
 
-    for job in init_jobs().into_iter() {
+    for job in init_jobs(cmd).into_iter() {
         jobs.push(importer.do_job(job));
     }
 
@@ -84,12 +95,21 @@ fn print_error(e: &anyhow::Error) {
     }
 }
 
-fn init_jobs() -> Vec<Job> {
-    vec![
-        Job::Import(Chain::Ethereum),
-        Job::Import(Chain::Polygon),
-        Job::Import(Chain::Avalanche),
-    ]
+fn init_jobs(cmd: Command) -> Vec<Job> {
+    match cmd {
+        Command::Run | Command::Import => {
+            vec![
+                Job::Import(Chain::Ethereum),
+                Job::Import(Chain::Polygon),
+                Job::Import(Chain::Avalanche),
+            ]
+        }
+        Command::Calculate => {
+            vec![
+                Job::Calculate,
+            ]
+        }
+    }
 }
 
 async fn make_importer(rpc_config: &RpcConfig) -> Result<Importer> {
@@ -142,6 +162,7 @@ impl Importer {
     async fn do_job(&self, job: Job) -> Vec<Job> {
         let r = match job {
             Job::Import(chain) => self.import(chain).await,
+            Job::Calculate => todo!(),
         };
 
         match r {
