@@ -94,7 +94,10 @@ impl Db for JsonDb {
 
         let file = File::open(path);
         match file {
-            Err(e) => bail!(e),
+            Err(e) => match e.kind() {
+                std::io::ErrorKind::NotFound => Ok(None),
+                _ => bail!(e),
+            },
             Ok(file) => {
                 let reader = BufReader::new(file);
                 let block_number = serde_json::from_reader(reader)?;
