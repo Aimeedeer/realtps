@@ -20,7 +20,7 @@ impl TryFrom<String> for Chain {
         match value.as_str() {
             "ethereum" => Ok(Chain::Ethereum),
             "polygon" => Ok(Chain::Polygon),
-            _ => bail!("can't convert rpc_config to Chain")
+            _ => bail!("can't convert rpc_config to Chain"),
         }
     }
 }

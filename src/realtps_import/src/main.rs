@@ -1,22 +1,22 @@
 #![allow(unused)]
 
-use anyhow::{anyhow, Result, Context};
+use anyhow::{anyhow, Context, Result};
 use ethers::prelude::*;
 use ethers::utils::hex::ToHex;
+use futures::stream::{FuturesUnordered, StreamExt};
 use rand::{
     self,
     distributions::{Distribution, Uniform},
 };
 use realtps_common::{Block, Chain, Db, JsonDb};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::VecDeque;
-use std::sync::Arc;
 use std::include_str;
+use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
 use tokio::time::{self, Duration};
-use serde_derive::{Deserialize, Serialize};
-use futures::stream::{FuturesUnordered, StreamExt};
 
 #[derive(StructOpt, Debug)]
 struct Opt {
@@ -42,7 +42,8 @@ struct RpcConfig {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let ref rpc_config = toml::from_str::<RpcConfig>(RPC_CONFIG).context("parsing RPC configuration")?;
+    let ref rpc_config =
+        toml::from_str::<RpcConfig>(RPC_CONFIG).context("parsing RPC configuration")?;
     let importer = make_importer(rpc_config).await?;
 
     let mut jobs = FuturesUnordered::new();
@@ -102,7 +103,7 @@ fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
         return url;
     } else {
         todo!()
-    } 
+    }
 }
 
 async fn make_provider(rpc_url: &str) -> Result<Provider<Http>> {
@@ -149,7 +150,6 @@ impl Importer {
         let highest_block_number = self.db.load_highest_block_number(chain)?;
 
         if Some(head_block_number) != highest_block_number {
-
             let initial_sync = highest_block_number.is_none();
             const INITIAL_SYNC_BLOCKS: u64 = 100;
             let mut synced = 0;
@@ -162,14 +162,15 @@ impl Importer {
                 let ethers_block_number = U64::from(block_number);
 
                 let block = loop {
-                    let block = provider
-                        .get_block(ethers_block_number)
-                        .await?;
+                    let block = provider.get_block(ethers_block_number).await?;
 
                     if let Some(block) = block {
                         break block;
                     } else {
-                        println!("received no block for number {} on chain {}", block_number, chain);
+                        println!(
+                            "received no block for number {} on chain {}",
+                            block_number, chain
+                        );
                         retry_delay().await;
                     }
                 };
@@ -306,4 +307,3 @@ async fn job_error_delay() {
     println!("delaying {} ms to retry job", msecs);
     delay(msecs);
 }
-
