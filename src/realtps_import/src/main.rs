@@ -346,42 +346,44 @@ async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<Chain
     };
     let highest_block_number = highest_block_number.ok_or_else(|| anyhow!("no data for chain {}", chain))?;
 
-    async fn load_block_(db: &Arc<Box<dyn Db>>, chain: Chain, number: u64) -> Result<Block> {
+    async fn load_block_(db: &Arc<Box<dyn Db>>, chain: Chain, number: u64) -> Result<Option<Block>> {
         let db = db.clone();
         task::spawn_blocking(move || {
-            let block = db.load_block(chain, number)?;
-            let block = block.ok_or_else(|| anyhow!("missing block {} for chain {}", number, chain))?;
-            Ok(block)
+            db.load_block(chain, number)
         }).await?
     }
 
     let load_block = |number| load_block_(&db, chain, number);
 
-    let latest_timestamp = load_block(highest_block_number).await?.timestamp;
+    let latest_timestamp = load_block(highest_block_number).await?.expect("first block").timestamp;
 
     let seconds_per_week = 60 * 60 * 24 * 7;
     let min_timestamp = latest_timestamp.checked_sub(seconds_per_week).expect("underflow");
 
     let mut current_block_number = highest_block_number;
-    let mut current_block = load_block(current_block_number).await?;
+    let mut current_block = load_block(current_block_number).await?.expect("first_block");
 
     let mut num_txs: u64 = 0;
 
     let init_timestamp = loop {
-        num_txs = num_txs.checked_add(current_block.num_txs).expect("overflow");
-
         assert!(current_block_number != 0);
 
         let prev_block_number = current_block_number - 1;
         let prev_block = load_block(prev_block_number).await?;
 
-        assert!(prev_block.timestamp <= current_block.timestamp);
+        if let Some(prev_block) = prev_block {
+            num_txs = num_txs.checked_add(current_block.num_txs).expect("overflow");
 
-        if prev_block.timestamp <= min_timestamp {
-            break prev_block.timestamp;
-        }
-        if prev_block.block_number == 0 {
-            break prev_block.timestamp;
+            assert!(prev_block.timestamp <= current_block.timestamp);
+
+            if prev_block.timestamp <= min_timestamp {
+                break prev_block.timestamp;
+            }
+            if prev_block.block_number == 0 {
+                break prev_block.timestamp;
+            }
+        } else {
+            break current_block.timestamp;
         }
     };
 
