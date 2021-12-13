@@ -95,14 +95,18 @@ fn print_error(e: &anyhow::Error) {
     }
 }
 
+fn all_chains() -> Vec<Chain> {
+    vec![
+        Chain::Ethereum,
+        Chain::Polygon,
+        Chain::Avalanche,
+    ]
+}
+
 fn init_jobs(cmd: Command) -> Vec<Job> {
     match cmd {
         Command::Run | Command::Import => {
-            vec![
-                Job::Import(Chain::Ethereum),
-                Job::Import(Chain::Polygon),
-                Job::Import(Chain::Avalanche),
-            ]
+            all_chains().into_iter().map(Job::Import).collect()
         }
         Command::Calculate => {
             vec![
