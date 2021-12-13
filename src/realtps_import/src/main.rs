@@ -18,6 +18,7 @@ use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
 use tokio::time::{self, Duration};
+use tokio::task::JoinHandle;
 
 #[derive(StructOpt, Debug)]
 struct Opts {
@@ -303,16 +304,33 @@ impl Importer {
     }
 
     async fn calculate(&self) -> Result<Vec<Job>> {
-        use tokio::task::JoinHandle;
-        let tasks: Vec<JoinHandle<Result<()>>> = all_chains().into_iter().map(|chain| {
-            task::spawn(calculate_for_chain(self.db.clone(), chain))
+        let tasks: Vec<(Chain, JoinHandle<Result<ChainCalcs>>)> = all_chains().into_iter().map(|chain| {
+            let calc_future = calculate_for_chain(self.db.clone(), chain);
+            (chain, task::spawn(calc_future))
         }).collect();
 
-        todo!()
+        for (chain, task) in tasks {
+            let res = task.await;
+            match res {
+                Ok(calcs) => {
+                    // todo
+                }
+                Err(e) => {
+                    print_error(&anyhow::Error::from(e));
+                    println!("error calculating for {}", chain);
+                }
+            }
+        }
+
+        recalculate_delay().await;
+
+        Ok(vec![Job::Calculate])
     }
 }
 
-async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<()> {
+struct ChainCalcs;
+
+async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<ChainCalcs> {
     todo!()
 }
 
@@ -360,5 +378,11 @@ async fn retry_delay() {
 async fn job_error_delay() {
     let msecs = 1000;
     println!("delaying {} ms to retry job", msecs);
+    delay(msecs);
+}
+
+async fn recalculate_delay() {
+    let msecs = 1000;
+    println!("delaying {} ms before recaclulating", msecs);
     delay(msecs);
 }
