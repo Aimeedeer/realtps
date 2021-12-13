@@ -12,12 +12,12 @@ use realtps_common::{Block, Chain, Db, JsonDb};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::VecDeque;
+use std::fs;
+use std::path::Path;
 use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
 use tokio::time::{self, Duration};
-use std::path::Path;
-use std::fs;
 
 #[derive(StructOpt, Debug)]
 struct Opt {
@@ -69,7 +69,8 @@ async fn main() -> Result<()> {
 
 fn load_rpc_config<P: AsRef<Path>>(path: P) -> Result<RpcConfig> {
     let rpc_config_file = fs::read_to_string(path)?;
-    let rpc_config = toml::from_str::<RpcConfig>(&rpc_config_file).context("parsing RPC configuration")?;
+    let rpc_config =
+        toml::from_str::<RpcConfig>(&rpc_config_file).context("parsing RPC configuration")?;
 
     Ok(rpc_config)
 }
