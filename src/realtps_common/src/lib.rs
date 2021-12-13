@@ -88,9 +88,9 @@ impl Db for JsonDb {
         let mut writer = BufWriter::new(file);
         serde_json::to_writer(&mut writer, &block_number)?;
 
-        Ok(()) 
+        Ok(())
     }
-    
+
     fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>> {
         let path = format!("{}/{}/{}", JSON_DB_DIR, chain, HIGHEST_BLOCK_NUMBER);
 
