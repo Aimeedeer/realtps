@@ -38,8 +38,6 @@ pub trait Db: Send + Sync + 'static {
 
     fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()>;
     fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>>;
-    fn store_lowest_block_number(&self, chain: Chain, block_number: u64) -> Result<()>;
-    fn load_lowest_block_number(&self, chain: Chain) -> Result<Option<u64>>;
 }
 
 pub struct JsonDb;
@@ -103,12 +101,6 @@ impl Db for JsonDb {
                 Ok(Some(block_number))
             }
         }
-    }
-    fn store_lowest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> {
-        todo!()
-    }
-    fn load_lowest_block_number(&self, chain: Chain) -> Result<Option<u64>> {
-        todo!()
     }
 }
 
