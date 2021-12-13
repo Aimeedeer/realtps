@@ -125,24 +125,15 @@ fn init_jobs(cmd: Command) -> Vec<Job> {
 }
 
 async fn make_importer(rpc_config: &RpcConfig) -> Result<Importer> {
-    let eth_providers = [
-        (
-            Chain::Ethereum,
-            make_provider(get_rpc_url(&Chain::Ethereum, rpc_config)).await?,
-        ),
-        (
-            Chain::Polygon,
-            make_provider(get_rpc_url(&Chain::Polygon, rpc_config)).await?,
-        ),
-        (
-            Chain::Avalanche,
-            make_provider(get_rpc_url(&Chain::Avalanche, rpc_config)).await?,
-        ),
-    ];
+    let mut eth_providers = HashMap::new();
+    for chain in all_chains() {
+        let provider = make_provider(chain, get_rpc_url(&chain, rpc_config)).await?;
+        eth_providers.insert(chain, provider);
+    }
 
     Ok(Importer {
         db: Arc::new(Box::new(JsonDb)),
-        eth_providers: eth_providers.into_iter().collect(),
+        eth_providers,
     })
 }
 
@@ -154,8 +145,8 @@ fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
     }
 }
 
-async fn make_provider(rpc_url: &str) -> Result<Provider<Http>> {
-    println!("creating ethers provider for {}", rpc_url);
+async fn make_provider(chain: Chain, rpc_url: &str) -> Result<Provider<Http>> {
+    println!("creating ethers provider for {} at {}", chain, rpc_url);
 
     let provider = Provider::<Http>::try_from(rpc_url)?;
 
@@ -437,9 +428,6 @@ async fn courtesy_delay() {
 
 async fn rescan_delay(chain: Chain) {
     let delay_secs = match chain {
-        Chain::Ethereum => 60,
-        Chain::Polygon => 10,
-        Chain::Avalanche => 10,
         _ => 30, /* todo */
     };
     let msecs = 1000 * delay_secs;
