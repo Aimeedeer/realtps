@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fs::{self, File};
 use std::io::{BufReader, BufWriter};
+use std::path::Path;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
 pub enum Chain {
@@ -44,13 +45,14 @@ pub trait Db: Send + Sync + 'static {
 pub struct JsonDb;
 
 pub static JSON_DB_DIR: &'static str = "db";
+pub static HIGHEST_BLOCK_NUMBER: &'static str = "heighest_block_number";
 
 impl Db for JsonDb {
     fn store_block(&self, block: Block) -> Result<()> {
         let path = format!("{}/{}", JSON_DB_DIR, block.chain);
-        fs::create_dir_all(&path)?;
+        fs::create_dir_all(path)?;
 
-        let path = format!("{}/{}", path, block.block_number);
+        let path = format!("{}/{}/{}", JSON_DB_DIR, block.chain, block.block_number);
         let file = File::create(path)?;
 
         let mut writer = BufWriter::new(file);
@@ -77,10 +79,30 @@ impl Db for JsonDb {
     }
 
     fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> {
-        todo!()
+        let path = format!("{}/{}", JSON_DB_DIR, chain);
+        fs::create_dir_all(path)?;
+
+        let path = format!("{}/{}/{}", JSON_DB_DIR, chain, HIGHEST_BLOCK_NUMBER);
+        let file = File::create(path)?;
+
+        let mut writer = BufWriter::new(file);
+        serde_json::to_writer(&mut writer, &block_number)?;
+
+        Ok(()) 
     }
+    
     fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>> {
-        todo!()
+        let path = format!("{}/{}/{}", JSON_DB_DIR, chain, HIGHEST_BLOCK_NUMBER);
+
+        let file = File::open(path);
+        match file {
+            Err(e) => bail!(e),
+            Ok(file) => {
+                let reader = BufReader::new(file);
+                let block_number = serde_json::from_reader(reader)?;
+                Ok(Some(block_number))
+            }
+        }
     }
     fn store_lowest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> {
         todo!()
