@@ -339,7 +339,7 @@ async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<Chain
     };
     let highest_block_number = highest_block_number.ok_or_else(|| anyhow!("no data for chain {}", chain))?;
 
-    async fn load_block(db: &Arc<Box<dyn Db>>, chain: Chain, number: u64) -> Result<Block> {
+    async fn load_block_(db: &Arc<Box<dyn Db>>, chain: Chain, number: u64) -> Result<Block> {
         let db = db.clone();
         task::spawn_blocking(move || {
             let block = db.load_block(chain, number)?;
@@ -348,7 +348,9 @@ async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<Chain
         }).await?
     }
 
-    let latest_timestamp = load_block(&db, chain, highest_block_number).await?.timestamp;
+    let load_block = |number| load_block_(&db, chain, number);
+
+    let latest_timestamp = load_block(highest_block_number).await?.timestamp;
 
     let seconds_per_week = 60 * 60 * 24 * 7;
     let min_timestamp = latest_timestamp.checked_sub(seconds_per_week).expect("underflow");
