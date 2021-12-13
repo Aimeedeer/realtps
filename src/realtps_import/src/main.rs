@@ -85,7 +85,11 @@ fn print_error(e: &anyhow::Error) {
 }
 
 fn init_jobs() -> Vec<Job> {
-    vec![Job::Import(Chain::Ethereum), Job::Import(Chain::Polygon)]
+    vec![
+        Job::Import(Chain::Ethereum),
+        Job::Import(Chain::Polygon),
+        Job::Import(Chain::Avalanche),
+    ]
 }
 
 async fn make_importer(rpc_config: &RpcConfig) -> Result<Importer> {
@@ -97,6 +101,10 @@ async fn make_importer(rpc_config: &RpcConfig) -> Result<Importer> {
         (
             Chain::Polygon,
             make_provider(get_rpc_url(&Chain::Polygon, rpc_config)).await?,
+        ),
+        (
+            Chain::Avalanche,
+            make_provider(get_rpc_url(&Chain::Avalanche, rpc_config)).await?,
         ),
     ];
 
@@ -298,6 +306,7 @@ async fn rescan_delay(chain: Chain) {
     let delay_secs = match chain {
         Chain::Ethereum => 60,
         Chain::Polygon => 10,
+        Chain::Avalanche => 10,
     };
     let msecs = 1000 * delay_secs;
     println!("delaying {} ms to {} rescan", msecs, chain);

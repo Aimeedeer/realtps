@@ -12,6 +12,7 @@ use std::path::Path;
 pub enum Chain {
     Ethereum,
     Polygon,
+    Avalanche,
 }
 
 impl TryFrom<String> for Chain {
@@ -20,7 +21,8 @@ impl TryFrom<String> for Chain {
         match value.as_str() {
             "ethereum" => Ok(Chain::Ethereum),
             "polygon" => Ok(Chain::Polygon),
-            _ => bail!("can't convert rpc_config to Chain"),
+            "avalanche" => Ok(Chain::Avalanche),
+            _ => bail!("failed parsing rpc_config chain name"),
         }
     }
 }
@@ -30,6 +32,7 @@ impl fmt::Display for Chain {
         match self {
             Chain::Ethereum => write!(f, "ethereum"),
             Chain::Polygon => write!(f, "polygon"),
+            Chain::Avalanche => write!(f, "avalanche"),
         }
     }
 }
