@@ -2,4 +2,10 @@
 ethereum = "https://mainnet.infura.io/v3/c60b0bb42f8a4c6481ecd229eddaca27"
 polygon = "https://polygon-rpc.com"
 avalanche = "https://api.avax.network/ext/bc/C/rpc"
-
+celo = "https://forno.celo.org"
+fantom = "https://rpc.ftm.tools/"
+moonriver = "https://rpc.moonriver.moonbeam.network"
+arbitrum = "https://arb1.arbitrum.io/rpc"
+binance = "https://bsc-dataseed.binance.org"
+harmony = "https://api.harmony.one"
+rootstock = "https://public-node.rsk.co"

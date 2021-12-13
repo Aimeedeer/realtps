@@ -101,6 +101,13 @@ fn all_chains() -> Vec<Chain> {
         Chain::Ethereum,
         Chain::Polygon,
         Chain::Avalanche,
+        Chain::Celo,
+        Chain::Fantom,
+        Chain::Moonriver,
+        Chain::Arbitrum,
+        Chain::Binance,
+        Chain::Harmony,
+        Chain::Rootstock,
     ]
 }
 
@@ -433,6 +440,7 @@ async fn rescan_delay(chain: Chain) {
         Chain::Ethereum => 60,
         Chain::Polygon => 10,
         Chain::Avalanche => 10,
+        _ => 30, /* todo */
     };
     let msecs = 1000 * delay_secs;
     println!("delaying {} ms to {} rescan", msecs, chain);

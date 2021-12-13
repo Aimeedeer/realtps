@@ -14,6 +14,13 @@ pub enum Chain {
     Ethereum,
     Polygon,
     Avalanche,
+    Celo,
+    Fantom,
+    Moonriver,
+    Arbitrum,
+    Binance,
+    Harmony,
+    Rootstock,
 }
 
 impl TryFrom<String> for Chain {
@@ -23,6 +30,13 @@ impl TryFrom<String> for Chain {
             "ethereum" => Ok(Chain::Ethereum),
             "polygon" => Ok(Chain::Polygon),
             "avalanche" => Ok(Chain::Avalanche),
+            "celo" => Ok(Chain::Celo),
+            "fantom" => Ok(Chain::Fantom),
+            "moonriver" => Ok(Chain::Moonriver),
+            "arbitrum" => Ok(Chain::Arbitrum),
+            "binance" => Ok(Chain::Binance),
+            "harmony" => Ok(Chain::Harmony),
+            "rootstock" => Ok(Chain::Rootstock),
             chain => bail!("failed parsing chain name {}", chain),
         }
     }
@@ -34,6 +48,13 @@ impl fmt::Display for Chain {
             Chain::Ethereum => write!(f, "ethereum"),
             Chain::Polygon => write!(f, "polygon"),
             Chain::Avalanche => write!(f, "avalanche"),
+            Chain::Celo => write!(f, "celo"),
+            Chain::Fantom => write!(f, "fantom"),
+            Chain::Moonriver => write!(f, "moonriver"),
+            Chain::Arbitrum => write!(f, "arbitrum"),
+            Chain::Binance => write!(f, "binance"),
+            Chain::Harmony => write!(f, "harmony"),
+            Chain::Rootstock => write!(f, "rootstock"),
         }
     }
 }
