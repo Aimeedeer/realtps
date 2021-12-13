@@ -331,6 +331,21 @@ impl Importer {
 struct ChainCalcs;
 
 async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<ChainCalcs> {
+    let highest_block_number = db.load_highest_block_number(chain)?;
+    let highest_block_number = highest_block_number.ok_or_else(|| anyhow!("no data for chain {}", chain))?;
+
+    let latest_timestamp = {
+        let block = db.load_block(chain, highest_block_number)?;
+        let block = block.ok_or_else(|| anyhow!("missing block {} for chain {}", highest_block_number, chain))?;
+        block.timestamp
+    };
+
+    let seconds_per_week = 60 * 60 * 24 * 7;
+    let min_timestamp = latest_timestamp.checked_sub(seconds_per_week).expect("underflow");
+
+    loop {
+    }
+
     todo!()
 }
 
