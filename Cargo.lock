@@ -2014,8 +2014,11 @@ dependencies = [
  "ethers",
  "rand",
  "realtps_common",
+ "serde",
+ "serde_derive",
  "structopt",
  "tokio",
+ "toml",
 ]
 
 [[package]]

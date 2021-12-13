@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Result, Context};
 use ethers::prelude::*;
 use rand::{
     self,
@@ -10,9 +10,11 @@ use realtps_common::{Block, Chain, Db, JsonDb};
 use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::sync::Arc;
+use std::include_str;
 use structopt::StructOpt;
 use tokio::task;
 use tokio::time::{self, Duration};
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(StructOpt, Debug)]
 struct Opt {
@@ -29,9 +31,17 @@ enum Job {
     Import(Chain),
 }
 
+static RPC_CONFIG: &str = include_str!("../../../rpc_config.toml");
+
+#[derive(Deserialize, Serialize)]
+struct RpcConfig {
+    chains: HashMap<Chain, String>,
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
-    let importer = make_importer().await?;
+    let ref rpc_config = toml::from_str::<RpcConfig>(RPC_CONFIG).context("parsing RPC configuration")?;
+    let importer = make_importer(rpc_config).await?;
 
     let mut jobs = VecDeque::from(init_jobs());
 
@@ -47,15 +57,15 @@ fn init_jobs() -> Vec<Job> {
     vec![Job::Import(Chain::Ethereum), Job::Import(Chain::Polygon)]
 }
 
-async fn make_importer() -> Result<Importer> {
+async fn make_importer(rpc_config: &RpcConfig) -> Result<Importer> {
     let eth_providers = [
         (
             Chain::Ethereum,
-            make_provider(get_rpc_url(Chain::Ethereum)).await?,
+            make_provider(get_rpc_url(&Chain::Ethereum, rpc_config)).await?,
         ),
         (
             Chain::Polygon,
-            make_provider(get_rpc_url(Chain::Polygon)).await?,
+            make_provider(get_rpc_url(&Chain::Polygon, rpc_config)).await?,
         ),
     ];
 
@@ -65,14 +75,12 @@ async fn make_importer() -> Result<Importer> {
     })
 }
 
-static ETHEREUM_MAINNET_RPC: &str = "https://mainnet.infura.io/v3/c60b0bb42f8a4c6481ecd229eddaca27";
-static POLYGON_MAINNET_RPC: &str = "https://polygon-rpc.com/";
-
-fn get_rpc_url(chain: Chain) -> &'static str {
-    match chain {
-        Chain::Ethereum => ETHEREUM_MAINNET_RPC,
-        Chain::Polygon => POLYGON_MAINNET_RPC,
-    }
+fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
+    if let Some(url) = rpc_config.chains.get(chain) {
+        return url;
+    } else {
+        todo!()
+    } 
 }
 
 async fn make_provider(rpc_url: &str) -> Result<Provider<Http>> {

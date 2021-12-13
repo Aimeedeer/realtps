@@ -1,0 +1,3 @@
+[chains]
+ethereum = "https://mainnet.infura.io/v3/c60b0bb42f8a4c6481ecd229eddaca27"
+polygon = "https://polygon-rpc.com/"

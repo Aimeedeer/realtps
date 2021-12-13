@@ -8,9 +8,21 @@ use std::io::{BufReader, BufWriter};
 use std::path::Path;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
+#[serde(try_from = "String")]
 pub enum Chain {
     Ethereum,
     Polygon,
+}
+
+impl TryFrom<String> for Chain {
+    type Error = anyhow::Error;
+    fn try_from(value: String) -> Result<Self> {
+        match value.as_str() {
+            "ethereum" => Ok(Chain::Ethereum),
+            "polygon" => Ok(Chain::Polygon),
+            _ => bail!("can't convert rpc_config to Chain")
+        }
+    }
 }
 
 impl fmt::Display for Chain {
