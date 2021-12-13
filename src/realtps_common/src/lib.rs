@@ -62,6 +62,7 @@ pub struct JsonDb;
 
 pub static JSON_DB_DIR: &str = "db";
 pub static HIGHEST_BLOCK_NUMBER: &str = "heighest_block_number";
+pub static TRANSACTIONS_PER_SECOND: &str = "tps";
 
 impl Db for JsonDb {
     fn store_block(&self, block: Block) -> Result<()> {
@@ -125,7 +126,16 @@ impl Db for JsonDb {
     }
 
     fn store_tps(&self, chain: Chain, tps: f64) -> Result<()> {
-        todo!()
+        let path = format!("{}/{}", JSON_DB_DIR, chain);
+        fs::create_dir_all(path)?;
+
+        let path = format!("{}/{}/{}", JSON_DB_DIR, chain, TRANSACTIONS_PER_SECOND);
+        let file = File::create(path)?;
+
+        let mut writer = BufWriter::new(file);
+        serde_json::to_writer(&mut writer, &tps)?;
+
+        Ok(())
     }
 
     fn load_tps(&self, chain: Chain) -> Result<Option<f64>> {
