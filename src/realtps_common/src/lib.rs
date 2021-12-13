@@ -9,6 +9,7 @@ use std::path::Path;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
 #[serde(try_from = "String")]
+#[serde(rename_all = "lowercase")]
 pub enum Chain {
     Ethereum,
     Polygon,
@@ -22,7 +23,7 @@ impl TryFrom<String> for Chain {
             "ethereum" => Ok(Chain::Ethereum),
             "polygon" => Ok(Chain::Polygon),
             "avalanche" => Ok(Chain::Avalanche),
-            _ => bail!("failed parsing rpc_config chain name"),
+            chain => bail!("failed parsing chain name {}", chain),
         }
     }
 }
