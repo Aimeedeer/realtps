@@ -310,10 +310,14 @@ impl Importer {
         }).collect();
 
         for (chain, task) in tasks {
-            let res = task.await;
+            let res = task.await?;
             match res {
                 Ok(calcs) => {
-                    // todo
+                    println!("calculated {} tps for chain {}", calcs.tps, calcs.chain);
+                    let db = self.db.clone();
+                    task::spawn_blocking(move || {
+                        db.store_tps(calcs.chain, calcs.tps)
+                    }).await??;
                 }
                 Err(e) => {
                     print_error(&anyhow::Error::from(e));

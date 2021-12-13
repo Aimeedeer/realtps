@@ -53,6 +53,9 @@ pub trait Db: Send + Sync + 'static {
 
     fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()>;
     fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>>;
+
+    fn store_tps(&self, chain: Chain, tps: f64) -> Result<()>;
+    fn load_tps(&self, chain: Chain) -> Result<Option<f64>>;
 }
 
 pub struct JsonDb;
@@ -119,6 +122,14 @@ impl Db for JsonDb {
                 Ok(Some(block_number))
             }
         }
+    }
+
+    fn store_tps(&self, chain: Chain, tps: f64) -> Result<()> {
+        todo!()
+    }
+
+    fn load_tps(&self, chain: Chain) -> Result<Option<f64>> {
+        todo!()
     }
 }
 
