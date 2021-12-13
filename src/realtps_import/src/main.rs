@@ -12,11 +12,12 @@ use realtps_common::{Block, Chain, Db, JsonDb};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::VecDeque;
-use std::include_str;
 use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
 use tokio::time::{self, Duration};
+use std::path::Path;
+use std::fs;
 
 #[derive(StructOpt, Debug)]
 struct Opt {
@@ -33,7 +34,7 @@ enum Job {
     Import(Chain),
 }
 
-static RPC_CONFIG: &str = include_str!("../../../rpc_config.toml");
+static RPC_CONFIG_PATH: &str = "rpc_config.toml";
 
 #[derive(Deserialize, Serialize)]
 struct RpcConfig {
@@ -42,8 +43,7 @@ struct RpcConfig {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let ref rpc_config =
-        toml::from_str::<RpcConfig>(RPC_CONFIG).context("parsing RPC configuration")?;
+    let ref rpc_config = load_rpc_config(RPC_CONFIG_PATH)?;
     let importer = make_importer(rpc_config).await?;
 
     let mut jobs = FuturesUnordered::new();
@@ -65,6 +65,13 @@ async fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+fn load_rpc_config<P: AsRef<Path>>(path: P) -> Result<RpcConfig> {
+    let rpc_config_file = fs::read_to_string(path)?;
+    let rpc_config = toml::from_str::<RpcConfig>(&rpc_config_file).context("parsing RPC configuration")?;
+
+    Ok(rpc_config)
 }
 
 fn print_error(e: &anyhow::Error) {
