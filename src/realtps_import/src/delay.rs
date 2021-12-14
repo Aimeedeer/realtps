@@ -1,3 +1,4 @@
+use log::debug;
 use tokio::time::{self, Duration};
 use rand::{
     self,
@@ -13,31 +14,31 @@ async fn delay(base_ms: u64) {
 
 pub async fn courtesy_delay() {
     let msecs = 100;
-    println!("delaying {} ms to retrieve next block", msecs);
+    debug!("delaying {} ms to retrieve next block", msecs);
     delay(msecs).await
 }
 
 pub async fn rescan_delay() {
     let delay_secs = 30;
     let msecs = 1000 * delay_secs;
-    println!("delaying {} ms to rescan", msecs);
+    debug!("delaying {} ms to rescan", msecs);
     delay(msecs).await
 }
 
 pub async fn retry_delay() {
     let msecs = 100;
-    println!("delaying {} ms to retry request", msecs);
+    debug!("delaying {} ms to retry request", msecs);
     delay(msecs).await
 }
 
 pub async fn job_error_delay() {
     let msecs = 1000;
-    println!("delaying {} ms to retry job", msecs);
+    debug!("delaying {} ms to retry job", msecs);
     delay(msecs);
 }
 
 pub async fn recalculate_delay() {
     let msecs = 1000;
-    println!("delaying {} ms before recaclulating", msecs);
+    debug!("delaying {} ms before recaclulating", msecs);
     delay(msecs);
 }

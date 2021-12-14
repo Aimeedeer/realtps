@@ -1,5 +1,6 @@
 #![allow(unused)]
 
+use log::{error, debug, info, warn};
 use anyhow::{anyhow, Context, Result};
 use ethers::prelude::*;
 use ethers::utils::hex::ToHex;
@@ -44,6 +45,8 @@ struct RpcConfig {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    env_logger::init();
+    
     let opts = Opts::from_args();
     let cmd = opts.cmd.unwrap_or(Command::Run);
 
@@ -68,7 +71,7 @@ async fn run(cmd: Command, rpc_config: RpcConfig) -> Result<()> {
                 jobs.push(importer.do_job(new_job));
             }
         } else {
-            println!("no more jobs?!");
+            error!("no more jobs?!");
             break;
         }
     }
@@ -85,10 +88,10 @@ fn load_rpc_config<P: AsRef<Path>>(path: P) -> Result<RpcConfig> {
 }
 
 fn print_error(e: &anyhow::Error) {
-    eprintln!("error: {}", e);
+    error!("error: {}", e);
     let mut source = e.source();
     while let Some(source_) = source {
-        eprintln!("source: {}", source_);
+        error!("source: {}", source_);
         source = source_.source();
     }
 }
@@ -143,12 +146,12 @@ fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
 }
 
 async fn make_provider(chain: Chain, rpc_url: &str) -> Result<Provider<Http>> {
-    println!("creating ethers provider for {} at {}", chain, rpc_url);
+    info!("creating ethers provider for {} at {}", chain, rpc_url);
 
     let provider = Provider::<Http>::try_from(rpc_url)?;
 
     let version = provider.client_version().await?;
-    println!("node version: {}", version);
+    info!("node version: {}", version);
 
     Ok(provider)
 }
@@ -169,7 +172,7 @@ impl Importer {
             Ok(new_jobs) => new_jobs,
             Err(e) => {
                 print_error(&e);
-                println!("error running job. repeating");
+                error!("error running job. repeating");
                 delay::job_error_delay().await;
                 vec![job]
             }
@@ -177,12 +180,12 @@ impl Importer {
     }
 
     async fn import(&self, chain: Chain) -> Result<Vec<Job>> {
-        println!("beginning import for {}", chain);
+        info!("beginning import for {}", chain);
 
         let provider = self.provider(chain);
         let head_block_number = provider.get_block_number().await?;
         let head_block_number = head_block_number.as_u64();
-        println!("head block number: {}", head_block_number);
+        debug!("head block number: {}", head_block_number);
 
         let highest_block_number = self.db.load_highest_block_number(chain)?;
 
@@ -194,7 +197,7 @@ impl Importer {
             let mut block_number = head_block_number;
 
             loop {
-                println!("fetching block {} for {}", block_number, chain);
+                debug!("fetching block {} for {}", block_number, chain);
 
                 let ethers_block_number = U64::from(block_number);
 
@@ -204,7 +207,7 @@ impl Importer {
                     if let Some(block) = block {
                         break block;
                     } else {
-                        println!(
+                        debug!(
                             "received no block for number {} on chain {}",
                             block_number, chain
                         );
@@ -222,7 +225,7 @@ impl Importer {
                 synced += 1;
 
                 if initial_sync && synced == INITIAL_SYNC_BLOCKS {
-                    println!("finished initial sync for {}", chain);
+                    info!("finished initial sync for {}", chain);
                     break;
                 }
 
@@ -234,7 +237,7 @@ impl Importer {
 
                     if let Some(prev_block) = prev_block {
                         if prev_block.hash != parent_hash {
-                            println!(
+                            warn!(
                                 "reorg of chain {} at block {}; old hash: {}; new hash: {}",
                                 chain, prev_block_number, prev_block.hash, parent_hash
                             );
@@ -242,13 +245,13 @@ impl Importer {
                         } else {
                             if let Some(highest_block_number) = highest_block_number {
                                 if prev_block_number <= highest_block_number {
-                                    println!(
+                                    info!(
                                         "completed import of chain {} to block {} / {}",
                                         chain, prev_block_number, parent_hash
                                     );
                                     break;
                                 } else {
-                                    println!(
+                                    warn!(
                                         "found incomplete previous import for {} at block {}",
                                         chain, prev_block_number
                                     );
@@ -257,7 +260,7 @@ impl Importer {
                                     // continue
                                 }
                             } else {
-                                println!(
+                                warn!(
                                     "found incomplete previous import for {} at block {}",
                                     chain, prev_block_number
                                 );
@@ -270,14 +273,14 @@ impl Importer {
                         // continue - don't have the prev block
                     }
 
-                    println!("still need block {} for {}", prev_block_number, chain);
+                    debug!("still need block {} for {}", prev_block_number, chain);
                     block_number = prev_block_number;
 
                     delay::courtesy_delay().await;
 
                     continue;
                 } else {
-                    println!("completed import of chain {} to genesis", chain);
+                    info!("completed import of chain {} to genesis", chain);
                     break;
                 }
             }
@@ -286,7 +289,7 @@ impl Importer {
             task::spawn_blocking(move || db.store_highest_block_number(chain, head_block_number))
                 .await??;
         } else {
-            println!("no new blocks for {}", chain);
+            info!("no new blocks for {}", chain);
         }
 
         delay::rescan_delay().await;
@@ -308,7 +311,7 @@ impl Importer {
             let res = task.await?;
             match res {
                 Ok(calcs) => {
-                    println!("calculated {} tps for chain {}", calcs.tps, calcs.chain);
+                    info!("calculated {} tps for chain {}", calcs.tps, calcs.chain);
                     let db = self.db.clone();
                     task::spawn_blocking(move || {
                         db.store_tps(calcs.chain, calcs.tps)
@@ -316,7 +319,7 @@ impl Importer {
                 }
                 Err(e) => {
                     print_error(&anyhow::Error::from(e));
-                    println!("error calculating for {}", chain);
+                    error!("error calculating for {}", chain);
                 }
             }
         }
