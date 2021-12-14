@@ -126,11 +126,7 @@ fn init_jobs(cmd: Command) -> Vec<Job> {
 }
 
 async fn make_importer(rpc_config: &RpcConfig) -> Result<Importer> {
-    let mut eth_providers = HashMap::new();
-    for chain in all_chains() {
-        let provider = make_provider(chain, get_rpc_url(&chain, rpc_config)).await?;
-        eth_providers.insert(chain, provider);
-    }
+    let eth_providers = make_all_providers(rpc_config).await?;
 
     Ok(Importer {
         db: Arc::new(Box::new(JsonDb)),
@@ -144,6 +140,16 @@ fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
     } else {
         todo!()
     }
+}
+
+async fn make_all_providers(rpc_config: &RpcConfig) -> Result<HashMap<Chain, Provider<Http>>> {
+    let mut eth_providers = HashMap::new();
+    for chain in all_chains() {
+        let provider = make_provider(chain, get_rpc_url(&chain, rpc_config)).await?;
+        eth_providers.insert(chain, provider);
+    }
+
+    Ok(eth_providers)
 }
 
 async fn make_provider(chain: Chain, rpc_url: &str) -> Result<Provider<Http>> {
