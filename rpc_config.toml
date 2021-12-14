@@ -1,5 +1,7 @@
+# https://rpc.info/
+
 [chains]
-ethereum = "https://mainnet.infura.io/v3/c60b0bb42f8a4c6481ecd229eddaca27"
+ethereum = "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
 polygon = "https://polygon-rpc.com"
 avalanche = "https://api.avax.network/ext/bc/C/rpc"
 celo = "https://forno.celo.org"

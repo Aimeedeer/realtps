@@ -13,7 +13,7 @@ async fn delay(base_ms: u64) {
 }
 
 pub async fn courtesy_delay() {
-    let msecs = 100;
+    let msecs = 200;
     debug!("delaying {} ms to retrieve next block", msecs);
     delay(msecs).await
 }
