@@ -4,10 +4,6 @@ use anyhow::{anyhow, Context, Result};
 use ethers::prelude::*;
 use ethers::utils::hex::ToHex;
 use futures::stream::{FuturesUnordered, StreamExt};
-use rand::{
-    self,
-    distributions::{Distribution, Uniform},
-};
 use realtps_common::{Block, Chain, Db, JsonDb};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -17,8 +13,9 @@ use std::path::Path;
 use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
-use tokio::time::{self, Duration};
 use tokio::task::JoinHandle;
+
+mod delay;
 
 #[derive(StructOpt, Debug)]
 struct Opts {
@@ -173,7 +170,7 @@ impl Importer {
             Err(e) => {
                 print_error(&e);
                 println!("error running job. repeating");
-                job_error_delay().await;
+                delay::job_error_delay().await;
                 vec![job]
             }
         }
@@ -211,7 +208,7 @@ impl Importer {
                             "received no block for number {} on chain {}",
                             block_number, chain
                         );
-                        retry_delay().await;
+                        delay::retry_delay().await;
                     }
                 };
 
@@ -276,7 +273,7 @@ impl Importer {
                     println!("still need block {} for {}", prev_block_number, chain);
                     block_number = prev_block_number;
 
-                    courtesy_delay().await;
+                    delay::courtesy_delay().await;
 
                     continue;
                 } else {
@@ -292,7 +289,7 @@ impl Importer {
             println!("no new blocks for {}", chain);
         }
 
-        rescan_delay().await;
+        delay::rescan_delay().await;
 
         Ok(vec![Job::Import(chain)])
     }
@@ -324,7 +321,7 @@ impl Importer {
             }
         }
 
-        recalculate_delay().await;
+        delay::recalculate_delay().await;
 
         Ok(vec![Job::Calculate])
     }
@@ -411,42 +408,4 @@ fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> R
         hash: block.hash.expect("hash").encode_hex(),
         parent_hash: block.parent_hash.encode_hex(),
     })
-}
-
-async fn delay(base_ms: u64) {
-    let jitter = Uniform::from(0..100);
-    let delay_msecs = base_ms + jitter.sample(&mut rand::thread_rng());
-    let delay_time = Duration::from_millis(delay_msecs);
-    time::sleep(delay_time).await
-}
-
-async fn courtesy_delay() {
-    let msecs = 100;
-    println!("delaying {} ms to retrieve next block", msecs);
-    delay(msecs).await
-}
-
-async fn rescan_delay() {
-    let delay_secs = 30;
-    let msecs = 1000 * delay_secs;
-    println!("delaying {} ms to rescan", msecs);
-    delay(msecs).await
-}
-
-async fn retry_delay() {
-    let msecs = 100;
-    println!("delaying {} ms to retry request", msecs);
-    delay(msecs).await
-}
-
-async fn job_error_delay() {
-    let msecs = 1000;
-    println!("delaying {} ms to retry job", msecs);
-    delay(msecs);
-}
-
-async fn recalculate_delay() {
-    let msecs = 1000;
-    println!("delaying {} ms before recaclulating", msecs);
-    delay(msecs);
 }
