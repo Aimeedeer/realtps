@@ -292,7 +292,7 @@ impl Importer {
             println!("no new blocks for {}", chain);
         }
 
-        rescan_delay(chain).await;
+        rescan_delay().await;
 
         Ok(vec![Job::Import(chain)])
     }
@@ -426,12 +426,10 @@ async fn courtesy_delay() {
     delay(msecs).await
 }
 
-async fn rescan_delay(chain: Chain) {
-    let delay_secs = match chain {
-        _ => 30, /* todo */
-    };
+async fn rescan_delay() {
+    let delay_secs = 30;
     let msecs = 1000 * delay_secs;
-    println!("delaying {} ms to {} rescan", msecs, chain);
+    println!("delaying {} ms to rescan", msecs);
     delay(msecs).await
 }
 
