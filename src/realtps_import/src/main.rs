@@ -186,9 +186,18 @@ impl Importer {
         let provider = self.provider(chain);
         let head_block_number = provider.get_block_number().await?;
         let head_block_number = head_block_number.as_u64();
-        debug!("head block number: {}", head_block_number);
+        debug!("head block number for {}: {}", chain, head_block_number);
 
         let highest_block_number = self.db.load_highest_block_number(chain)?;
+
+        if let Some(highest_block_number) = highest_block_number {
+            debug!("highest block number for {}: {}", chain, highest_block_number);
+            assert!(head_block_number >= highest_block_number);
+            let needed_blocks = head_block_number - highest_block_number;
+            info!("importing {} blocks for {}", needed_blocks, chain);
+        } else {
+            info!("no highest block number for {}", chain);
+        }
 
         if Some(head_block_number) != highest_block_number {
             let initial_sync = highest_block_number.is_none();
