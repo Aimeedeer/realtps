@@ -152,7 +152,7 @@ async fn make_provider(chain: Chain, rpc_url: &str) -> Result<Provider<Http>> {
     let provider = Provider::<Http>::try_from(rpc_url)?;
 
     let version = provider.client_version().await?;
-    info!("node version: {}", version);
+    info!("node version for {}: {}", chain, version);
 
     Ok(provider)
 }
