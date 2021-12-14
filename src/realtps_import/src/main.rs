@@ -114,7 +114,14 @@ fn all_chains() -> Vec<Chain> {
 
 fn init_jobs(cmd: Command) -> Vec<Job> {
     match cmd {
-        Command::Run | Command::Import => {
+        Command::Run => {
+            let import_jobs = init_jobs(Command::Import);
+            let calculate_jobs = init_jobs(Command::Calculate);
+            import_jobs.into_iter()
+                .chain(calculate_jobs.into_iter())
+                .collect()
+        }
+        Command::Import => {
             all_chains().into_iter().map(Job::Import).collect()
         }
         Command::Calculate => {
@@ -326,6 +333,7 @@ impl Importer {
     }
 
     async fn calculate(&self) -> Result<Vec<Job>> {
+        info!("beginning tps calculation");
         let tasks: Vec<(Chain, JoinHandle<Result<ChainCalcs>>)> = all_chains().into_iter().map(|chain| {
             let calc_future = calculate_for_chain(self.db.clone(), chain);
             (chain, task::spawn(calc_future))
