@@ -9,7 +9,7 @@ async fn delay(base_ms: u64) {
     let jitter = Uniform::from(0..100);
     let delay_msecs = base_ms + jitter.sample(&mut rand::thread_rng());
     let delay_time = Duration::from_millis(delay_msecs);
-    time::sleep(delay_time).await
+    time::sleep(delay_time).await;
 }
 
 pub async fn courtesy_delay() {
@@ -34,11 +34,11 @@ pub async fn retry_delay() {
 pub async fn job_error_delay() {
     let msecs = 1000;
     debug!("delaying {} ms to retry job", msecs);
-    delay(msecs);
+    delay(msecs).await;
 }
 
 pub async fn recalculate_delay() {
-    let msecs = 1000;
+    let msecs = 5000;
     debug!("delaying {} ms before recaclulating", msecs);
-    delay(msecs);
+    delay(msecs).await;
 }
