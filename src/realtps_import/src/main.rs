@@ -143,16 +143,24 @@ fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
 }
 
 async fn make_all_providers(rpc_config: &RpcConfig) -> Result<HashMap<Chain, Provider<Http>>> {
-    let mut eth_providers = HashMap::new();
+    let mut provider_futures = vec![];
     for chain in all_chains() {
-        let provider = make_provider(chain, get_rpc_url(&chain, rpc_config)).await?;
-        eth_providers.insert(chain, provider);
+        let rpc_url = get_rpc_url(&chain, rpc_config).to_string();
+        let provider_future = task::spawn(make_provider(chain, rpc_url));
+        provider_futures.push((chain, provider_future));
     }
 
-    Ok(eth_providers)
+    let mut providers = HashMap::new();
+
+    for (chain, provider_future) in provider_futures {
+        let provider = provider_future.await??;
+        providers.insert(chain, provider);
+    }
+
+    Ok(providers)
 }
 
-async fn make_provider(chain: Chain, rpc_url: &str) -> Result<Provider<Http>> {
+async fn make_provider(chain: Chain, rpc_url: String) -> Result<Provider<Http>> {
     info!("creating ethers provider for {} at {}", chain, rpc_url);
 
     let provider = Provider::<Http>::try_from(rpc_url)?;
