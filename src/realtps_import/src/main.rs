@@ -80,9 +80,10 @@ async fn run(cmd: Command, rpc_config: RpcConfig) -> Result<()> {
 }
 
 fn load_rpc_config<P: AsRef<Path>>(path: P) -> Result<RpcConfig> {
-    let rpc_config_file = fs::read_to_string(path)?;
+    let rpc_config_file = fs::read_to_string(path)
+        .context("unable to load RPC config")?;
     let rpc_config =
-        toml::from_str::<RpcConfig>(&rpc_config_file).context("parsing RPC configuration")?;
+        toml::from_str::<RpcConfig>(&rpc_config_file).context("unable to parse RPC configuration")?;
 
     Ok(rpc_config)
 }
