@@ -17,8 +17,8 @@
   <tbody>
     {% for row in rows %}
     <tr>
-      <td>{{row.chain}}</td>
-      <td>{{row.tps}}</td>
+      <td>{{ row.chain }}</td>
+      <td>{{ row.tps | round(precision=2) }}</td>
     </tr>
     {% endfor %}
   </tbody>
