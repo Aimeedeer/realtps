@@ -6,22 +6,30 @@
     margin: 0;
 }
 
-html {
-    height: 100vh;
+html, body {
+    height: 100%;
+}
+
+/*html {
     background-color: #faa;
 }
 
 body {
     background-color: #aaf;
-}
-
-body {
-    margin-top: 0;
-}
+}*/
 
 
 table {
-    margin-top: 2rem;
+    border-top: 1rem solid #0000;
     margin-left: auto;
     margin-right: auto;
+}
+
+th, td {
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+td:nth-child(2) {
+    text-align: end;
 }
