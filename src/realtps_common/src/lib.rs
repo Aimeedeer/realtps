@@ -196,8 +196,8 @@ pub fn all_chains() -> Vec<Chain> {
 pub fn chain_description(chain: Chain) -> &'static str {
     match chain {
         Chain::Ethereum => "Ethereum",
-        Chain::Polygon => "Polygon on Ethereum",
-        Chain::Avalanche => "Avalanche C Chain",
+        Chain::Polygon => "Polygon PoS",
+        Chain::Avalanche => "Avalanche C-Chain",
         Chain::Celo => "Celo",
         Chain::Fantom => "Fantom",
         Chain::Moonriver => "Moonriver",
