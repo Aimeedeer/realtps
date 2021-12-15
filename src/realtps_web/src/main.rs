@@ -1,10 +1,10 @@
 #[macro_use]
 extern crate rocket;
 
-use realtps_common::Chain;
+use realtps_common::{all_chains, Chain, Db, JsonDb};
+use rocket::fs::{relative, FileServer};
 use rocket_dyn_templates::Template;
 use serde::{Deserialize, Serialize};
-use rocket::fs::{FileServer, relative};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Context {
@@ -19,13 +19,20 @@ struct Row {
 
 #[get("/")]
 fn index() -> Template {
-    // test
-    let context = Context {
-        rows: vec![Row {
-            chain: Chain::Polygon,
-            tps: 32.98,
-        }],
-    };
+    let mut list = Vec::new();
+    let db = JsonDb;
+
+    for chain in all_chains() {
+        if let Some(tps) = db
+            .load_tps(chain)
+            .expect(&format!("No tps data for chain {}", &chain))
+        {
+            list.push(Row { chain, tps });
+        }
+    }
+
+    let context = Context { rows: list };
+
     Template::render("index", &context)
 }
 

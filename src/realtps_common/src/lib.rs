@@ -161,15 +161,34 @@ impl Db for JsonDb {
     }
 
     fn load_tps(&self, chain: Chain) -> Result<Option<f64>> {
-        todo!()
+        let path = format!("{}/{}/{}", JSON_DB_DIR, chain, TRANSACTIONS_PER_SECOND);
+
+        let file = File::open(path);
+        match file {
+            Err(e) => match e.kind() {
+                std::io::ErrorKind::NotFound => Ok(None),
+                _ => bail!(e),
+            },
+            Ok(file) => {
+                let reader = BufReader::new(file);
+                let tps = serde_json::from_reader(reader)?;
+                Ok(Some(tps))
+            }
+        }
     }
 }
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
+pub fn all_chains() -> Vec<Chain> {
+    vec![
+        Chain::Ethereum,
+        Chain::Polygon,
+        Chain::Avalanche,
+        Chain::Celo,
+        Chain::Fantom,
+        Chain::Moonriver,
+        Chain::Arbitrum,
+        Chain::Binance,
+        Chain::Harmony,
+        Chain::Rootstock,
+    ]
 }

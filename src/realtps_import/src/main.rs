@@ -1,11 +1,11 @@
 #![allow(unused)]
 
-use log::{error, debug, info, warn};
 use anyhow::{anyhow, Context, Result};
 use ethers::prelude::*;
 use ethers::utils::hex::ToHex;
 use futures::stream::{FuturesUnordered, StreamExt};
-use realtps_common::{Block, Chain, Db, JsonDb};
+use log::{debug, error, info, warn};
+use realtps_common::{all_chains, Block, Chain, Db, JsonDb};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::VecDeque;
@@ -46,7 +46,7 @@ struct RpcConfig {
 #[tokio::main]
 async fn main() -> Result<()> {
     env_logger::init();
-    
+
     let opts = Opts::from_args();
     let cmd = opts.cmd.unwrap_or(Command::Run);
 
@@ -80,10 +80,9 @@ async fn run(cmd: Command, rpc_config: RpcConfig) -> Result<()> {
 }
 
 fn load_rpc_config<P: AsRef<Path>>(path: P) -> Result<RpcConfig> {
-    let rpc_config_file = fs::read_to_string(path)
-        .context("unable to load RPC config")?;
-    let rpc_config =
-        toml::from_str::<RpcConfig>(&rpc_config_file).context("unable to parse RPC configuration")?;
+    let rpc_config_file = fs::read_to_string(path).context("unable to load RPC config")?;
+    let rpc_config = toml::from_str::<RpcConfig>(&rpc_config_file)
+        .context("unable to parse RPC configuration")?;
 
     Ok(rpc_config)
 }
@@ -97,37 +96,19 @@ fn print_error(e: &anyhow::Error) {
     }
 }
 
-fn all_chains() -> Vec<Chain> {
-    vec![
-        Chain::Ethereum,
-        Chain::Polygon,
-        Chain::Avalanche,
-        Chain::Celo,
-        Chain::Fantom,
-        Chain::Moonriver,
-        Chain::Arbitrum,
-        Chain::Binance,
-        Chain::Harmony,
-        Chain::Rootstock,
-    ]
-}
-
 fn init_jobs(cmd: Command) -> Vec<Job> {
     match cmd {
         Command::Run => {
             let import_jobs = init_jobs(Command::Import);
             let calculate_jobs = init_jobs(Command::Calculate);
-            import_jobs.into_iter()
+            import_jobs
+                .into_iter()
                 .chain(calculate_jobs.into_iter())
                 .collect()
         }
-        Command::Import => {
-            all_chains().into_iter().map(Job::Import).collect()
-        }
+        Command::Import => all_chains().into_iter().map(Job::Import).collect(),
         Command::Calculate => {
-            vec![
-                Job::Calculate,
-            ]
+            vec![Job::Calculate]
         }
     }
 }
@@ -212,7 +193,10 @@ impl Importer {
         let highest_block_number = self.db.load_highest_block_number(chain)?;
 
         if let Some(highest_block_number) = highest_block_number {
-            debug!("highest block number for {}: {}", chain, highest_block_number);
+            debug!(
+                "highest block number for {}: {}",
+                chain, highest_block_number
+            );
             assert!(head_block_number >= highest_block_number);
             let needed_blocks = head_block_number - highest_block_number;
             info!("importing {} blocks for {}", needed_blocks, chain);
@@ -334,10 +318,13 @@ impl Importer {
 
     async fn calculate(&self) -> Result<Vec<Job>> {
         info!("beginning tps calculation");
-        let tasks: Vec<(Chain, JoinHandle<Result<ChainCalcs>>)> = all_chains().into_iter().map(|chain| {
-            let calc_future = calculate_for_chain(self.db.clone(), chain);
-            (chain, task::spawn(calc_future))
-        }).collect();
+        let tasks: Vec<(Chain, JoinHandle<Result<ChainCalcs>>)> = all_chains()
+            .into_iter()
+            .map(|chain| {
+                let calc_future = calculate_for_chain(self.db.clone(), chain);
+                (chain, task::spawn(calc_future))
+            })
+            .collect();
 
         for (chain, task) in tasks {
             let res = task.await?;
@@ -345,9 +332,7 @@ impl Importer {
                 Ok(calcs) => {
                     info!("calculated {} tps for chain {}", calcs.tps, calcs.chain);
                     let db = self.db.clone();
-                    task::spawn_blocking(move || {
-                        db.store_tps(calcs.chain, calcs.tps)
-                    }).await??;
+                    task::spawn_blocking(move || db.store_tps(calcs.chain, calcs.tps)).await??;
                 }
                 Err(e) => {
                     print_error(&anyhow::Error::from(e));
@@ -370,28 +355,36 @@ struct ChainCalcs {
 async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<ChainCalcs> {
     let highest_block_number = {
         let db = db.clone();
-        task::spawn_blocking(move || {
-            db.load_highest_block_number(chain)
-        }).await??
+        task::spawn_blocking(move || db.load_highest_block_number(chain)).await??
     };
-    let highest_block_number = highest_block_number.ok_or_else(|| anyhow!("no data for chain {}", chain))?;
+    let highest_block_number =
+        highest_block_number.ok_or_else(|| anyhow!("no data for chain {}", chain))?;
 
-    async fn load_block_(db: &Arc<Box<dyn Db>>, chain: Chain, number: u64) -> Result<Option<Block>> {
+    async fn load_block_(
+        db: &Arc<Box<dyn Db>>,
+        chain: Chain,
+        number: u64,
+    ) -> Result<Option<Block>> {
         let db = db.clone();
-        task::spawn_blocking(move || {
-            db.load_block(chain, number)
-        }).await?
+        task::spawn_blocking(move || db.load_block(chain, number)).await?
     }
 
     let load_block = |number| load_block_(&db, chain, number);
 
-    let latest_timestamp = load_block(highest_block_number).await?.expect("first block").timestamp;
+    let latest_timestamp = load_block(highest_block_number)
+        .await?
+        .expect("first block")
+        .timestamp;
 
     let seconds_per_week = 60 * 60 * 24 * 7;
-    let min_timestamp = latest_timestamp.checked_sub(seconds_per_week).expect("underflow");
+    let min_timestamp = latest_timestamp
+        .checked_sub(seconds_per_week)
+        .expect("underflow");
 
     let mut current_block_number = highest_block_number;
-    let mut current_block = load_block(current_block_number).await?.expect("first_block");
+    let mut current_block = load_block(current_block_number)
+        .await?
+        .expect("first_block");
 
     let mut num_txs: u64 = 0;
 
@@ -402,7 +395,9 @@ async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<Chain
         let prev_block = load_block(prev_block_number).await?;
 
         if let Some(prev_block) = prev_block {
-            num_txs = num_txs.checked_add(current_block.num_txs).expect("overflow");
+            num_txs = num_txs
+                .checked_add(current_block.num_txs)
+                .expect("overflow");
 
             assert!(prev_block.timestamp <= current_block.timestamp);
 
@@ -422,16 +417,14 @@ async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<Chain
 
     assert!(init_timestamp <= latest_timestamp);
     let total_seconds = latest_timestamp - init_timestamp;
-    let total_seconds_u32 = u32::try_from(total_seconds).map_err(|_| anyhow!("seconds overflows u32"))?;
+    let total_seconds_u32 =
+        u32::try_from(total_seconds).map_err(|_| anyhow!("seconds overflows u32"))?;
     let num_txs_u32 = u32::try_from(num_txs).map_err(|_| anyhow!("num txs overflows u32"))?;
     let total_seconds_f64 = f64::from(total_seconds_u32);
     let num_txs_f64 = f64::from(num_txs_u32);
     let tps = num_txs_f64 / total_seconds_f64;
 
-    Ok(ChainCalcs {
-        chain,
-        tps,
-    })
+    Ok(ChainCalcs { chain, tps })
 }
 
 fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> Result<Block> {
