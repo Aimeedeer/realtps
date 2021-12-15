@@ -5,6 +5,7 @@
   <meta charset="utf-8">
   <title>Real TPS</title>
   <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/nerd-fonts-generated.css">
 </head>
 
 <table>
@@ -23,3 +24,8 @@
     {% endfor %}
   </tbody>
 </table>
+
+<footer>
+  <a title="about" class="nf nf-fa-question_circle_o" href="/about"></a>
+  <a title="code" class="nf nf-dev-github_badge" href="https://github.com/Aimeedeer/realtps"></a>
+</footer>
