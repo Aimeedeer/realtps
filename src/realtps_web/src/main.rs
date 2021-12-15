@@ -4,6 +4,7 @@ extern crate rocket;
 use realtps_common::Chain;
 use rocket_dyn_templates::Template;
 use serde::{Deserialize, Serialize};
+use rocket::fs::{FileServer, relative};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Context {
@@ -25,12 +26,13 @@ fn index() -> Template {
             tps: 32.98,
         }],
     };
-    Template::render("index", &contextf)
+    Template::render("index", &context)
 }
 
 #[launch]
 fn rocket() -> _ {
     rocket::build()
         .mount("/", routes![index])
+        .mount("/static", FileServer::from(relative!("static")))
         .attach(Template::fairing())
 }
