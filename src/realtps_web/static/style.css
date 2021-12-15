@@ -8,13 +8,16 @@
 
 html {
     height: 100vh;
-    background-color: red;
+    background-color: #faa;
 }
 
 body {
-    background-color: blue;
+    background-color: #aaf;
 }
 
+body {
+    margin-top: 0;
+}
 
 
 table {
