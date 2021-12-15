@@ -1,3 +1,12 @@
+* {
+    --black: #333;
+    --white: #fff;
+    --light-gray: #eee;
+    --medium-gray: #ccc;
+    --dark-gray: #777;
+    --section-padding: 2rem;
+}
+
 @font-face {
     font-family: "SiteFont";
     src: url("/static/fonts/Monoid Regular Nerd Font Complete.ttf");
@@ -29,39 +38,60 @@ body {
     background-color: #aaf;
 }*/
 
+:root {
+    color: var(--black);
+    background-color: var(--white);
+}
+
 body {
-    padding: 2rem;
+    padding: calc(var(--section-padding) * 2);
 }
 
 table {
     margin-left: auto;
     margin-right: auto;
-    border-collapse: collapse;
+    border-collapse: seperate;
     border-spacing: 0;
+    /*border: 1px solid var(--black);*/
 }
 
 th, td {
-    padding-left: 1em;
-    padding-right: 1em;
+    padding-left: 2em;
+    padding-right: 2em;
     padding-top: 0.4em;
     padding-bottom: 0.4em;
-    border: 1px solid gray;
 }
 
+th:nth-child(1),
 td:nth-child(1) {
-    padding-right: 2em;
+    padding-left: 4em;
+    text-align: left;
 }
 
+th:nth-child(2),
 td:nth-child(2) {
-    padding-left: 2em;
-    text-align: end;
+    padding-right: 4em;
+    text-align: right;
+}
+
+th {
+    color: var(--white);
+    background-color: var(--black);
+}
+
+tr:nth-child(even) {
+    background-color: var(--light-gray);
+}
+
+td {
+    border-bottom: 1px solid var(--medium-gray);
 }
 
 footer {
-    padding-top: 2rem;
+    padding-top: var(--section-padding);
     text-align: center;
     font-size: 200%;
-    color: gray;
+    color: var(--dark-gray);
 }
 
 footer a {
