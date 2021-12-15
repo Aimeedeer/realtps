@@ -18,18 +18,31 @@ body {
     background-color: #aaf;
 }*/
 
+body {
+    padding: 2rem;
+}
 
 table {
-    border-top: 1rem solid #0000;
     margin-left: auto;
     margin-right: auto;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 1px solid gray;
 }
 
 th, td {
     padding-left: 1em;
     padding-right: 1em;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+    border: 1px solid gray;
+}
+
+td:nth-child(1) {
+    padding-right: 2em;
 }
 
 td:nth-child(2) {
+    padding-left: 2em;
     text-align: end;
 }
