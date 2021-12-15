@@ -26,8 +26,12 @@
     margin: 0;
 }
 
-html, body {
+html {
     height: 100%;
+}
+
+html, body {
+    min-height: 100%;
 }
 
 /*html {
