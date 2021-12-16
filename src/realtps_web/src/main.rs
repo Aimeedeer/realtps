@@ -4,6 +4,7 @@ extern crate rocket;
 use realtps_common::{Chain, Db, JsonDb, all_chains};
 use rocket_dyn_templates::Template;
 use serde::{Deserialize, Serialize};
+use rocket::fs::{FileServer, relative};
 
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -20,24 +21,19 @@ struct Row {
 #[get("/")]
 fn index() -> Template {
     let mut list = Vec::new();
-        
     let db = JsonDb;
+
     for chain in all_chains() {
-        dbg!(&chain);
-        dbg!(db.load_tps(chain));
         if let Some(tps) = db.load_tps(chain).expect(&format!("No tps data for chain {}", &chain)) {
-            dbg!(&tps);
             list.push(
                 Row {
                     chain,
                     tps,
                 }
             );
-            dbg!(&list);
         }
     }
 
-    dbg!(&list);
     let context = Context {
         rows: list,
     };
@@ -49,5 +45,6 @@ fn index() -> Template {
 fn rocket() -> _ {
     rocket::build()
         .mount("/", routes![index])
+        .mount("/static", FileServer::from(relative!("static")))
         .attach(Template::fairing())
 }

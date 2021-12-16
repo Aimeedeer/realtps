@@ -1,0 +1,24 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+    margin: 0;
+}
+
+html {
+    height: 100vh;
+    background-color: red;
+}
+
+body {
+    background-color: blue;
+}
+
+
+
+table {
+    margin-top: 2rem;
+    margin-left: auto;
+    margin-right: auto;
+}
