@@ -5,7 +5,7 @@ use anyhow::{anyhow, Context, Result};
 use ethers::prelude::*;
 use ethers::utils::hex::ToHex;
 use futures::stream::{FuturesUnordered, StreamExt};
-use realtps_common::{Block, Chain, Db, JsonDb};
+use realtps_common::{Block, Chain, Db, JsonDb, all_chains};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::collections::VecDeque;
@@ -95,21 +95,6 @@ fn print_error(e: &anyhow::Error) {
         error!("source: {}", source_);
         source = source_.source();
     }
-}
-
-fn all_chains() -> Vec<Chain> {
-    vec![
-        Chain::Ethereum,
-        Chain::Polygon,
-        Chain::Avalanche,
-        Chain::Celo,
-        Chain::Fantom,
-        Chain::Moonriver,
-        Chain::Arbitrum,
-        Chain::Binance,
-        Chain::Harmony,
-        Chain::Rootstock,
-    ]
 }
 
 fn init_jobs(cmd: Command) -> Vec<Job> {
