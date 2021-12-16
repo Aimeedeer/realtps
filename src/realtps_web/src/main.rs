@@ -33,7 +33,11 @@ fn index() -> Template {
         {
             let chain = chain_description(chain).to_string();
             let tps_str = format!("{:.2}", tps);
-            list.push(Row { chain, tps, tps_str });
+            list.push(Row {
+                chain,
+                tps,
+                tps_str,
+            });
         }
     }
 
