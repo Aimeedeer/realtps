@@ -1,9 +1,9 @@
 #[macro_use]
 extern crate rocket;
 
-use rocket_dyn_templates::Template;
-use serde::{Serialize, Deserialize};
 use realtps_common::Chain;
+use rocket_dyn_templates::Template;
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Context {
@@ -23,7 +23,7 @@ fn index() -> Template {
         rows: vec![Row {
             chain: Chain::Polygon,
             tps: 32.98,
-        }]
+        }],
     };
     Template::render("index", &contextf)
 }
