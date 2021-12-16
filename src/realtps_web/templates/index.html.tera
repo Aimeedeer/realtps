@@ -3,5 +3,20 @@
   <head>
     <meta charset="utf-8">
   </head>
-  
+  <table>
+    <thead>
+      <tr>
+        <th>Chain</th>
+        <th>TPS</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+      <tr>
+        <td>{{row.chain}}</td>
+        <td>{{row.tps}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </html>
