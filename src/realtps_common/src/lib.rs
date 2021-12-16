@@ -6,6 +6,7 @@ use std::fmt;
 use std::fs::{self, File};
 use std::io::{BufReader, BufWriter};
 use rand::prelude::*;
+use serde::de::DeserializeOwned;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
 #[serde(try_from = "String")]
@@ -83,98 +84,57 @@ pub trait Db: Send + Sync + 'static {
 pub struct JsonDb;
 
 pub static JSON_DB_DIR: &str = "db";
-pub static HIGHEST_BLOCK_NUMBER: &str = "heighest_block_number";
+pub static HIGHEST_BLOCK_NUMBER: &str = "highest_block_number";
 pub static TRANSACTIONS_PER_SECOND: &str = "tps";
 
 impl Db for JsonDb {
     fn store_block(&self, block: Block) -> Result<()> {
-        let data = serde_json::to_string(&block)?;
         write_json_db(
             &format!("{}", block.chain),
             &format!("{}", block.block_number),
-            &data,
+            &block,
         )
     }
 
     fn load_block(&self, chain: Chain, block_number: u64) -> Result<Option<Block>> {
-        let path = format!("{}/{}/{}", JSON_DB_DIR, chain, block_number);
-
-        let file = File::open(path);
-        match file {
-            Err(e) => match e.kind() {
-                std::io::ErrorKind::NotFound => Ok(None),
-                _ => bail!(e),
-            },
-            Ok(file) => {
-                let reader = BufReader::new(file);
-                let block = serde_json::from_reader(reader)?;
-                Ok(Some(block))
-            }
-        }
+        read_json_db(
+            &format!("{}", chain),
+            &format!("{}", block_number),
+        )
     }
 
     fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> {
-        let path = format!("{}/{}", JSON_DB_DIR, chain);
-        fs::create_dir_all(path)?;
-
-        let path = format!("{}/{}/{}", JSON_DB_DIR, chain, HIGHEST_BLOCK_NUMBER);
-        let file = File::create(path)?;
-
-        let mut writer = BufWriter::new(file);
-        serde_json::to_writer(&mut writer, &block_number)?;
-
-        Ok(())
+        write_json_db(
+            &format!("{}", chain),
+            &format!("{}", HIGHEST_BLOCK_NUMBER),
+            &block_number,
+        )
     }
 
     fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>> {
-        let path = format!("{}/{}/{}", JSON_DB_DIR, chain, HIGHEST_BLOCK_NUMBER);
-
-        let file = File::open(path);
-        match file {
-            Err(e) => match e.kind() {
-                std::io::ErrorKind::NotFound => Ok(None),
-                _ => bail!(e),
-            },
-            Ok(file) => {
-                let reader = BufReader::new(file);
-                let block_number = serde_json::from_reader(reader)?;
-                Ok(Some(block_number))
-            }
-        }
+        read_json_db(
+            &format!("{}", chain),
+            &format!("{}", HIGHEST_BLOCK_NUMBER),
+        )
     }
 
     fn store_tps(&self, chain: Chain, tps: f64) -> Result<()> {
-        let path = format!("{}/{}", JSON_DB_DIR, chain);
-        fs::create_dir_all(path)?;
-
-        let path = format!("{}/{}/{}", JSON_DB_DIR, chain, TRANSACTIONS_PER_SECOND);
-        let file = File::create(path)?;
-
-        let mut writer = BufWriter::new(file);
-        serde_json::to_writer(&mut writer, &tps)?;
-
-        Ok(())
+        write_json_db(
+            &format!("{}", chain),
+            &format!("{}", TRANSACTIONS_PER_SECOND),
+            &tps,
+        )
     }
 
     fn load_tps(&self, chain: Chain) -> Result<Option<f64>> {
-        let path = format!("{}/{}/{}", JSON_DB_DIR, chain, TRANSACTIONS_PER_SECOND);
-
-        let file = File::open(path);
-        match file {
-            Err(e) => match e.kind() {
-                std::io::ErrorKind::NotFound => Ok(None),
-                _ => bail!(e),
-            },
-            Ok(file) => {
-                let reader = BufReader::new(file);
-                let tps = serde_json::from_reader(reader)?;
-                Ok(Some(tps))
-            }
-        }
+        read_json_db(
+            &format!("{}", chain),
+            &format!("{}", TRANSACTIONS_PER_SECOND),
+        )
     }
 }
 
-fn write_json_db(dir: &str, path: &str, data: &str) -> Result<()> {
+fn write_json_db<T>(dir: &str, path: &str, data: &T) -> Result<()> where T: Serialize {
     let file_dir = format!("{}/{}", JSON_DB_DIR, &dir);
     fs::create_dir_all(&file_dir)?;
 
@@ -188,6 +148,23 @@ fn write_json_db(dir: &str, path: &str, data: &str) -> Result<()> {
     fs::rename(temp_file_path, file_path)?;
     
     Ok(())
+}
+
+fn read_json_db<T>(dir: &str, path: &str) -> Result<Option<T>> where T: DeserializeOwned {
+    let path = format!("{}/{}/{}", JSON_DB_DIR, &dir, &path);
+
+    let file = File::open(path);
+    match file {
+        Err(e) => match e.kind() {
+            std::io::ErrorKind::NotFound => Ok(None),
+            _ => bail!(e),
+        },
+        Ok(file) => {
+            let reader = BufReader::new(file);
+            let data = serde_json::from_reader(reader)?;
+            Ok(Some(data))
+        }
+    }
 }
 
 pub fn all_chains() -> Vec<Chain> {
