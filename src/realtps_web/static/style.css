@@ -26,6 +26,10 @@
     margin: 0;
 }
 
+body {
+    line-height: 1.8;
+}
+
 html {
     height: 100%;
 }
@@ -62,8 +66,8 @@ table {
 th, td {
     padding-left: 2em;
     padding-right: 2em;
-    padding-top: 0.4em;
-    padding-bottom: 0.4em;
+    padding-top: 0.2em;
+    padding-bottom: 0.2em;
 }
 
 th:nth-child(1),
