@@ -8,4 +8,10 @@ edition = "2021"
 [dependencies]
 realtps_common = { path = "../realtps_common" }
 rocket = "0.5.0-rc.1"
+serde = { version = "1.0.130", features = ["derive"] }
+
+[dependencies.rocket_dyn_templates]
+version = "0.1.0-rc.1"
+features = ["tera"]
+
 
