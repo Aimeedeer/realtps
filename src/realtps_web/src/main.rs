@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate rocket;
 
-use realtps_common::{all_chains, Chain, Db, JsonDb};
+use realtps_common::{all_chains, chain_description, Db, JsonDb};
 use rocket::fs::{relative, FileServer};
 use rocket_dyn_templates::Template;
 use serde::{Deserialize, Serialize};
@@ -13,7 +13,7 @@ struct Context {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Row {
-    chain: Chain,
+    chain: String,
     tps: String,
 }
 
@@ -27,13 +27,13 @@ fn index() -> Template {
             .load_tps(chain)
             .expect(&format!("No tps data for chain {}", &chain))
         {
+            let chain = chain_description(chain).to_string();
             let tps = format!("{:.2}", tps);
             list.push(Row { chain, tps });
         }
     }
 
     let context = Context { rows: list };
-
     Template::render("index", &context)
 }
 
