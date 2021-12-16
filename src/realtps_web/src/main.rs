@@ -17,7 +17,8 @@ struct Context {
 #[derive(Serialize, Deserialize, Debug)]
 struct Row {
     chain: String,
-    tps: String,
+    tps: f64,
+    tps_str: String,
 }
 
 #[get("/")]
@@ -31,8 +32,8 @@ fn index() -> Template {
             .expect(&format!("No tps data for chain {}", &chain))
         {
             let chain = chain_description(chain).to_string();
-            let tps = format!("{:.2}", tps);
-            list.push(Row { chain, tps });
+            let tps_str = format!("{:.2}", tps);
+            list.push(Row { chain, tps, tps_str });
         }
     }
 

@@ -10,10 +10,10 @@
     </tr>
   </thead>
   <tbody>
-    {% for row in rows %}
+    {% for row in rows  | sort(attribute="tps") | reverse %}
     <tr>
       <td>{{ row.chain }}</td>
-      <td>{{ row.tps }}</td>
+      <td>{{ row.tps_str }}</td>
     </tr>
     {% endfor %}
   </tbody>
