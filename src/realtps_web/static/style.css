@@ -88,7 +88,7 @@ td {
 }
 
 footer {
-    padding-top: var(--section-padding);
+    padding-top: calc(var(--section-padding) * 2);
     text-align: center;
     font-size: 200%;
     color: var(--dark-gray);
@@ -97,4 +97,14 @@ footer {
 footer a {
     color: inherit;
     text-decoration: none;
+}
+
+p {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 60ch;
+}
+
+p ~ p {
+    padding-top: var(--section-padding);
 }

@@ -7,6 +7,9 @@ use rocket_dyn_templates::Template;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
+struct EmptyContext { }
+
+#[derive(Serialize, Deserialize, Debug)]
 struct Context {
     rows: Vec<Row>,
 }
@@ -37,10 +40,15 @@ fn index() -> Template {
     Template::render("index", &context)
 }
 
+#[get("/about")]
+fn about() -> Template {
+    Template::render("about", EmptyContext { })
+}
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index])
+        .mount("/", routes![index, about])
         .mount("/static", FileServer::from(relative!("static")))
         .attach(Template::fairing())
 }

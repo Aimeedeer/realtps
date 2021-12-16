@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Real TPS</title>
+
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/nerd-fonts-generated.css">
+</head>
+
+{% block body %}
+{% endblock body %}
+
+{% block footer %}
+{% endblock footer %}

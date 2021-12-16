@@ -1,0 +1,29 @@
+{% extends "base" %}
+
+{% block body %}
+
+
+<p>
+  This site measures the current number of transactions per second committed by various blockchains.
+</p>
+
+<p>
+  It does so with a simple method of counting the transactions in every block over the time period spanning from one week ago until the present moment,
+  then dividing that total number of transactions by the number of seconds from the beginning of the first block until the end of the last block.
+</p>
+
+<p>
+  No theoritical throughput, no marketing, just measurement.
+</p>
+
+{% endblock body %}
+
+
+{% block footer %}
+
+<footer>
+  <a title="home" class="nf nf-fa-home" href="/"></a>
+  <a title="code" class="nf nf-dev-github_badge" href="https://github.com/Aimeedeer/realtps"></a>
+</footer>
+
+{% endblock footer %}
