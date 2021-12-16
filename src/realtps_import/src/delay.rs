@@ -1,9 +1,9 @@
 use log::debug;
-use tokio::time::{self, Duration};
 use rand::{
     self,
     distributions::{Distribution, Uniform},
 };
+use tokio::time::{self, Duration};
 
 async fn delay(base_ms: u64) {
     let jitter = Uniform::from(0..100);
