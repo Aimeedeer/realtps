@@ -11,15 +11,15 @@ use std::path::Path;
 #[serde(try_from = "String")]
 #[serde(rename_all = "lowercase")]
 pub enum Chain {
-    Ethereum,
-    Polygon,
-    Avalanche,
-    Celo,
-    Fantom,
-    Moonriver,
     Arbitrum,
+    Avalanche,
     Binance,
+    Celo,
+    Ethereum,
+    Fantom,
     Harmony,
+    Moonriver,
+    Polygon,
     Rootstock,
 }
 
@@ -27,15 +27,15 @@ impl TryFrom<String> for Chain {
     type Error = anyhow::Error;
     fn try_from(value: String) -> Result<Self> {
         match value.as_str() {
-            "ethereum" => Ok(Chain::Ethereum),
-            "polygon" => Ok(Chain::Polygon),
-            "avalanche" => Ok(Chain::Avalanche),
-            "celo" => Ok(Chain::Celo),
-            "fantom" => Ok(Chain::Fantom),
-            "moonriver" => Ok(Chain::Moonriver),
             "arbitrum" => Ok(Chain::Arbitrum),
+            "avalanche" => Ok(Chain::Avalanche),
             "binance" => Ok(Chain::Binance),
+            "celo" => Ok(Chain::Celo),
+            "ethereum" => Ok(Chain::Ethereum),
+            "fantom" => Ok(Chain::Fantom),
             "harmony" => Ok(Chain::Harmony),
+            "moonriver" => Ok(Chain::Moonriver),
+            "polygon" => Ok(Chain::Polygon),
             "rootstock" => Ok(Chain::Rootstock),
             chain => bail!("failed parsing chain name {}", chain),
         }
@@ -45,15 +45,15 @@ impl TryFrom<String> for Chain {
 impl fmt::Display for Chain {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Chain::Ethereum => write!(f, "ethereum"),
-            Chain::Polygon => write!(f, "polygon"),
-            Chain::Avalanche => write!(f, "avalanche"),
-            Chain::Celo => write!(f, "celo"),
-            Chain::Fantom => write!(f, "fantom"),
-            Chain::Moonriver => write!(f, "moonriver"),
             Chain::Arbitrum => write!(f, "arbitrum"),
+            Chain::Avalanche => write!(f, "avalanche"),
             Chain::Binance => write!(f, "binance"),
+            Chain::Celo => write!(f, "celo"),
+            Chain::Ethereum => write!(f, "ethereum"),
+            Chain::Fantom => write!(f, "fantom"),
             Chain::Harmony => write!(f, "harmony"),
+            Chain::Moonriver => write!(f, "moonriver"),
+            Chain::Polygon => write!(f, "polygon"),
             Chain::Rootstock => write!(f, "rootstock"),
         }
     }
@@ -180,30 +180,30 @@ impl Db for JsonDb {
 
 pub fn all_chains() -> Vec<Chain> {
     vec![
-        Chain::Ethereum,
-        Chain::Polygon,
-        Chain::Avalanche,
-        Chain::Celo,
-        Chain::Fantom,
-        Chain::Moonriver,
         Chain::Arbitrum,
+        Chain::Avalanche,
         Chain::Binance,
+        Chain::Celo,
+        Chain::Ethereum,
+        Chain::Fantom,
         Chain::Harmony,
+        Chain::Moonriver,
+        Chain::Polygon,
         Chain::Rootstock,
     ]
 }
 
 pub fn chain_description(chain: Chain) -> &'static str {
     match chain {
-        Chain::Ethereum => "Ethereum",
-        Chain::Polygon => "Polygon PoS",
-        Chain::Avalanche => "Avalanche C-Chain",
-        Chain::Celo => "Celo",
-        Chain::Fantom => "Fantom",
-        Chain::Moonriver => "Moonriver",
         Chain::Arbitrum => "Arbitrum",
+        Chain::Avalanche => "Avalanche C-Chain",
         Chain::Binance => "Binance Smart Chain",
+        Chain::Celo => "Celo",
+        Chain::Ethereum => "Ethereum",
+        Chain::Fantom => "Fantom",
         Chain::Harmony => "Harmony",
+        Chain::Moonriver => "Moonriver",
+        Chain::Polygon => "Polygon PoS",
         Chain::Rootstock => "Rootstock",
     }
 }
