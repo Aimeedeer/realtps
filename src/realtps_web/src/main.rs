@@ -7,7 +7,7 @@ use rocket_dyn_templates::Template;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
-struct EmptyContext { }
+struct EmptyContext {}
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Context {
@@ -42,7 +42,7 @@ fn index() -> Template {
 
 #[get("/about")]
 fn about() -> Template {
-    Template::render("about", EmptyContext { })
+    Template::render("about", EmptyContext {})
 }
 
 #[launch]

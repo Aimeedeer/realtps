@@ -1,12 +1,12 @@
 #![allow(unused)]
 
 use anyhow::{bail, Result};
+use rand::prelude::*;
+use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fs::{self, File};
 use std::io::{BufReader, BufWriter};
-use rand::prelude::*;
-use serde::de::DeserializeOwned;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
 #[serde(try_from = "String")]
@@ -97,10 +97,7 @@ impl Db for JsonDb {
     }
 
     fn load_block(&self, chain: Chain, block_number: u64) -> Result<Option<Block>> {
-        read_json_db(
-            &format!("{}", chain),
-            &format!("{}", block_number),
-        )
+        read_json_db(&format!("{}", chain), &format!("{}", block_number))
     }
 
     fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> {
@@ -112,10 +109,7 @@ impl Db for JsonDb {
     }
 
     fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>> {
-        read_json_db(
-            &format!("{}", chain),
-            &format!("{}", HIGHEST_BLOCK_NUMBER),
-        )
+        read_json_db(&format!("{}", chain), &format!("{}", HIGHEST_BLOCK_NUMBER))
     }
 
     fn store_tps(&self, chain: Chain, tps: f64) -> Result<()> {
@@ -134,7 +128,10 @@ impl Db for JsonDb {
     }
 }
 
-fn write_json_db<T>(dir: &str, path: &str, data: &T) -> Result<()> where T: Serialize {
+fn write_json_db<T>(dir: &str, path: &str, data: &T) -> Result<()>
+where
+    T: Serialize,
+{
     let file_dir = format!("{}/{}", JSON_DB_DIR, &dir);
     fs::create_dir_all(&file_dir)?;
 
@@ -146,11 +143,14 @@ fn write_json_db<T>(dir: &str, path: &str, data: &T) -> Result<()> where T: Seri
     serde_json::to_writer(&mut writer, &data)?;
 
     fs::rename(temp_file_path, file_path)?;
-    
+
     Ok(())
 }
 
-fn read_json_db<T>(dir: &str, path: &str) -> Result<Option<T>> where T: DeserializeOwned {
+fn read_json_db<T>(dir: &str, path: &str) -> Result<Option<T>>
+where
+    T: DeserializeOwned,
+{
     let path = format!("{}/{}/{}", JSON_DB_DIR, &dir, &path);
 
     let file = File::open(path);
