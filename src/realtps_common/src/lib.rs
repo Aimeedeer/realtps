@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 use std::fs::{self, File};
 use std::io::{BufReader, BufWriter};
-use std::path::Path;
+use rand::prelude::*;
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
 #[serde(try_from = "String")]
@@ -88,16 +88,12 @@ pub static TRANSACTIONS_PER_SECOND: &str = "tps";
 
 impl Db for JsonDb {
     fn store_block(&self, block: Block) -> Result<()> {
-        let path = format!("{}/{}", JSON_DB_DIR, block.chain);
-        fs::create_dir_all(path)?;
-
-        let path = format!("{}/{}/{}", JSON_DB_DIR, block.chain, block.block_number);
-        let file = File::create(path)?;
-
-        let mut writer = BufWriter::new(file);
-        serde_json::to_writer(&mut writer, &block)?;
-
-        Ok(())
+        let data = serde_json::to_string(&block)?;
+        write_json_db(
+            &format!("{}", block.chain),
+            &format!("{}", block.block_number),
+            &data,
+        )
     }
 
     fn load_block(&self, chain: Chain, block_number: u64) -> Result<Option<Block>> {
@@ -176,6 +172,22 @@ impl Db for JsonDb {
             }
         }
     }
+}
+
+fn write_json_db(dir: &str, path: &str, data: &str) -> Result<()> {
+    let file_dir = format!("{}/{}", JSON_DB_DIR, &dir);
+    fs::create_dir_all(&file_dir)?;
+
+    let file_path = format!("{}/{}/{}", JSON_DB_DIR, &dir, &path);
+    let temp_file_path = format!("{}.{}.temp", &file_path, rand::random::<u32>());
+
+    let file = File::create(&temp_file_path)?;
+    let mut writer = BufWriter::new(file);
+    serde_json::to_writer(&mut writer, &data)?;
+
+    fs::rename(temp_file_path, file_path)?;
+    
+    Ok(())
 }
 
 pub fn all_chains() -> Vec<Chain> {
