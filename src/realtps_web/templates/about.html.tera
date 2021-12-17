@@ -12,10 +12,6 @@
   then dividing that total number of transactions by the number of seconds from the beginning of the first block until the end of the last block.
 </p>
 
-<p>
-  No theoritical throughput, no marketing, just measurement.
-</p>
-
 {% endblock body %}
 
 

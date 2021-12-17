@@ -52,7 +52,8 @@ body {
 }
 
 body {
-    padding: calc(var(--section-padding) * 2);
+    padding-top: calc(var(--section-padding) * 2);
+    padding-bottom: calc(var(--section-padding) * 2);
 }
 
 table {
@@ -72,13 +73,11 @@ th, td {
 
 th:nth-child(1),
 td:nth-child(1) {
-    padding-left: 4em;
     text-align: left;
 }
 
 th:nth-child(2),
 td:nth-child(2) {
-    padding-right: 4em;
     text-align: right;
 }
 
@@ -111,6 +110,12 @@ p {
     margin-left: auto;
     margin-right: auto;
     max-width: 60ch;
+}
+
+/* Give some border on mobile */
+p {
+    padding-left: 1em;
+    padding-right: 1em;
 }
 
 p ~ p {
