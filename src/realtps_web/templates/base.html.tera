@@ -4,11 +4,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Measure real transactions per second for various blockchains.">
 
   <title>Real TPS</title>
 
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="/static/nerd-fonts-generated.css">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZDP3D443J3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-ZDP3D443J3');
+  </script>
 </head>
 
 {% block body %}
