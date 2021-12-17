@@ -20,6 +20,9 @@
 
     gtag('config', 'G-ZDP3D443J3');
   </script>
+
+  <!-- Plausible Analytics -->
+  <script defer data-domain="realtps.net" src="https://plausible.io/js/plausible.js"></script>
 </head>
 
 {% block body %}
