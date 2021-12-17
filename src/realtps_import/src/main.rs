@@ -399,7 +399,10 @@ async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<Chain
                 .checked_add(current_block.num_txs)
                 .expect("overflow");
 
-            assert!(prev_block.timestamp <= current_block.timestamp);
+            if (prev_block.timestamp > current_block.timestamp) {
+                warn!("non-monotonic timestamp in block {} for chain {}. prev: {}; current: {}",
+                      current_block_number, chain, prev_block.timestamp, current_block.timestamp);
+            }
 
             if prev_block.timestamp <= min_timestamp {
                 break prev_block.timestamp;
