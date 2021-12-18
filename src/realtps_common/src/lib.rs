@@ -144,11 +144,11 @@ where
     match serde_json::to_writer(&mut writer, &data) {
         Err(e) => {
             fs::remove_file(temp_file_path)?;
-            bail!("{}", e.to_string());
+            bail!(e)
         }
         Ok(()) => {    
             fs::rename(temp_file_path, file_path)?;
-            return Ok(());
+            Ok(())
         }
     }
 }
