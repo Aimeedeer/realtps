@@ -140,11 +140,17 @@ where
 
     let file = File::create(&temp_file_path)?;
     let mut writer = BufWriter::new(file);
-    serde_json::to_writer(&mut writer, &data)?;
 
-    fs::rename(temp_file_path, file_path)?;
-
-    Ok(())
+    match serde_json::to_writer(&mut writer, &data) {
+        Err(e) => {
+            fs::remove_file(temp_file_path)?;
+            bail!("{}", e.to_string());
+        }
+        Ok(()) => {    
+            fs::rename(temp_file_path, file_path)?;
+            return Ok(());
+        }
+    }
 }
 
 fn read_json_db<T>(dir: &str, path: &str) -> Result<Option<T>>
