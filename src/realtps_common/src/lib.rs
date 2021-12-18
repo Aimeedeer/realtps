@@ -146,7 +146,7 @@ where
             fs::remove_file(temp_file_path)?;
             bail!(e)
         }
-        Ok(()) => {    
+        Ok(()) => {
             fs::rename(temp_file_path, file_path)?;
             Ok(())
         }

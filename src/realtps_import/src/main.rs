@@ -198,8 +198,10 @@ impl Importer {
                 chain, highest_block_number
             );
             if head_block_number < highest_block_number {
-                warn!("head_block_number < highest_block_number for chain {}. head: {}; highest: {}",
-                      chain, head_block_number, highest_block_number)
+                warn!(
+                    "head_block_number < highest_block_number for chain {}. head: {}; highest: {}",
+                    chain, head_block_number, highest_block_number
+                )
             } else {
                 let needed_blocks = head_block_number - highest_block_number;
                 info!("importing {} blocks for {}", needed_blocks, chain);
@@ -404,8 +406,10 @@ async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<Chain
                 .expect("overflow");
 
             if prev_block.timestamp > current_block.timestamp {
-                warn!("non-monotonic timestamp in block {} for chain {}. prev: {}; current: {}",
-                      current_block_number, chain, prev_block.timestamp, current_block.timestamp);
+                warn!(
+                    "non-monotonic timestamp in block {} for chain {}. prev: {}; current: {}",
+                    current_block_number, chain, prev_block.timestamp, current_block.timestamp
+                );
             }
 
             if prev_block.timestamp <= min_timestamp {
