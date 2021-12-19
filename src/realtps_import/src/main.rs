@@ -1,6 +1,7 @@
 #![allow(unused)]
 
 use anyhow::{anyhow, Context, Result};
+use async_trait::async_trait;
 use ethers::prelude::*;
 use ethers::utils::hex::ToHex;
 use futures::stream::{FuturesUnordered, StreamExt};
@@ -15,7 +16,6 @@ use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
 use tokio::task::JoinHandle;
-use async_trait::async_trait;
 
 mod delay;
 
@@ -122,7 +122,7 @@ trait Client: Send + Sync + 'static {
 }
 struct EthersClient {
     chain: Chain,
-    provider: Provider<Http>
+    provider: Provider<Http>,
 }
 
 #[async_trait]
@@ -130,11 +130,11 @@ impl Client for EthersClient {
     async fn client_version(&self) -> Result<String> {
         Ok(self.provider.client_version().await?)
     }
-    
+
     async fn get_block_number(&self) -> Result<u64> {
         Ok(self.provider.get_block_number().await?.as_u64())
     }
-    
+
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
         if let Some(block) = self.provider.get_block(block_number).await? {
             // I like this map <3
