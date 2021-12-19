@@ -15,6 +15,7 @@ use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
 use tokio::task::JoinHandle;
+use async_trait::async_trait;
 
 mod delay;
 
@@ -109,6 +110,37 @@ fn init_jobs(cmd: Command) -> Vec<Job> {
         Command::Import => all_chains().into_iter().map(Job::Import).collect(),
         Command::Calculate => {
             vec![Job::Calculate]
+        }
+    }
+}
+
+#[async_trait]
+trait Client: Send + Sync + 'static {
+    async fn client_version(&self) -> Result<String>;
+    async fn get_block_number(&self) -> Result<u64>;
+    async fn get_block(&self, block_number: u64) -> Result<Option<Block>>;
+}
+struct EthersClient {
+    chain: Chain,
+    provider: Provider<Http>
+}
+
+#[async_trait]
+impl Client for EthersClient {
+    async fn client_version(&self) -> Result<String> {
+        Ok(self.provider.client_version().await?)
+    }
+    
+    async fn get_block_number(&self) -> Result<u64> {
+        Ok(self.provider.get_block_number().await?.as_u64())
+    }
+    
+    async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
+        if let Some(block) = self.provider.get_block(block_number).await? {
+            // I like this map <3
+            ethers_block_to_block(self.chain, block).map(Some)
+        } else {
+            Ok(None)
         }
     }
 }
