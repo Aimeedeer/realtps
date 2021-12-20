@@ -15,6 +15,7 @@ use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
 use tokio::task::JoinHandle;
+use tokio::runtime::Builder;
 
 mod delay;
 
@@ -43,8 +44,7 @@ struct RpcConfig {
     chains: HashMap<Chain, String>,
 }
 
-#[tokio::main]
-async fn main() -> Result<()> {
+fn main() -> Result<()> {
     env_logger::init();
 
     let opts = Opts::from_args();
@@ -52,7 +52,15 @@ async fn main() -> Result<()> {
 
     let rpc_config = load_rpc_config(RPC_CONFIG_PATH)?;
 
-    Ok(run(cmd, rpc_config).await?)
+    let runtime = Builder::new_multi_thread()
+        .enable_all()
+        .worker_threads(4)
+        .max_blocking_threads(128)
+        .build()?;
+
+    runtime.block_on(run(cmd, rpc_config))?;
+
+    Ok(())
 }
 
 async fn run(cmd: Command, rpc_config: RpcConfig) -> Result<()> {
@@ -394,7 +402,19 @@ async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<Chain
 
     let mut num_txs: u64 = 0;
 
+    let start = std::time::Instant::now();
+
+    let mut blocks = 0;
+
     let init_timestamp = loop {
+        let now = std::time::Instant::now();
+        let duration = now - start;
+        let secs = duration.as_secs();
+        if secs > 0 {
+            debug!("bps for {}: {:.2}", chain, blocks as f64 / secs as f64)
+        }
+        blocks += 1;
+
         assert!(current_block_number != 0);
 
         let prev_block_number = current_block_number - 1;
