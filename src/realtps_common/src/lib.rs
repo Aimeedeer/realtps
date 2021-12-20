@@ -27,6 +27,7 @@ pub enum Chain {
     OKEx,
     Polygon,
     Rootstock,
+    Solana,
     Telos,
     XDai,
 }
@@ -50,6 +51,7 @@ impl TryFrom<String> for Chain {
             "okex" => Ok(Chain::OKEx),
             "polygon" => Ok(Chain::Polygon),
             "rootstock" => Ok(Chain::Rootstock),
+            "solana" => Ok(Chain::Solana),
             "telos" => Ok(Chain::Telos),
             "xdai" => Ok(Chain::XDai),
             chain => bail!("failed parsing chain name {}", chain),
@@ -75,6 +77,7 @@ impl fmt::Display for Chain {
             Chain::OKEx => write!(f, "okex"),
             Chain::Polygon => write!(f, "polygon"),
             Chain::Rootstock => write!(f, "rootstock"),
+            Chain::Solana => write!(f, "solana"),
             Chain::Telos => write!(f, "telos"),
             Chain::XDai => write!(f, "xdai"),
         }
@@ -211,6 +214,7 @@ pub fn all_chains() -> Vec<Chain> {
         Chain::OKEx,
         Chain::Polygon,
         Chain::Rootstock,
+        Chain::Solana,
         Chain::Telos,
         Chain::XDai,
     ]
@@ -233,6 +237,7 @@ pub fn chain_description(chain: Chain) -> &'static str {
         Chain::OKEx => "OKEx",
         Chain::Polygon => "Polygon PoS",
         Chain::Rootstock => "Rootstock",
+        Chain::Solana => "Solana",
         Chain::Telos => "Telos",
         Chain::XDai => "xDai",
     }

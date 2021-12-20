@@ -166,10 +166,8 @@ async fn make_importer(rpc_config: &RpcConfig) -> Result<Importer> {
 async fn make_all_clients(rpc_config: &RpcConfig) -> Result<HashMap<Chain, Box<dyn Client>>> {
     let mut client_futures = vec![];
     for chain in all_chains() {
-        // todo: more non-ethers clients
-
         let rpc_url = get_rpc_url(&chain, rpc_config).to_string();
-        let client_future = task::spawn(make_ethers_client(chain, rpc_url));
+        let client_future = task::spawn(make_client(chain, rpc_url));
         client_futures.push((chain, client_future));
     }
 
@@ -183,16 +181,40 @@ async fn make_all_clients(rpc_config: &RpcConfig) -> Result<HashMap<Chain, Box<d
     Ok(clients)
 }
 
-async fn make_ethers_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
-    info!("creating ethers provider for {} at {}", chain, rpc_url);
+async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
+    info!("creating client for {} at {}", chain, rpc_url);
 
-    let provider = Provider::<Http>::try_from(rpc_url)?;
-    let client = EthersClient { chain, provider };
+    match chain {
+        Chain::Arbitrum |
+        Chain::Avalanche |
+        Chain::Binance |
+        Chain::Celo |
+        Chain::Cronos |
+        Chain::Ethereum |
+        Chain::Fuse |
+        Chain::Fantom |
+        Chain::Harmony |
+        Chain::Heco |
+        Chain::KuCoin |
+        Chain::Moonriver |
+        Chain::OKEx |
+        Chain::Polygon |
+        Chain::Rootstock |
+        Chain::Telos |
+        Chain::XDai => {        
+            let provider = Provider::<Http>::try_from(rpc_url)?;
+            let client = EthersClient { chain, provider };
 
-    let version = client.client_version().await?;
-    info!("node version for {}: {}", chain, version);
+            let version = client.client_version().await?;
+            info!("node version for {}: {}", chain, version);
 
-    Ok(Box::new(client))
+            Ok(Box::new(client))
+        }
+        Chain::Solana => {
+            todo!()
+        }
+        _ => unreachable!()
+    }
 }
 
 fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
