@@ -1,6 +1,7 @@
 #![allow(unused)]
 
 use anyhow::{anyhow, Context, Result};
+use async_trait::async_trait;
 use ethers::prelude::*;
 use ethers::utils::hex::ToHex;
 use futures::stream::{FuturesUnordered, StreamExt};
@@ -121,13 +122,77 @@ fn init_jobs(cmd: Command) -> Vec<Job> {
     }
 }
 
+#[async_trait]
+trait Client: Send + Sync + 'static {
+    async fn client_version(&self) -> Result<String>;
+    async fn get_block_number(&self) -> Result<u64>;
+    async fn get_block(&self, block_number: u64) -> Result<Option<Block>>;
+}
+
+struct EthersClient {
+    chain: Chain,
+    provider: Provider<Http>,
+}
+
+#[async_trait]
+impl Client for EthersClient {
+    async fn client_version(&self) -> Result<String> {
+        Ok(self.provider.client_version().await?)
+    }
+
+    async fn get_block_number(&self) -> Result<u64> {
+        Ok(self.provider.get_block_number().await?.as_u64())
+    }
+
+    async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
+        if let Some(block) = self.provider.get_block(block_number).await? {
+            // I like this `map` <3
+            ethers_block_to_block(self.chain, block).map(Some)
+        } else {
+            Ok(None)
+        }
+    }
+}
+
 async fn make_importer(rpc_config: &RpcConfig) -> Result<Importer> {
-    let eth_providers = make_all_providers(rpc_config).await?;
+    let clients = make_all_clients(rpc_config).await?;
 
     Ok(Importer {
         db: Arc::new(Box::new(JsonDb)),
-        eth_providers,
+        clients,
     })
+}
+
+async fn make_all_clients(rpc_config: &RpcConfig) -> Result<HashMap<Chain, Box<dyn Client>>> {
+    let mut client_futures = vec![];
+    for chain in all_chains() {
+        // todo: more non-ethers clients
+
+        let rpc_url = get_rpc_url(&chain, rpc_config).to_string();
+        let client_future = task::spawn(make_ethers_client(chain, rpc_url));
+        client_futures.push((chain, client_future));
+    }
+
+    let mut clients = HashMap::new();
+
+    for (chain, client_future) in client_futures {
+        let client = client_future.await??;
+        clients.insert(chain, client);
+    }
+
+    Ok(clients)
+}
+
+async fn make_ethers_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
+    info!("creating ethers provider for {} at {}", chain, rpc_url);
+
+    let provider = Provider::<Http>::try_from(rpc_url)?;
+    let client = EthersClient { chain, provider };
+
+    let version = client.client_version().await?;
+    info!("node version for {}: {}", chain, version);
+
+    Ok(Box::new(client))
 }
 
 fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
@@ -138,38 +203,9 @@ fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
     }
 }
 
-async fn make_all_providers(rpc_config: &RpcConfig) -> Result<HashMap<Chain, Provider<Http>>> {
-    let mut provider_futures = vec![];
-    for chain in all_chains() {
-        let rpc_url = get_rpc_url(&chain, rpc_config).to_string();
-        let provider_future = task::spawn(make_provider(chain, rpc_url));
-        provider_futures.push((chain, provider_future));
-    }
-
-    let mut providers = HashMap::new();
-
-    for (chain, provider_future) in provider_futures {
-        let provider = provider_future.await??;
-        providers.insert(chain, provider);
-    }
-
-    Ok(providers)
-}
-
-async fn make_provider(chain: Chain, rpc_url: String) -> Result<Provider<Http>> {
-    info!("creating ethers provider for {} at {}", chain, rpc_url);
-
-    let provider = Provider::<Http>::try_from(rpc_url)?;
-
-    let version = provider.client_version().await?;
-    info!("node version for {}: {}", chain, version);
-
-    Ok(provider)
-}
-
 struct Importer {
     db: Arc<Box<dyn Db>>,
-    eth_providers: HashMap<Chain, Provider<Http>>,
+    clients: HashMap<Chain, Box<dyn Client>>,
 }
 
 impl Importer {
@@ -193,9 +229,10 @@ impl Importer {
     async fn import(&self, chain: Chain) -> Result<Vec<Job>> {
         info!("beginning import for {}", chain);
 
-        let provider = self.provider(chain);
-        let head_block_number = provider.get_block_number().await?;
-        let head_block_number = head_block_number.as_u64();
+        let client = self.clients.get(&chain).expect("client");
+
+        let head_block_number = client.get_block_number().await?;
+        let head_block_number = head_block_number;
         debug!("head block number for {}: {}", chain, head_block_number);
 
         let highest_block_number = self.db.load_highest_block_number(chain)?;
@@ -228,10 +265,8 @@ impl Importer {
             loop {
                 debug!("fetching block {} for {}", block_number, chain);
 
-                let ethers_block_number = U64::from(block_number);
-
                 let block = loop {
-                    let block = provider.get_block(ethers_block_number).await?;
+                    let block = client.get_block(block_number).await?;
 
                     if let Some(block) = block {
                         break block;
@@ -243,8 +278,6 @@ impl Importer {
                         delay::retry_delay().await;
                     }
                 };
-
-                let block = ethers_block_to_block(chain, block)?;
 
                 let parent_hash = block.parent_hash.clone();
 
@@ -324,10 +357,6 @@ impl Importer {
         delay::rescan_delay().await;
 
         Ok(vec![Job::Import(chain)])
-    }
-
-    fn provider(&self, chain: Chain) -> &Provider<Http> {
-        self.eth_providers.get(&chain).expect("provider")
     }
 
     async fn calculate(&self) -> Result<Vec<Job>> {
