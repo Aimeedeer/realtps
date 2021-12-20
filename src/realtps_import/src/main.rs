@@ -179,14 +179,11 @@ async fn make_ethers_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Cli
     info!("creating ethers provider for {} at {}", chain, rpc_url);
 
     let provider = Provider::<Http>::try_from(rpc_url)?;
-    let client = EthersClient {
-        chain,
-        provider,
-    };
-    
+    let client = EthersClient { chain, provider };
+
     let version = client.client_version().await?;
     info!("node version for {}: {}", chain, version);
-    
+
     Ok(Box::new(client))
 }
 
@@ -225,7 +222,7 @@ impl Importer {
         info!("beginning import for {}", chain);
 
         let client = self.clients.get(&chain).expect("client");
-        
+
         let head_block_number = client.get_block_number().await?;
         let head_block_number = head_block_number;
         debug!("head block number for {}: {}", chain, head_block_number);
