@@ -4,6 +4,7 @@ use anyhow::{anyhow, Context, Result};
 use async_trait::async_trait;
 use ethers::prelude::*;
 use ethers::utils::hex::ToHex;
+use solana_client::rpc_client::RpcClient;
 use futures::stream::{FuturesUnordered, StreamExt};
 use log::{debug, error, info, warn};
 use realtps_common::{all_chains, Block, Chain, Db, JsonDb};
@@ -154,6 +155,27 @@ impl Client for EthersClient {
     }
 }
 
+type SolanaClient = RpcClient;
+
+#[async_trait]
+impl Client for SolanaClient {
+    async fn client_version(&self) -> Result<String> {
+        Ok(self.get_version()?.solana_core)
+    }
+
+    async fn get_block_number(&self) -> Result<u64> {
+        self.get_block_height().map_err(|e| anyhow!("{}", e))
+    }
+
+    async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
+        // todo: error handling with return missing block
+        // `ClientResult<EncodedConfirmedBlock>`
+
+        let block = self.get_block(block_number)?;
+        solana_block_to_block(block).map(Some)
+    }
+}
+
 async fn make_importer(rpc_config: &RpcConfig) -> Result<Importer> {
     let clients = make_all_clients(rpc_config).await?;
 
@@ -211,7 +233,12 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
             Ok(Box::new(client))
         }
         Chain::Solana => {
-            todo!()
+            let client = Box::new(SolanaClient::new(rpc_url));
+
+            let version = client.client_version().await?;
+            info!("node version for Solana: {}", version);
+
+            Ok(client)
         }
         _ => unreachable!()
     }
@@ -518,4 +545,15 @@ fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> R
         hash: block.hash.expect("hash").encode_hex(),
         parent_hash: block.parent_hash.encode_hex(),
     })
+}
+
+fn solana_block_to_block(block: solana_transaction_status::EncodedConfirmedBlock) -> Result<Block> {
+    Ok(Block {
+        chain: Chain::Solana,
+        block_number: block.block_height.expect("block_number"),
+        timestamp: u64::try_from(block.block_time.expect("timestamp")).map_err(|e| anyhow!("{}", e))?,
+        num_txs: u64::try_from(block.transactions.len()).map_err(|e| anyhow!("{}", e))?,
+        hash: block.blockhash,
+        parent_hash: block.previous_blockhash,
+    })    
 }

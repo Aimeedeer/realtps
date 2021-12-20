@@ -19,4 +19,6 @@ futures = "0.3.18"
 log = "0.4.14"
 env_logger = "0.9.0"
 async-trait = "0.1.51"
+solana-client = "1.8.3"
+solana-transaction-status = "1.8.3"
 
