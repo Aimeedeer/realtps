@@ -4,20 +4,20 @@ use anyhow::{anyhow, Context, Result};
 use async_trait::async_trait;
 use ethers::prelude::*;
 use ethers::utils::hex::ToHex;
-use solana_client::rpc_client::RpcClient;
 use futures::stream::{FuturesUnordered, StreamExt};
 use log::{debug, error, info, warn};
 use realtps_common::{all_chains, Block, Chain, Db, JsonDb};
 use serde_derive::{Deserialize, Serialize};
+use solana_client::rpc_client::RpcClient;
 use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::fs;
 use std::path::Path;
 use std::sync::Arc;
 use structopt::StructOpt;
+use tokio::runtime::Builder;
 use tokio::task;
 use tokio::task::JoinHandle;
-use tokio::runtime::Builder;
 
 mod delay;
 
@@ -207,23 +207,23 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
     info!("creating client for {} at {}", chain, rpc_url);
 
     match chain {
-        Chain::Arbitrum |
-        Chain::Avalanche |
-        Chain::Binance |
-        Chain::Celo |
-        Chain::Cronos |
-        Chain::Ethereum |
-        Chain::Fuse |
-        Chain::Fantom |
-        Chain::Harmony |
-        Chain::Heco |
-        Chain::KuCoin |
-        Chain::Moonriver |
-        Chain::OKEx |
-        Chain::Polygon |
-        Chain::Rootstock |
-        Chain::Telos |
-        Chain::XDai => {        
+        Chain::Arbitrum
+        | Chain::Avalanche
+        | Chain::Binance
+        | Chain::Celo
+        | Chain::Cronos
+        | Chain::Ethereum
+        | Chain::Fuse
+        | Chain::Fantom
+        | Chain::Harmony
+        | Chain::Heco
+        | Chain::KuCoin
+        | Chain::Moonriver
+        | Chain::OKEx
+        | Chain::Polygon
+        | Chain::Rootstock
+        | Chain::Telos
+        | Chain::XDai => {
             let provider = Provider::<Http>::try_from(rpc_url)?;
             let client = EthersClient { chain, provider };
 
@@ -240,7 +240,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
 
             Ok(client)
         }
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 
@@ -551,9 +551,10 @@ fn solana_block_to_block(block: solana_transaction_status::EncodedConfirmedBlock
     Ok(Block {
         chain: Chain::Solana,
         block_number: block.block_height.expect("block_number"),
-        timestamp: u64::try_from(block.block_time.expect("timestamp")).map_err(|e| anyhow!("{}", e))?,
+        timestamp: u64::try_from(block.block_time.expect("timestamp"))
+            .map_err(|e| anyhow!("{}", e))?,
         num_txs: u64::try_from(block.transactions.len()).map_err(|e| anyhow!("{}", e))?,
         hash: block.blockhash,
         parent_hash: block.previous_blockhash,
-    })    
+    })
 }
