@@ -1,13 +1,13 @@
 # https://rpc.info/
 
 [chains]
-ethereum = "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
-polygon = "https://polygon-rpc.com"
-avalanche = "https://api.avax.network/ext/bc/C/rpc"
-celo = "https://forno.celo.org"
-fantom = "https://rpc.ftm.tools/"
-moonriver = "https://rpc.moonriver.moonbeam.network"
 arbitrum = "https://arb1.arbitrum.io/rpc"
+avalanche = "https://api.avax.network/ext/bc/C/rpc"
 binance = "https://bsc-dataseed.binance.org"
+celo = "https://forno.celo.org"
+ethereum = "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+fantom = "https://rpc.ftm.tools/"
 harmony = "https://api.harmony.one"
+moonriver = "https://rpc.moonriver.moonbeam.network"
+polygon = "https://polygon-rpc.com"
 rootstock = "https://public-node.rsk.co"
