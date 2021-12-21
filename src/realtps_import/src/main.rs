@@ -164,7 +164,7 @@ impl Client for SolanaClient {
     }
 
     async fn get_block_number(&self) -> Result<u64> {
-        self.get_block_height().map_err(|e| anyhow!("{}", e))
+        self.get_slot().map_err(|e| anyhow!("{}", e))
     }
 
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
@@ -172,7 +172,7 @@ impl Client for SolanaClient {
         // `ClientResult<EncodedConfirmedBlock>`
 
         let block = self.get_block(block_number)?;
-        solana_block_to_block(block).map(Some)
+        solana_block_to_block(block, block_number).map(Some)
     }
 }
 
@@ -306,7 +306,7 @@ impl Importer {
 
         if Some(head_block_number) != highest_block_number {
             let initial_sync = highest_block_number.is_none();
-            const INITIAL_SYNC_BLOCKS: u64 = 100;
+            const INITIAL_SYNC_BLOCKS: u64 = 2;
             let mut synced = 0;
 
             let mut block_number = head_block_number;
@@ -330,6 +330,7 @@ impl Importer {
 
                 let parent_hash = block.parent_hash.clone();
 
+                let prev_block_number = block.prev_block_number;
                 let db = self.db.clone();
                 task::spawn_blocking(move || db.store_block(block)).await??;
 
@@ -340,7 +341,7 @@ impl Importer {
                     break;
                 }
 
-                if let Some(prev_block_number) = block_number.checked_sub(1) {
+                if let Some(prev_block_number) = prev_block_number {
                     let db = self.db.clone();
                     let prev_block =
                         task::spawn_blocking(move || db.load_block(chain, prev_block_number))
@@ -495,30 +496,34 @@ async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<Chain
 
         assert!(current_block_number != 0);
 
-        let prev_block_number = current_block_number - 1;
-        let prev_block = load_block(prev_block_number).await?;
+        let prev_block_number = current_block.prev_block_number;
+        if let Some(prev_block_number) = prev_block_number {
+            let prev_block = load_block(prev_block_number).await?;
 
-        if let Some(prev_block) = prev_block {
-            num_txs = num_txs
-                .checked_add(current_block.num_txs)
-                .expect("overflow");
+            if let Some(prev_block) = prev_block {
+                num_txs = num_txs
+                    .checked_add(current_block.num_txs)
+                    .expect("overflow");
 
-            if prev_block.timestamp > current_block.timestamp {
-                warn!(
-                    "non-monotonic timestamp in block {} for chain {}. prev: {}; current: {}",
-                    current_block_number, chain, prev_block.timestamp, current_block.timestamp
-                );
+                if prev_block.timestamp > current_block.timestamp {
+                    warn!(
+                        "non-monotonic timestamp in block {} for chain {}. prev: {}; current: {}",
+                        current_block_number, chain, prev_block.timestamp, current_block.timestamp
+                    );
+                }
+
+                if prev_block.timestamp <= min_timestamp {
+                    break prev_block.timestamp;
+                }
+                if prev_block.block_number == 0 {
+                    break prev_block.timestamp;
+                }
+
+                current_block_number = prev_block_number;
+                current_block = prev_block;
+            } else {
+                break current_block.timestamp;
             }
-
-            if prev_block.timestamp <= min_timestamp {
-                break prev_block.timestamp;
-            }
-            if prev_block.block_number == 0 {
-                break prev_block.timestamp;
-            }
-
-            current_block_number = prev_block_number;
-            current_block = prev_block;
         } else {
             break current_block.timestamp;
         }
@@ -537,9 +542,11 @@ async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<Chain
 }
 
 fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> Result<Block> {
+    let block_number = block.number.expect("block number").as_u64();
     Ok(Block {
         chain,
-        block_number: block.number.expect("block number").as_u64(),
+        block_number: block_number,
+        prev_block_number: block_number.checked_sub(1),
         timestamp: u64::try_from(block.timestamp).map_err(|e| anyhow!("{}", e))?,
         num_txs: u64::try_from(block.transactions.len())?,
         hash: block.hash.expect("hash").encode_hex(),
@@ -547,13 +554,14 @@ fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> R
     })
 }
 
-fn solana_block_to_block(block: solana_transaction_status::EncodedConfirmedBlock) -> Result<Block> {
+fn solana_block_to_block(block: solana_transaction_status::EncodedConfirmedBlock, slot_number: u64) -> Result<Block> {
     Ok(Block {
         chain: Chain::Solana,
-        block_number: block.block_height.expect("block_number"),
-        timestamp: u64::try_from(block.block_time.expect("timestamp"))
-            .map_err(|e| anyhow!("{}", e))?,
-        num_txs: u64::try_from(block.transactions.len()).map_err(|e| anyhow!("{}", e))?,
+        block_number: slot_number,
+        prev_block_number: Some(block.parent_slot),
+        timestamp: u64::try_from(block.block_time
+                                 .ok_or_else(|| anyhow!("block time unavailable for solana slot {}", slot_number))?)?,
+        num_txs: u64::try_from(block.transactions.len())?,
         hash: block.blockhash,
         parent_hash: block.previous_blockhash,
     })

@@ -88,6 +88,10 @@ impl fmt::Display for Chain {
 pub struct Block {
     pub chain: Chain,
     pub block_number: u64,
+    /// The previous block number, not always block_number - 1, as in Solana,
+    /// where the "block" number is really a "slot" number, and slots may be
+    /// empty.
+    pub prev_block_number: Option<u64>,
     pub timestamp: u64, // seconds since unix epoch
     pub num_txs: u64,
     pub hash: String,
