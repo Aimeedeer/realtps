@@ -536,7 +536,12 @@ async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<Chain
     let num_txs_u32 = u32::try_from(num_txs).map_err(|_| anyhow!("num txs overflows u32"))?;
     let total_seconds_f64 = f64::from(total_seconds_u32);
     let num_txs_f64 = f64::from(num_txs_u32);
-    let tps = num_txs_f64 / total_seconds_f64;
+    let mut tps = num_txs_f64 / total_seconds_f64;
+
+    // Special float values will not serialize sensibly
+    if tps.is_nan() || tps.is_infinite() {
+        tps = 0.0;
+    }
 
     Ok(ChainCalcs { chain, tps })
 }
