@@ -554,13 +554,19 @@ fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> R
     })
 }
 
-fn solana_block_to_block(block: solana_transaction_status::EncodedConfirmedBlock, slot_number: u64) -> Result<Block> {
+fn solana_block_to_block(
+    block: solana_transaction_status::EncodedConfirmedBlock,
+    slot_number: u64,
+) -> Result<Block> {
     Ok(Block {
         chain: Chain::Solana,
         block_number: slot_number,
         prev_block_number: Some(block.parent_slot),
-        timestamp: u64::try_from(block.block_time
-                                 .ok_or_else(|| anyhow!("block time unavailable for solana slot {}", slot_number))?)?,
+        timestamp: u64::try_from(
+            block
+                .block_time
+                .ok_or_else(|| anyhow!("block time unavailable for solana slot {}", slot_number))?,
+        )?,
         num_txs: u64::try_from(block.transactions.len())?,
         hash: block.blockhash,
         parent_hash: block.previous_blockhash,
