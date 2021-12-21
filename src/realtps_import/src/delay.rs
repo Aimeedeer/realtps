@@ -4,6 +4,7 @@ use rand::{
     distributions::{Distribution, Uniform},
 };
 use tokio::time::{self, Duration};
+use crate::Chain;
 
 async fn delay(base_ms: u64) {
     let jitter = Uniform::from(0..100);
@@ -12,14 +13,22 @@ async fn delay(base_ms: u64) {
     time::sleep(delay_time).await;
 }
 
-pub async fn courtesy_delay() {
-    let msecs = 200;
+pub async fn courtesy_delay(chain: Chain) {
+    let msecs = match chain {
+        // Solana's RpcClient seems to have built-in rate limiting,
+        Chain::Solana => 0,
+        _ => 200,
+    };
     debug!("delaying {} ms to retrieve next block", msecs);
     delay(msecs).await
 }
 
-pub async fn rescan_delay() {
-    let delay_secs = 30;
+pub async fn rescan_delay(chain: Chain) {
+    let delay_secs = match chain {
+        // Need to go fast to keep up
+        Chain::Solana => 5,
+        _ => 30,
+    };
     let msecs = 1000 * delay_secs;
     debug!("delaying {} ms to rescan", msecs);
     delay(msecs).await

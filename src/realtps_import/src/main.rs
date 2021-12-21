@@ -318,7 +318,7 @@ impl Importer {
 
         if Some(head_block_number) != highest_block_number {
             let initial_sync = highest_block_number.is_none();
-            const INITIAL_SYNC_BLOCKS: u64 = 2;
+            const INITIAL_SYNC_BLOCKS: u64 = 5; // Probably enough to avoid equal or non-monotonic timestamps
             let mut synced = 0;
 
             let mut block_number = head_block_number;
@@ -400,7 +400,7 @@ impl Importer {
                     debug!("still need block {} for {}", prev_block_number, chain);
                     block_number = prev_block_number;
 
-                    delay::courtesy_delay().await;
+                    delay::courtesy_delay(chain).await;
 
                     continue;
                 } else {
@@ -416,7 +416,7 @@ impl Importer {
             info!("no new blocks for {}", chain);
         }
 
-        delay::rescan_delay().await;
+        delay::rescan_delay(chain).await;
 
         Ok(vec![Job::Import(chain)])
     }
