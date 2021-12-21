@@ -18,7 +18,7 @@ use structopt::StructOpt;
 use tokio::runtime::Builder;
 use tokio::task;
 use tokio::task::JoinHandle;
-    
+
 mod delay;
 
 #[derive(StructOpt, Debug)]
@@ -163,18 +163,14 @@ struct SolanaClient {
 impl Client for SolanaClient {
     async fn client_version(&self) -> Result<String> {
         let client = self.client.clone();
-        let version = task::spawn_blocking(move || {
-            client.get_version()
-        });
-        
+        let version = task::spawn_blocking(move || client.get_version());
+
         Ok(version.await??.solana_core)
     }
 
     async fn get_block_number(&self) -> Result<u64> {
         let client = self.client.clone();
-        let slot = task::spawn_blocking(move || {
-            client.get_slot()
-        });
+        let slot = task::spawn_blocking(move || client.get_slot());
 
         Ok(slot.await??)
     }
@@ -184,9 +180,7 @@ impl Client for SolanaClient {
         // `ClientResult<EncodedConfirmedBlock>`
 
         let client = self.client.clone();
-        let block = task::spawn_blocking(move || {
-            client.get_block(block_number)
-        });
+        let block = task::spawn_blocking(move || client.get_block(block_number));
 
         solana_block_to_block(block.await??, block_number).map(Some)
     }
@@ -250,7 +244,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
         }
         Chain::Solana => {
             let client = Box::new(SolanaClient {
-                client: Arc::new(RpcClient::new(rpc_url))
+                client: Arc::new(RpcClient::new(rpc_url)),
             });
 
             let version = client.client_version().await?;
