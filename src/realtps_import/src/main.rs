@@ -46,7 +46,8 @@ struct RpcConfig {
     chains: HashMap<Chain, String>,
 }
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     env_logger::init();
 
     let opts = Opts::from_args();
@@ -54,15 +55,7 @@ fn main() -> Result<()> {
 
     let rpc_config = load_rpc_config(RPC_CONFIG_PATH)?;
 
-    let runtime = Builder::new_multi_thread()
-        .enable_all()
-        .worker_threads(4)
-        .max_blocking_threads(128)
-        .build()?;
-
-    runtime.block_on(run(cmd, rpc_config))?;
-
-    Ok(())
+    Ok(run(cmd, rpc_config).await?)
 }
 
 async fn run(cmd: Command, rpc_config: RpcConfig) -> Result<()> {
