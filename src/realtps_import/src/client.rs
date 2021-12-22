@@ -19,6 +19,14 @@ pub struct EthersClient {
     pub provider: Provider<Http>,
 }
 
+impl EthersClient {
+    pub fn new(chain: Chain, url: &str) -> Result<Self> {
+        let provider = Provider::<Http>::try_from(url)?;
+
+        Ok(EthersClient { chain, provider })
+    }
+}
+
 #[async_trait]
 impl Client for EthersClient {
     async fn client_version(&self) -> Result<String> {
@@ -41,6 +49,14 @@ impl Client for EthersClient {
 
 pub struct SolanaClient {
     pub client: Arc<RpcClient>,
+}
+
+impl SolanaClient {
+    pub fn new(url: &str) -> Result<Self> {
+        Ok(SolanaClient {
+            client: Arc::new(RpcClient::new(url.to_string())),
+        })
+    }
 }
 
 #[async_trait]

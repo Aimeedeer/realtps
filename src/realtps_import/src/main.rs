@@ -171,23 +171,18 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
         | Chain::Rootstock
         | Chain::Telos
         | Chain::XDai => {
-            let provider = Provider::<Http>::try_from(rpc_url)?;
-            let client = EthersClient { chain, provider };
-
+            let client = EthersClient::new(chain, &rpc_url)?;
             let version = client.client_version().await?;
             info!("node version for {}: {}", chain, version);
 
             Ok(Box::new(client))
         }
         Chain::Solana => {
-            let client = Box::new(SolanaClient {
-                client: Arc::new(RpcClient::new(rpc_url)),
-            });
-
+            let client = SolanaClient::new(&rpc_url)?;
             let version = client.client_version().await?;
             info!("node version for Solana: {}", version);
 
-            Ok(client)
+            Ok(Box::new(client))
         }
         _ => unreachable!(),
     }
