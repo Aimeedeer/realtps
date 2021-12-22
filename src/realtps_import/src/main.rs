@@ -144,7 +144,7 @@ async fn make_all_clients(rpc_config: &RpcConfig) -> Result<HashMap<Chain, Box<d
 
 async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
     info!("creating client for {} at {}", chain, rpc_url);
-    let mut client: Box<dyn Client>;
+    let client: Box<dyn Client>;
 
     match chain {
         Chain::Arbitrum
