@@ -1,10 +1,10 @@
+use crate::Chain;
 use log::debug;
 use rand::{
     self,
     distributions::{Distribution, Uniform},
 };
 use tokio::time::{self, Duration};
-use crate::Chain;
 
 async fn delay(base_ms: u64) {
     let jitter = Uniform::from(0..100);
