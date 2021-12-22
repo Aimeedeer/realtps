@@ -2,17 +2,17 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use ethers::prelude::*;
 use ethers::utils::hex::ToHex;
+use near_jsonrpc_client::{auth::Unauthenticated, methods, JsonRpcClient};
+use near_jsonrpc_primitives::types::chunks::ChunkReference;
+use near_primitives::{
+    types::{BlockId, BlockReference},
+    views::{BlockHeaderView, BlockView, ChunkHeaderView},
+};
 use realtps_common::{Block, Chain};
 use solana_client::rpc_client::RpcClient;
 use std::sync::Arc;
-use tokio::task;
-use near_jsonrpc_client::{methods, JsonRpcClient, auth::Unauthenticated};
-use near_jsonrpc_primitives::types::chunks::ChunkReference;
-use near_primitives::{
-    types::{BlockReference, BlockId},
-    views::{BlockView, BlockHeaderView, ChunkHeaderView},
-};
 use std::time::Duration;
+use tokio::task;
 
 #[async_trait]
 pub trait Client: Send + Sync + 'static {
@@ -61,7 +61,7 @@ pub struct NearClient {
 impl NearClient {
     pub fn new(url: &str) -> Result<Self> {
         let client = JsonRpcClient::connect(url);
-        
+
         Ok(NearClient { client })
     }
 }
@@ -71,33 +71,37 @@ impl Client for NearClient {
     async fn client_version(&self) -> Result<String> {
         let client = self.client.clone();
         let status = client.call(methods::status::RpcStatusRequest).await?;
-        
+
         Ok(status.version.version)
     }
-    
+
     async fn get_block_number(&self) -> Result<u64> {
         let client = self.client.clone();
         let status = client.call(methods::status::RpcStatusRequest).await?;
 
         Ok(status.sync_info.latest_block_height)
     }
-    
+
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
         let client = self.client.clone();
-        let block = client.call(methods::block::RpcBlockRequest {
-            block_reference: BlockReference::BlockId(BlockId::Height(block_number)),
-        }).await?;
+        let block = client
+            .call(methods::block::RpcBlockRequest {
+                block_reference: BlockReference::BlockId(BlockId::Height(block_number)),
+            })
+            .await?;
 
         // caculating total tx numbers from chunks in the block
         let mut num_txs: usize = 0;
         for chunk_head in &block.chunks {
             let client = self.client.clone();
-            
-            let chunk = client.call(methods::chunk::RpcChunkRequest {
-                chunk_reference: ChunkReference::ChunkHash {
-                    chunk_id: chunk_head.chunk_hash,
-                }
-            }).await?;
+
+            let chunk = client
+                .call(methods::chunk::RpcChunkRequest {
+                    chunk_reference: ChunkReference::ChunkHash {
+                        chunk_id: chunk_head.chunk_hash,
+                    },
+                })
+                .await?;
 
             let txs = chunk.transactions.len();
             num_txs = num_txs.checked_add(txs).expect("number of txs overflow");
@@ -160,11 +164,7 @@ fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> R
     })
 }
 
-fn near_block_to_block(
-    block: BlockView,
-    block_number: u64,
-    num_txs: u64,
-) -> Result<Block> {
+fn near_block_to_block(block: BlockView, block_number: u64, num_txs: u64) -> Result<Block> {
     Ok(Block {
         chain: Chain::Near,
         block_number,
@@ -175,7 +175,7 @@ fn near_block_to_block(
         parent_hash: block.header.prev_hash.to_string(),
     })
 }
-    
+
 fn solana_block_to_block(
     block: solana_transaction_status::EncodedConfirmedBlock,
     slot_number: u64,
