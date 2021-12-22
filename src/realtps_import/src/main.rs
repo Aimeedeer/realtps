@@ -114,7 +114,7 @@ async fn make_importer(rpc_config: &RpcConfig) -> Result<Importer> {
     let clients = make_all_clients(rpc_config).await?;
 
     Ok(Importer {
-        db: Arc::new(Box::new(JsonDb)),
+        db: Arc::new(JsonDb),
         clients,
     })
 }
@@ -183,7 +183,7 @@ fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
 }
 
 struct Importer {
-    db: Arc<Box<dyn Db>>,
+    db: Arc<dyn Db>,
     clients: HashMap<Chain, Box<dyn Client>>,
 }
 
@@ -375,7 +375,7 @@ struct ChainCalcs {
     tps: f64,
 }
 
-async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<ChainCalcs> {
+async fn calculate_for_chain(db: Arc<dyn Db>, chain: Chain) -> Result<ChainCalcs> {
     let highest_block_number = {
         let db = db.clone();
         task::spawn_blocking(move || db.load_highest_block_number(chain)).await??
@@ -384,7 +384,7 @@ async fn calculate_for_chain(db: Arc<Box<dyn Db>>, chain: Chain) -> Result<Chain
         highest_block_number.ok_or_else(|| anyhow!("no data for chain {}", chain))?;
 
     async fn load_block_(
-        db: &Arc<Box<dyn Db>>,
+        db: &Arc<dyn Db>,
         chain: Chain,
         number: u64,
     ) -> Result<Option<Block>> {
