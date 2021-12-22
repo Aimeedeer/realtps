@@ -2,6 +2,7 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use ethers::prelude::*;
 use ethers::utils::hex::ToHex;
+use log::{debug, trace};
 use near_jsonrpc_client::{auth::Unauthenticated, methods, JsonRpcClient};
 use near_jsonrpc_primitives::types::chunks::ChunkReference;
 use near_primitives::{
@@ -14,7 +15,6 @@ use solana_transaction_status::UiTransactionEncoding;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::task;
-use log::{debug, trace};
 
 #[async_trait]
 pub trait Client: Send + Sync + 'static {
@@ -212,7 +212,11 @@ fn solana_block_to_block(
             }
         }
 
-        let vote_txs = block.transactions.len().checked_sub(num_user_txs).expect("underflow");
+        let vote_txs = block
+            .transactions
+            .len()
+            .checked_sub(num_user_txs)
+            .expect("underflow");
         debug!("solana total txs: {}", block.transactions.len());
         debug!("solana user txs: {}", num_user_txs);
         debug!("solana vote txs: {}", vote_txs);
