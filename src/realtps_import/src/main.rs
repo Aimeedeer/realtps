@@ -1,20 +1,14 @@
-#![allow(unused)]
-
 use anyhow::{anyhow, Context, Result};
 use client::{Client, EthersClient, SolanaClient};
-use ethers::prelude::*;
 use futures::stream::{FuturesUnordered, StreamExt};
 use log::{debug, error, info, warn};
 use realtps_common::{all_chains, Block, Chain, Db, JsonDb};
 use serde_derive::{Deserialize, Serialize};
-use solana_client::rpc_client::RpcClient;
 use std::collections::HashMap;
-use std::collections::VecDeque;
 use std::fs;
 use std::path::Path;
 use std::sync::Arc;
 use structopt::StructOpt;
-use tokio::runtime::Builder;
 use tokio::task;
 use tokio::task::JoinHandle;
 
@@ -177,7 +171,6 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
 
             Ok(Box::new(client))
         }
-        _ => unreachable!(),
     }
 }
 

@@ -1,7 +1,4 @@
-#![allow(unused)]
-
 use anyhow::{bail, Result};
-use rand::prelude::*;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt;
