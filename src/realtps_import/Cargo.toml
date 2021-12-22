@@ -7,18 +7,18 @@ edition = "2021"
 
 [dependencies]
 realtps_common = { path = "../realtps_common" }
-anyhow = "1.0.45"
+anyhow = "1.0.51"
 structopt = "0.3.25"
 ethers = "0.6.2"
-tokio = { version = "1.5", features = ["macros", "rt-multi-thread", "time"] }
+tokio = { version = "1.15.0", features = ["macros", "rt-multi-thread", "time"] }
 rand = "0.8.4"
-serde = "1.0.130"
-serde_derive = "1.0.130"
+serde = "1.0.132"
+serde_derive = "1.0.132"
 toml = "0.5.8"
-futures = "0.3.18"
+futures = "0.3.19"
 log = "0.4.14"
 env_logger = "0.9.0"
-async-trait = "0.1.51"
-solana-client = "1.8.3"
-solana-transaction-status = "1.8.3"
+async-trait = "0.1.52"
+solana-client = "1.9.1"
+solana-transaction-status = "1.9.1"
 
