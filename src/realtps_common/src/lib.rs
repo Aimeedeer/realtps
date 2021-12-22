@@ -1,7 +1,4 @@
-#![allow(unused)]
-
 use anyhow::{bail, Result};
-use rand::prelude::*;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -222,7 +219,7 @@ pub fn all_chains() -> Vec<Chain> {
         Chain::OKEx,
         Chain::Polygon,
         Chain::Rootstock,
-        //Chain::Solana,
+        Chain::Solana,
         Chain::Telos,
         Chain::XDai,
     ]

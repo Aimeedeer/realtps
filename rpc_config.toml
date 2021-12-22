@@ -1,4 +1,9 @@
-# https://rpc.info/
+# These are all public endpoints.
+#
+# Note that without a fast network, and perhaps a private node, we will not be
+# able to keep up with Solana block production.
+#
+# https://rpc.info/ - Ethereum-type chain endpoints
 
 [chains]
 arbitrum = "https://arb1.arbitrum.io/rpc"

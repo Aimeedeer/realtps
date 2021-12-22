@@ -15,7 +15,8 @@ async fn delay(base_ms: u64) {
 
 pub async fn courtesy_delay(chain: Chain) {
     let msecs = match chain {
-        // Solana's RpcClient seems to have built-in rate limiting,
+        // Need to go fast to keep up.
+        // Solana's RpcClient will use its built in rate limiter when connecting to public nodes.
         Chain::Solana => 0,
         _ => 200,
     };
@@ -25,8 +26,7 @@ pub async fn courtesy_delay(chain: Chain) {
 
 pub async fn rescan_delay(chain: Chain) {
     let delay_secs = match chain {
-        // Need to go fast to keep up
-        Chain::Solana => 5,
+        Chain::Solana => 1, // Need to go fast to keep up
         _ => 30,
     };
     let msecs = 1000 * delay_secs;
