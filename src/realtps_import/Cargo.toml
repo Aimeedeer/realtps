@@ -21,4 +21,5 @@ env_logger = "0.9.0"
 async-trait = "0.1.52"
 solana-client = "1.9.1"
 solana-transaction-status = "1.9.1"
+near-jsonrpc-client = "0.1.0"
 

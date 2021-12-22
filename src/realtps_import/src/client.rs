@@ -6,6 +6,7 @@ use realtps_common::{Block, Chain};
 use solana_client::rpc_client::RpcClient;
 use std::sync::Arc;
 use tokio::task;
+use near_jsonrpc_client::{methods, JsonRpcClient, auth::Unauthenticated};
 
 #[async_trait]
 pub trait Client: Send + Sync + 'static {
@@ -44,6 +45,33 @@ impl Client for EthersClient {
         } else {
             Ok(None)
         }
+    }
+}
+
+pub struct NearClient {
+    pub client: JsonRpcClient<Unauthenticated>,
+}
+
+impl NearClient {
+    pub fn new(url: &str) -> Result<Self> {
+        let client = JsonRpcClient::connect(url);
+        
+        Ok(NearClient { client })
+    }
+}
+
+#[async_trait]
+impl Client for NearClient {
+    async fn client_version(&self) -> Result<String> {
+        todo!()
+    }
+    
+    async fn get_block_number(&self) -> Result<u64> {
+        todo!()
+    }
+    
+    async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
+        todo!()
     }
 }
 
