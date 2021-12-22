@@ -9,7 +9,7 @@ use tokio::task;
 pub async fn import(chain: Chain, client: &dyn Client, db: &Arc<dyn Db>) -> Result<()> {
     info!("beginning import for {}", chain);
 
-    let head_block_number = client.get_block_number().await?;
+    let head_block_number = client.get_latest_block_number().await?;
     let head_block_number = head_block_number;
     debug!("head block number for {}: {}", chain, head_block_number);
 

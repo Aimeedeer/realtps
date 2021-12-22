@@ -18,7 +18,7 @@ use tokio::task;
 #[async_trait]
 pub trait Client: Send + Sync + 'static {
     async fn client_version(&self) -> Result<String>;
-    async fn get_block_number(&self) -> Result<u64>;
+    async fn get_latest_block_number(&self) -> Result<u64>;
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>>;
 }
 
@@ -41,7 +41,7 @@ impl Client for EthersClient {
         Ok(self.provider.client_version().await?)
     }
 
-    async fn get_block_number(&self) -> Result<u64> {
+    async fn get_latest_block_number(&self) -> Result<u64> {
         Ok(self.provider.get_block_number().await?.as_u64())
     }
 
@@ -76,7 +76,7 @@ impl Client for NearClient {
         Ok(status.version.version)
     }
 
-    async fn get_block_number(&self) -> Result<u64> {
+    async fn get_latest_block_number(&self) -> Result<u64> {
         let client = self.client.clone();
         let status = client.call(methods::status::RpcStatusRequest).await?;
 
@@ -134,7 +134,7 @@ impl Client for SolanaClient {
         Ok(version.await??.solana_core)
     }
 
-    async fn get_block_number(&self) -> Result<u64> {
+    async fn get_latest_block_number(&self) -> Result<u64> {
         let client = self.client.clone();
         let slot = task::spawn_blocking(move || client.get_slot());
 

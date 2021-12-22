@@ -144,46 +144,33 @@ async fn make_all_clients(rpc_config: &RpcConfig) -> Result<HashMap<Chain, Box<d
 
 async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
     info!("creating client for {} at {}", chain, rpc_url);
-
+    let mut client: Box<dyn Client>;
+    
     match chain {
         Chain::Arbitrum
-        | Chain::Avalanche
-        | Chain::Binance
-        | Chain::Celo
-        | Chain::Cronos
-        | Chain::Ethereum
-        | Chain::Fuse
-        | Chain::Fantom
-        | Chain::Harmony
-        | Chain::Heco
-        | Chain::KuCoin
-        | Chain::Moonriver
-        | Chain::OKEx
-        | Chain::Polygon
-        | Chain::Rootstock
-        | Chain::Telos
-        | Chain::XDai => {
-            let client = EthersClient::new(chain, &rpc_url)?;
-            let version = client.client_version().await?;
-            info!("node version for {}: {}", chain, version);
-
-            Ok(Box::new(client))
-        }
-        Chain::Near => {
-            let client = NearClient::new(&rpc_url)?;
-            let version = client.client_version().await?;
-            info!("node version for NEAR: {}", version);
-
-            Ok(Box::new(client))
-        }
-        Chain::Solana => {
-            let client = SolanaClient::new(&rpc_url)?;
-            let version = client.client_version().await?;
-            info!("node version for Solana: {}", version);
-
-            Ok(Box::new(client))
-        }
+            | Chain::Avalanche
+            | Chain::Binance
+            | Chain::Celo
+            | Chain::Cronos
+            | Chain::Ethereum
+            | Chain::Fuse
+            | Chain::Fantom
+            | Chain::Harmony
+            | Chain::Heco
+            | Chain::KuCoin
+            | Chain::Moonriver
+            | Chain::OKEx
+            | Chain::Polygon
+            | Chain::Rootstock
+            | Chain::Telos
+            | Chain::XDai => client = Box::new(EthersClient::new(chain, &rpc_url)?),
+        Chain::Near => client = Box::new(NearClient::new(&rpc_url)?),
+        Chain::Solana => client = Box::new(SolanaClient::new(&rpc_url)?),
     }
+    let version = client.client_version().await?;
+    info!("node version for {}: {}", chain, version);
+
+    Ok(client)
 }
 
 fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
