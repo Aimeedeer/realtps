@@ -206,7 +206,7 @@ where
 
 pub fn all_chains() -> Vec<Chain> {
     vec![
-/*        Chain::Arbitrum,
+        Chain::Arbitrum,
         Chain::Avalanche,
         Chain::Binance,
         Chain::Celo,
@@ -218,14 +218,13 @@ pub fn all_chains() -> Vec<Chain> {
         Chain::Heco,
         Chain::KuCoin,
         Chain::Moonriver,
+        Chain::Near,
         Chain::OKEx,
         Chain::Polygon,
         Chain::Rootstock,
         //Chain::Solana,
         Chain::Telos,
         Chain::XDai,
-         */
-        Chain::Near,
     ]
 }
 
