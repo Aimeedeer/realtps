@@ -53,9 +53,9 @@ pub struct SolanaClient {
 
 impl SolanaClient {
     pub fn new(url: &str) -> Result<Self> {
-        Ok(SolanaClient {
-            client: Arc::new(RpcClient::new(url.to_string())),
-        })
+        let client = Arc::new(RpcClient::new(url.to_string()));
+
+        Ok(SolanaClient { client })
     }
 }
 
