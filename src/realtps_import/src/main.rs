@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use calculate::ChainCalcs;
 use client::{Client, EthersClient, SolanaClient};
 use futures::stream::{FuturesUnordered, StreamExt};
 use log::{error, info};
@@ -11,7 +12,6 @@ use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
 use tokio::task::JoinHandle;
-use calculate::ChainCalcs;
 
 mod calculate;
 mod client;
@@ -244,4 +244,3 @@ impl Importer {
         Ok(vec![Job::Calculate])
     }
 }
-

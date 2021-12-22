@@ -1,9 +1,9 @@
-use tokio::task;
-use realtps_common::{Chain, Db, Block};
+use anyhow::{anyhow, Result};
+use log::{debug, warn};
+use realtps_common::{Block, Chain, Db};
 use std::sync::Arc;
 use std::time;
-use anyhow::{Result, anyhow};
-use log::{warn, debug};
+use tokio::task;
 
 pub struct ChainCalcs {
     pub chain: Chain,
