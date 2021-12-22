@@ -1,16 +1,12 @@
-use anyhow::Result;
-use realtps_common::{Chain, Db};
 use crate::client::Client;
-use tokio::task;
 use crate::delay;
+use anyhow::Result;
+use log::{debug, info, warn};
+use realtps_common::{Chain, Db};
 use std::sync::Arc;
-use log::{info, debug, warn};
+use tokio::task;
 
-pub async fn import(
-    chain: Chain,
-    client: &dyn Client,
-    db: &Arc<dyn Db>,
-) -> Result<()> {
+pub async fn import(chain: Chain, client: &dyn Client, db: &Arc<dyn Db>) -> Result<()> {
     info!("beginning import for {}", chain);
 
     let head_block_number = client.get_block_number().await?;
@@ -79,8 +75,7 @@ pub async fn import(
             if let Some(prev_block_number) = prev_block_number {
                 let db = db.clone();
                 let prev_block =
-                    task::spawn_blocking(move || db.load_block(chain, prev_block_number))
-                    .await??;
+                    task::spawn_blocking(move || db.load_block(chain, prev_block_number)).await??;
 
                 if let Some(prev_block) = prev_block {
                     if prev_block.hash != parent_hash {

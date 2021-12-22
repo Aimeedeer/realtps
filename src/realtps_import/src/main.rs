@@ -256,11 +256,7 @@ async fn calculate_for_chain(db: Arc<dyn Db>, chain: Chain) -> Result<ChainCalcs
     let highest_block_number =
         highest_block_number.ok_or_else(|| anyhow!("no data for chain {}", chain))?;
 
-    async fn load_block_(
-        db: &Arc<dyn Db>,
-        chain: Chain,
-        number: u64,
-    ) -> Result<Option<Block>> {
+    async fn load_block_(db: &Arc<dyn Db>, chain: Chain, number: u64) -> Result<Option<Block>> {
         let db = db.clone();
         task::spawn_blocking(move || db.load_block(chain, number)).await?
     }
