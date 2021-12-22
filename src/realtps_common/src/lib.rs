@@ -218,7 +218,7 @@ pub fn all_chains() -> Vec<Chain> {
         Chain::OKEx,
         Chain::Polygon,
         Chain::Rootstock,
-        //Chain::Solana,
+        Chain::Solana,
         Chain::Telos,
         Chain::XDai,
     ]
