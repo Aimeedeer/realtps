@@ -6,6 +6,7 @@ use realtps_common::{Block, Chain};
 use solana_client::rpc_client::RpcClient;
 use std::sync::Arc;
 use tokio::task;
+use solana_transaction_status::UiTransactionEncoding;
 
 #[async_trait]
 pub trait Client: Send + Sync + 'static {
@@ -80,7 +81,7 @@ impl Client for SolanaClient {
         // `ClientResult<EncodedConfirmedBlock>`
 
         let client = self.client.clone();
-        let block = task::spawn_blocking(move || client.get_block(block_number));
+        let block = task::spawn_blocking(move || client.get_block_with_encoding(block_number, UiTransactionEncoding::Base64));
 
         solana_block_to_block(block.await??, block_number).map(Some)
     }
