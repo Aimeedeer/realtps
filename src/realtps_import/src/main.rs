@@ -1,7 +1,7 @@
 #![allow(unused)]
 
 use anyhow::{anyhow, Context, Result};
-use client::{Client, EthersClient, SolanaClient};
+use client::{Client, EthersClient, NearClient, SolanaClient};
 use ethers::prelude::*;
 use futures::stream::{FuturesUnordered, StreamExt};
 use log::{debug, error, info, warn};
@@ -174,6 +174,13 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
             let client = EthersClient::new(chain, &rpc_url)?;
             let version = client.client_version().await?;
             info!("node version for {}: {}", chain, version);
+
+            Ok(Box::new(client))
+        }
+        Chain::Near => {
+            let client = NearClient::new(&rpc_url)?;
+            let version = client.client_version().await?;
+            info!("node version for NEAR: {}", version);
 
             Ok(Box::new(client))
         }

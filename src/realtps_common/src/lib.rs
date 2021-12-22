@@ -24,6 +24,7 @@ pub enum Chain {
     Heco,
     KuCoin,
     Moonriver,
+    Near,
     OKEx,
     Polygon,
     Rootstock,
@@ -48,6 +49,7 @@ impl TryFrom<String> for Chain {
             "heco" => Ok(Chain::Heco),
             "kucoin" => Ok(Chain::KuCoin),
             "moonriver" => Ok(Chain::Moonriver),
+            "near" => Ok(Chain::Near),
             "okex" => Ok(Chain::OKEx),
             "polygon" => Ok(Chain::Polygon),
             "rootstock" => Ok(Chain::Rootstock),
@@ -74,6 +76,7 @@ impl fmt::Display for Chain {
             Chain::Heco => write!(f, "heco"),
             Chain::KuCoin => write!(f, "kucoin"),
             Chain::Moonriver => write!(f, "moonriver"),
+            Chain::Near => write!(f, "near"),
             Chain::OKEx => write!(f, "okex"),
             Chain::Polygon => write!(f, "polygon"),
             Chain::Rootstock => write!(f, "rootstock"),
@@ -203,7 +206,7 @@ where
 
 pub fn all_chains() -> Vec<Chain> {
     vec![
-        Chain::Arbitrum,
+/*        Chain::Arbitrum,
         Chain::Avalanche,
         Chain::Binance,
         Chain::Celo,
@@ -221,6 +224,8 @@ pub fn all_chains() -> Vec<Chain> {
         //Chain::Solana,
         Chain::Telos,
         Chain::XDai,
+         */
+        Chain::Near,
     ]
 }
 
@@ -238,6 +243,7 @@ pub fn chain_description(chain: Chain) -> &'static str {
         Chain::Heco => "Heco",
         Chain::KuCoin => "KuCoin",
         Chain::Moonriver => "Moonriver",
+        Chain::Near => "NEAR",
         Chain::OKEx => "OKEx",
         Chain::Polygon => "Polygon PoS",
         Chain::Rootstock => "Rootstock",
