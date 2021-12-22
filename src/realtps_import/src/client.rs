@@ -71,22 +71,19 @@ impl NearClient {
 #[async_trait]
 impl Client for NearClient {
     async fn client_version(&self) -> Result<String> {
-        let client = self.client.clone();
-        let status = client.call(methods::status::RpcStatusRequest).await?;
+        let status = self.client.call(methods::status::RpcStatusRequest).await?;
 
         Ok(status.version.version)
     }
 
     async fn get_latest_block_number(&self) -> Result<u64> {
-        let client = self.client.clone();
-        let status = client.call(methods::status::RpcStatusRequest).await?;
+        let status = self.client.call(methods::status::RpcStatusRequest).await?;
 
         Ok(status.sync_info.latest_block_height)
     }
 
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
-        let client = self.client.clone();
-        let block = client
+        let block = self.client
             .call(methods::block::RpcBlockRequest {
                 block_reference: BlockReference::BlockId(BlockId::Height(block_number)),
             })
@@ -95,9 +92,7 @@ impl Client for NearClient {
         // caculating total tx numbers from chunks in the block
         let mut num_txs: usize = 0;
         for chunk_head in &block.chunks {
-            let client = self.client.clone();
-
-            let chunk = client
+            let chunk = self.client
                 .call(methods::chunk::RpcChunkRequest {
                     chunk_reference: ChunkReference::ChunkHash {
                         chunk_id: chunk_head.chunk_hash,
