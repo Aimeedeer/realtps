@@ -14,7 +14,7 @@ use solana_client::rpc_client::RpcClient;
 use solana_transaction_status::UiTransactionEncoding;
 use std::sync::Arc;
 use std::time::Duration;
-use tendermint_rpc::HttpClient;
+use tendermint_rpc::{HttpClient, Client as TendermintClientTrait};
 use tokio::task;
 
 #[async_trait]
@@ -168,11 +168,15 @@ impl TendermintClient {
 
 impl TendermintClient {
     async fn client_version(&self) -> Result<String> {
-        todo!()
+        let status = self.client.status().await?;
+
+        Ok(status.node_info.version.to_string())
     }
     
     async fn get_latest_block_number(&self) -> Result<u64> {
-        todo!()
+        let status = self.client.status().await?;
+
+        Ok(status.sync_info.latest_block_height.value())
     }
     
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
