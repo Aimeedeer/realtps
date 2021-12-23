@@ -25,4 +25,5 @@ solana-transaction-status = "1.9.1"
 near-jsonrpc-client = "0.2.0"
 near-primitives = "0.11.0"
 near-jsonrpc-primitives = "0.11.0"
+tendermint-rpc = { version = "0.23.1", features = ["http-client"] }
 

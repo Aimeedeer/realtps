@@ -24,4 +24,6 @@ polygon = "https://polygon-rpc.com"
 rootstock = "https://public-node.rsk.co"
 solana = "https://api.mainnet-beta.solana.com"
 telos = "https://mainnet.telos.net/evm"
+terra = "http://public-node.terra.dev:26657"
 xdai = "https://rpc.xdaichain.com"
+
