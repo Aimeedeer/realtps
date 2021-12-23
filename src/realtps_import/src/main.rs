@@ -164,7 +164,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
             | Chain::Rootstock
             | Chain::Telos
             | Chain::XDai => client = Box::new(EthersClient::new(chain, &rpc_url)?),
-        Chain::Cosmos
+        Chain::CosmosHub
             | Chain::SecretNetwork
             | Chain::Terra => client = Box::new(TendermintClient::new(chain, &rpc_url)?),
         Chain::Near => client = Box::new(NearClient::new(&rpc_url)?),
