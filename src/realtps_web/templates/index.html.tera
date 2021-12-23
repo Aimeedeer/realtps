@@ -4,9 +4,9 @@
 
 <div class="p">
   <p id="warning">
-    <i title="caution" class="nf nf-mdi-sign_caution"></i>
+    <img alt="warning" class="icon" src="/static/icons/mdi-sign-caution.svg">
     This is a work in progress.
-    <i title="caution" class="nf nf-mdi-sign_caution"></i>
+    <img alt="warning" class="icon" src="/static/icons/mdi-sign-caution.svg">
   </p>
 </div>
 
@@ -24,7 +24,7 @@
         {{ row.chain }}
 
         {% if row.note %}
-          <a title="details" class="nf nf-mdi-information_outline" href="/about#{{ row.note }}"></a>
+          <a title="details" href="/about#{{ row.note }}"><img alt="details" class="icon" src="/static/icons/mdi-information-outline.svg"></a>
         {% endif %}
       </td>
       <td>{{ row.tps_str }}</td>
@@ -39,8 +39,8 @@
 {% block footer %}
 
 <footer>
-  <a title="about" class="nf nf-fa-question_circle_o" href="/about"></a>
-  <a title="code" class="nf nf-mdi-github_circle" href="https://github.com/Aimeedeer/realtps"></a>
+  <a title="about" href="/about"><img alt="about" class="icon" src="/static/icons/mdi-help-circle-outline.svg"></a>
+  <a title="code" href="https://github.com/Aimeedeer/realtps"><img alt="code" class="icon" src="/static/icons/mdi-github.svg"></a>
 </footer>
 
 {% endblock footer %}

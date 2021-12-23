@@ -31,8 +31,8 @@
 {% block footer %}
 
 <footer>
-  <a title="home" class="nf nf-fa-home" href="/"></a>
-  <a title="code" class="nf nf-mdi-github_circle" href="https://github.com/Aimeedeer/realtps"></a>
+  <a title="home" href="/"><img alt="home" class="icon" src="/static/icons/mdi-home.svg"></a>
+  <a title="code" href="https://github.com/Aimeedeer/realtps"><img alt="code" class="icon" src="/static/icons/mdi-github.svg"></a>
 </footer>
 
 {% endblock footer %}

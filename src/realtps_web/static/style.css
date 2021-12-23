@@ -11,13 +11,13 @@
 
 @font-face {
     font-family: "SiteFont";
-    src: url("/static/fonts/Monoid Regular Nerd Font Complete.ttf");
+    src: url("/static/fonts/Monoid-Regular.ttf");
     font-weight: normal;
     font-style: normal;
 }
 
 * {
-    font-family: SiteFont;
+    font-family: SiteFont, SiteFont, monospace;
 }
 
 *, *::before, *::after {
@@ -145,6 +145,10 @@ h2 {
 
 h3 {
     font-size: 100%;
+}
+
+img.icon {
+    vertical-align: text-bottom;
 }
 
 #warning {
