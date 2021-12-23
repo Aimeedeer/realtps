@@ -12,6 +12,19 @@
   then dividing that total number of transactions by the number of seconds from the beginning of the first block until the end of the last block.
 </p>
 
+<h2>Chain-specific notes</h2>
+
+<h3 id="solana">Solana</h3>
+
+<p>
+  A large proportion of transactions reported by Solana nodes are validator <em>vote</em> transactions,
+  which are part of Solana's consensus mechanism.
+  As most chains do not expose this type of information as a standard transaction,
+  and to make a more useful comparison,
+  we do not include vote transactions in our TPS calculations.
+</p>
+
+
 {% endblock body %}
 
 

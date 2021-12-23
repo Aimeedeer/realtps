@@ -18,7 +18,13 @@
   <tbody>
     {% for row in rows  | sort(attribute="tps") | reverse %}
     <tr>
-      <td>{{ row.chain }}</td>
+      <td>
+        {{ row.chain }}
+
+        {% if row.note %}
+          <a title="details" class="nf nf-mdi-information_outline" href="/about#{{ row.note }}"></a>
+        {% endif %}
+      </td>
       <td>{{ row.tps_str }}</td>
     </tr>
     {% endfor %}
