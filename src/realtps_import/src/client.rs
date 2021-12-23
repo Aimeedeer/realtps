@@ -166,7 +166,8 @@ impl TendermintClient {
     }
 }
 
-impl TendermintClient {
+#[async_trait]
+impl Client for TendermintClient {
     async fn client_version(&self) -> Result<String> {
         let status = self.client.status().await?;
 
@@ -271,7 +272,11 @@ fn solana_block_to_block(
     })
 }
 
-fn tendermint_block_to_block(chain: Chain, block_response: tendermint_rpc::endpoint::block::Response, block_number: u64) -> Result<Block> {
+fn tendermint_block_to_block(
+    chain: Chain,
+    block_response: tendermint_rpc::endpoint::block::Response,
+    block_number: u64
+) -> Result<Block> {
     Ok(Block {
         chain,
         block_number,

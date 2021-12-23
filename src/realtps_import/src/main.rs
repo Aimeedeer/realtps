@@ -2,7 +2,7 @@
 
 use anyhow::{Context, Result};
 use calculate::ChainCalcs;
-use client::{Client, EthersClient, NearClient, SolanaClient};
+use client::{Client, EthersClient, NearClient, TendermintClient, SolanaClient};
 use futures::stream::{FuturesUnordered, StreamExt};
 use log::{error, info};
 use realtps_common::{all_chains, Chain, Db, JsonDb};
@@ -165,6 +165,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
         | Chain::Telos
         | Chain::XDai => client = Box::new(EthersClient::new(chain, &rpc_url)?),
         Chain::Near => client = Box::new(NearClient::new(&rpc_url)?),
+        Chain::Terra => client = Box::new(TendermintClient::new(chain, &rpc_url)?),
         Chain::Solana => client = Box::new(SolanaClient::new(&rpc_url)?),
     }
     let version = client.client_version().await?;
