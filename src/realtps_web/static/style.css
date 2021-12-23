@@ -5,6 +5,8 @@
     --medium-gray: #ccc;
     --dark-gray: #777;
     --section-padding: 2rem;
+    --warning-dark: #F24211;
+    --warning-light: #FFDAD388;
 }
 
 @font-face {
@@ -120,4 +122,13 @@ p {
 
 p ~ p {
     padding-top: var(--section-padding);
+}
+
+#warning {
+    border: 1px solid var(--warning-dark);
+    color: var(--warning-dark);
+    background-color: var(--warning-light);
+    margin-bottom: calc(var(--section-padding) * 2);
+    text-align: center;
+    padding: 1rem;
 }

@@ -2,6 +2,12 @@
 
 {% block body %}
 
+<p id="warning">
+  <i title="caution" class="nf nf-mdi-sign_caution"></i>
+  This is a work in progress.
+  <i title="caution" class="nf nf-mdi-sign_caution"></i>
+</p>
+
 <table>
   <thead>
     <tr>
