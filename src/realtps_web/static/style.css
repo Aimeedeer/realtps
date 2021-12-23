@@ -58,10 +58,16 @@ body {
     padding-bottom: calc(var(--section-padding) * 2);
 }
 
+@media(max-width: 500px) {
+    body {
+        padding-top: calc(var(--section-padding) * 1);
+    }
+}
+
 table {
     margin-left: auto;
     margin-right: auto;
-    border-collapse: seperate;
+    border-collapse: separate;
     border-spacing: 0;
     /*border: 1px solid var(--black);*/
 }
@@ -109,7 +115,8 @@ a.nf {
 }
 
 h1, h2, h3,
-p {
+p,
+div.p {
     margin-left: auto;
     margin-right: auto;
     max-width: 40rem;
@@ -117,7 +124,8 @@ p {
 
 /* Give some border on mobile */
 h1, h2, h3,
-p {
+p,
+div.p {
     padding-left: 1rem;
     padding-right: 1rem;
 }
@@ -143,7 +151,7 @@ h3 {
     border: 1px solid var(--warning-dark);
     color: var(--warning-dark);
     background-color: var(--warning-light);
-    margin-bottom: calc(var(--section-padding) * 2);
+    margin-bottom: calc(var(--section-padding));
     text-align: center;
     padding: 1rem;
 }
