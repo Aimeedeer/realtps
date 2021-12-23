@@ -166,6 +166,20 @@ impl TendermintClient {
     }
 }
 
+impl TendermintClient {
+    async fn client_version(&self) -> Result<String> {
+        todo!()
+    }
+    
+    async fn get_latest_block_number(&self) -> Result<u64> {
+        todo!()
+    }
+    
+    async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
+        todo!()
+    }
+}
+
 fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> Result<Block> {
     let block_number = block.number.expect("block number").as_u64();
     Ok(Block {
