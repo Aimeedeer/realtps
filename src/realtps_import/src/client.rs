@@ -14,7 +14,7 @@ use solana_client::rpc_client::RpcClient;
 use solana_transaction_status::UiTransactionEncoding;
 use std::sync::Arc;
 use std::time::Duration;
-use tendermint_rpc::{HttpClient, Client as TendermintClientTrait};
+use tendermint_rpc::{Client as TendermintClientTrait, HttpClient};
 use tokio::task;
 
 #[async_trait]
@@ -173,13 +173,13 @@ impl Client for TendermintClient {
 
         Ok(status.node_info.moniker.to_string())
     }
-    
+
     async fn get_latest_block_number(&self) -> Result<u64> {
         let status = self.client.status().await?;
 
         Ok(status.sync_info.latest_block_height.value())
     }
-    
+
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
         let tendermint_block_height = tendermint::block::Height::try_from(block_number)?;
         let block_response = self.client.block(tendermint_block_height).await?;
@@ -275,15 +275,24 @@ fn solana_block_to_block(
 fn tendermint_block_to_block(
     chain: Chain,
     block_response: tendermint_rpc::endpoint::block::Response,
-    block_number: u64
+    block_number: u64,
 ) -> Result<Block> {
     Ok(Block {
         chain,
         block_number,
         prev_block_number: block_number.checked_sub(1),
-        timestamp: u64::try_from(tendermint_proto::google::protobuf::Timestamp::from(block_response.block.header.time).seconds)?,
+        timestamp: u64::try_from(
+            tendermint_proto::google::protobuf::Timestamp::from(block_response.block.header.time)
+                .seconds,
+        )?,
         num_txs: u64::try_from(block_response.block.data.iter().count())?,
         hash: block_response.block_id.hash.to_string(),
-        parent_hash: block_response.block.header.last_block_id.expect("previous block hash").hash.to_string(),
+        parent_hash: block_response
+            .block
+            .header
+            .last_block_id
+            .expect("previous block hash")
+            .hash
+            .to_string(),
     })
 }

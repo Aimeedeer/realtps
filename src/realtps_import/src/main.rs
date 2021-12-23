@@ -2,7 +2,7 @@
 
 use anyhow::{Context, Result};
 use calculate::ChainCalcs;
-use client::{Client, EthersClient, NearClient, TendermintClient, SolanaClient};
+use client::{Client, EthersClient, NearClient, SolanaClient, TendermintClient};
 use futures::stream::{FuturesUnordered, StreamExt};
 use log::{error, info};
 use realtps_common::{all_chains, Chain, Db, JsonDb};
@@ -148,24 +148,26 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
 
     match chain {
         Chain::Arbitrum
-        | Chain::Avalanche
-        | Chain::Binance
-        | Chain::Celo
-        | Chain::Cronos
-        | Chain::Ethereum
-        | Chain::Fuse
-        | Chain::Fantom
-        | Chain::Harmony
-        | Chain::Heco
-        | Chain::KuCoin
-        | Chain::Moonriver
-        | Chain::OKEx
-        | Chain::Polygon
-        | Chain::Rootstock
-        | Chain::Telos
-        | Chain::XDai => client = Box::new(EthersClient::new(chain, &rpc_url)?),
+            | Chain::Avalanche
+            | Chain::Binance
+            | Chain::Celo
+            | Chain::Cronos
+            | Chain::Ethereum
+            | Chain::Fuse
+            | Chain::Fantom
+            | Chain::Harmony
+            | Chain::Heco
+            | Chain::KuCoin
+            | Chain::Moonriver
+            | Chain::OKEx
+            | Chain::Polygon
+            | Chain::Rootstock
+            | Chain::Telos
+            | Chain::XDai => client = Box::new(EthersClient::new(chain, &rpc_url)?),
+        Chain::Cosmos
+            | Chain::SecretNetwork
+            | Chain::Terra => client = Box::new(TendermintClient::new(chain, &rpc_url)?),
         Chain::Near => client = Box::new(NearClient::new(&rpc_url)?),
-        Chain::Terra => client = Box::new(TendermintClient::new(chain, &rpc_url)?),
         Chain::Solana => client = Box::new(SolanaClient::new(&rpc_url)?),
     }
     let version = client.client_version().await?;
