@@ -83,7 +83,8 @@ impl Client for NearClient {
     }
 
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
-        let block = self.client
+        let block = self
+            .client
             .call(methods::block::RpcBlockRequest {
                 block_reference: BlockReference::BlockId(BlockId::Height(block_number)),
             })
@@ -92,7 +93,8 @@ impl Client for NearClient {
         // caculating total tx numbers from chunks in the block
         let mut num_txs: usize = 0;
         for chunk_head in &block.chunks {
-            let chunk = self.client
+            let chunk = self
+                .client
                 .call(methods::chunk::RpcChunkRequest {
                     chunk_reference: ChunkReference::ChunkHash {
                         chunk_id: chunk_head.chunk_hash,
