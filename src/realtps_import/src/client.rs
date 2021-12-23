@@ -14,8 +14,8 @@ use solana_client::rpc_client::RpcClient;
 use solana_transaction_status::UiTransactionEncoding;
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::task;
 use tendermint_rpc::HttpClient;
+use tokio::task;
 
 #[async_trait]
 pub trait Client: Send + Sync + 'static {
@@ -161,13 +161,10 @@ pub struct TendermintClient {
 impl TendermintClient {
     pub fn new(chain: Chain, url: &str) -> Result<Self> {
         let client = HttpClient::new(url)?;
-        
+
         Ok(TendermintClient { chain, client })
     }
 }
-
-
-
 
 fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> Result<Block> {
     let block_number = block.number.expect("block number").as_u64();
