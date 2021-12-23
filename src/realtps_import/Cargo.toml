@@ -26,4 +26,6 @@ near-jsonrpc-client = "0.2.0"
 near-primitives = "0.11.0"
 near-jsonrpc-primitives = "0.11.0"
 tendermint-rpc = { version = "0.23.1", features = ["http-client"] }
+tendermint = "0.23.1"
+tendermint-proto = "0.23.1"
 

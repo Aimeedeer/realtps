@@ -170,7 +170,7 @@ impl TendermintClient {
     async fn client_version(&self) -> Result<String> {
         let status = self.client.status().await?;
 
-        Ok(status.node_info.version.to_string())
+        Ok(status.node_info.moniker.to_string())
     }
     
     async fn get_latest_block_number(&self) -> Result<u64> {
@@ -180,7 +180,10 @@ impl TendermintClient {
     }
     
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
-        todo!()
+        let tendermint_block_height = tendermint::block::Height::try_from(block_number)?;
+        let block_response = self.client.block(tendermint_block_height).await?;
+
+        tendermint_block_to_block(self.chain, block_response, block_number).map(Some)
     }
 }
 
@@ -265,5 +268,17 @@ fn solana_block_to_block(
         num_txs: calc_user_txs(&block),
         hash: block.blockhash,
         parent_hash: block.previous_blockhash,
+    })
+}
+
+fn tendermint_block_to_block(chain: Chain, block_response: tendermint_rpc::endpoint::block::Response, block_number: u64) -> Result<Block> {
+    Ok(Block {
+        chain,
+        block_number,
+        prev_block_number: block_number.checked_sub(1),
+        timestamp: u64::try_from(tendermint_proto::google::protobuf::Timestamp::from(block_response.block.header.time).seconds)?,
+        num_txs: u64::try_from(block_response.block.data.iter().count())?,
+        hash: block_response.block_id.hash.to_string(),
+        parent_hash: block_response.block.header.last_block_id.expect("previous block hash").hash.to_string(),
     })
 }
