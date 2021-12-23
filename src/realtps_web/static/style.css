@@ -7,6 +7,10 @@
     --section-padding: 2rem;
     --warning-dark: #F24211;
     --warning-light: #FFDAD388;
+
+    /* https://codepen.io/sosuke/pen/Pjoqqp */
+    --black-filter: invert(20%) sepia(0%) saturate(0%) hue-rotate(338deg) brightness(94%) contrast(97%);
+    --warning-dark-filter: invert(40%) sepia(96%) saturate(3876%) hue-rotate(353deg) brightness(95%) contrast(101%);
 }
 
 @font-face {
@@ -149,6 +153,11 @@ h3 {
 
 img.icon {
     vertical-align: text-bottom;
+    filter: var(--black-filter);
+}
+
+#warning img.icon {
+    filter: var(--warning-dark-filter);
 }
 
 #warning {
