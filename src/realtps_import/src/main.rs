@@ -66,7 +66,7 @@ async fn run(opts: Opts, rpc_config: RpcConfig) -> Result<()> {
     } else {
         chains = all_chains();
     }
-    
+
     let importer = make_importer(&chains, &rpc_config).await?;
 
     let mut jobs = FuturesUnordered::new();
@@ -187,7 +187,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
 }
 
 fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
-;    if let Some(url) = rpc_config.chains.get(chain) {
+    if let Some(url) = rpc_config.chains.get(chain) {
         return url;
     } else {
         todo!()
@@ -220,7 +220,7 @@ impl Importer {
     async fn import(&self, chain: Chain) -> Result<Vec<Job>> {
         let client = self.clients.get(&chain).expect("client");
         import::import(chain, client.as_ref(), &self.db).await?;
-        
+
         Ok(vec![Job::Import(chain)])
     }
 
@@ -234,7 +234,7 @@ impl Importer {
                 (*chain, task::spawn(calc_future))
             })
             .collect();
-        
+
         for (chain, task) in tasks {
             let res = task.await?;
             match res {
