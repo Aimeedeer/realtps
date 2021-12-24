@@ -37,7 +37,7 @@ enum Command {
 
 enum Job {
     Import(Chain),
-    Calculate,
+    Calculate(Vec<Chain>),
 }
 
 static RPC_CONFIG_PATH: &str = "rpc_config.toml";
@@ -60,11 +60,18 @@ async fn main() -> Result<()> {
 async fn run(opts: Opts, rpc_config: RpcConfig) -> Result<()> {
     let cmd = opts.cmd.unwrap_or(Command::Run);
 
-    let importer = make_importer(opts.chain, &rpc_config).await?;
+    let chains: Vec<Chain>;
+    if let Some(chain) = opts.chain {
+        chains = vec![chain];
+    } else {
+        chains = all_chains();
+    }
+    
+    let importer = make_importer(&chains, &rpc_config).await?;
 
     let mut jobs = FuturesUnordered::new();
 
-    for job in init_jobs(opts.chain, cmd).into_iter() {
+    for job in init_jobs(&chains, cmd).into_iter() {
         jobs.push(importer.do_job(job));
     }
 
@@ -100,31 +107,23 @@ fn print_error(e: &anyhow::Error) {
     }
 }
 
-fn init_jobs(chain: Option<Chain>, cmd: Command) -> Vec<Job> {
+fn init_jobs(chains: &[Chain], cmd: Command) -> Vec<Job> {
     match cmd {
         Command::Run => {
-            let import_jobs = init_jobs(chain, Command::Import);
-            let calculate_jobs = init_jobs(chain, Command::Calculate);
+            let import_jobs = init_jobs(chains, Command::Import);
+            let calculate_jobs = init_jobs(chains, Command::Calculate);
             import_jobs
                 .into_iter()
                 .chain(calculate_jobs.into_iter())
                 .collect()
         }
-        Command::Import => {
-            if let Some(chain) = chain {
-                vec![Job::Import(chain)]
-            } else {
-                all_chains().into_iter().map(Job::Import).collect()
-            }
-        }
-        Command::Calculate => {
-            vec![Job::Calculate]
-        }
+        Command::Import => chains.iter().cloned().map(Job::Import).collect(),
+        Command::Calculate => vec![Job::Calculate(chains.to_vec())],
     }
 }
 
-async fn make_importer(chain: Option<Chain>, rpc_config: &RpcConfig) -> Result<Importer> {
-    let clients = make_all_clients(chain, rpc_config).await?;
+async fn make_importer(chains: &[Chain], rpc_config: &RpcConfig) -> Result<Importer> {
+    let clients = make_all_clients(chains, rpc_config).await?;
 
     Ok(Importer {
         db: Arc::new(JsonDb),
@@ -133,21 +132,14 @@ async fn make_importer(chain: Option<Chain>, rpc_config: &RpcConfig) -> Result<I
 }
 
 async fn make_all_clients(
-    chain: Option<Chain>,
+    chains: &[Chain],
     rpc_config: &RpcConfig,
 ) -> Result<HashMap<Chain, Box<dyn Client>>> {
     let mut client_futures = vec![];
 
-    let chains: Vec<Chain>;
-    if let Some(chain) = chain {
-        chains = vec![chain];
-    } else {
-        chains = all_chains();
-    }
-
     for chain in chains {
-        let rpc_url = get_rpc_url(&chain, rpc_config).to_string();
-        let client_future = task::spawn(make_client(chain, rpc_url));
+        let rpc_url = get_rpc_url(chain, rpc_config).to_string();
+        let client_future = task::spawn(make_client(*chain, rpc_url));
         client_futures.push((chain, client_future));
     }
 
@@ -155,7 +147,7 @@ async fn make_all_clients(
 
     for (chain, client_future) in client_futures {
         let client = client_future.await??;
-        clients.insert(chain, client);
+        clients.insert(*chain, client);
     }
 
     Ok(clients)
@@ -195,7 +187,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
 }
 
 fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
-    if let Some(url) = rpc_config.chains.get(chain) {
+;    if let Some(url) = rpc_config.chains.get(chain) {
         return url;
     } else {
         todo!()
@@ -211,7 +203,7 @@ impl Importer {
     async fn do_job(&self, job: Job) -> Vec<Job> {
         let r = match job {
             Job::Import(chain) => self.import(chain).await,
-            Job::Calculate => self.calculate().await,
+            Job::Calculate(ref chains) => self.calculate(chains.to_vec()).await,
         };
 
         match r {
@@ -228,19 +220,21 @@ impl Importer {
     async fn import(&self, chain: Chain) -> Result<Vec<Job>> {
         let client = self.clients.get(&chain).expect("client");
         import::import(chain, client.as_ref(), &self.db).await?;
+        
         Ok(vec![Job::Import(chain)])
     }
 
-    async fn calculate(&self) -> Result<Vec<Job>> {
+    async fn calculate(&self, chains: Vec<Chain>) -> Result<Vec<Job>> {
         info!("beginning tps calculation");
-        let tasks: Vec<(Chain, JoinHandle<Result<ChainCalcs>>)> = all_chains()
-            .into_iter()
+
+        let tasks: Vec<(Chain, JoinHandle<Result<ChainCalcs>>)> = chains
+            .iter()
             .map(|chain| {
-                let calc_future = calculate::calculate_for_chain(chain, self.db.clone());
-                (chain, task::spawn(calc_future))
+                let calc_future = calculate::calculate_for_chain(*chain, self.db.clone());
+                (*chain, task::spawn(calc_future))
             })
             .collect();
-
+        
         for (chain, task) in tasks {
             let res = task.await?;
             match res {
@@ -258,6 +252,6 @@ impl Importer {
 
         delay::recalculate_delay().await;
 
-        Ok(vec![Job::Calculate])
+        Ok(vec![Job::Calculate(chains)])
     }
 }
