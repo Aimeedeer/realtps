@@ -132,7 +132,10 @@ async fn make_importer(chain: Option<Chain>, rpc_config: &RpcConfig) -> Result<I
     })
 }
 
-async fn make_all_clients(chain: Option<Chain>, rpc_config: &RpcConfig) -> Result<HashMap<Chain, Box<dyn Client>>> {
+async fn make_all_clients(
+    chain: Option<Chain>,
+    rpc_config: &RpcConfig,
+) -> Result<HashMap<Chain, Box<dyn Client>>> {
     let mut client_futures = vec![];
 
     let chains: Vec<Chain>;
@@ -141,7 +144,7 @@ async fn make_all_clients(chain: Option<Chain>, rpc_config: &RpcConfig) -> Resul
     } else {
         chains = all_chains();
     }
-    
+
     for chain in chains {
         let rpc_url = get_rpc_url(&chain, rpc_config).to_string();
         let client_future = task::spawn(make_client(chain, rpc_url));
