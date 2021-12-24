@@ -156,16 +156,3 @@ img.icon {
     vertical-align: text-bottom;
     filter: var(--black-filter);
 }
-
-#warning img.icon {
-    filter: var(--warning-dark-filter);
-}
-
-#warning {
-    border: 1px solid var(--warning-dark);
-    color: var(--warning-dark);
-    background-color: var(--warning-light);
-    margin-bottom: calc(var(--section-padding));
-    text-align: center;
-    padding: 1rem;
-}
