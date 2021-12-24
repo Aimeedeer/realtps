@@ -23,6 +23,7 @@ pub enum Chain {
     Moonriver,
     Near,
     OKEx,
+    Optimism,
     Polygon,
     Rootstock,
     SecretNetwork,
@@ -49,6 +50,7 @@ impl TryFrom<String> for Chain {
             "moonriver" => Ok(Chain::Moonriver),
             "near" => Ok(Chain::Near),
             "okex" => Ok(Chain::OKEx),
+            "optimism" => Ok(Chain::Optimism),
             "polygon" => Ok(Chain::Polygon),
             "rootstock" => Ok(Chain::Rootstock),
             "secretnetwork" => Ok(Chain::SecretNetwork),
@@ -77,6 +79,7 @@ impl fmt::Display for Chain {
             Chain::Moonriver => write!(f, "moonriver"),
             Chain::Near => write!(f, "near"),
             Chain::OKEx => write!(f, "okex"),
+            Chain::Optimism => write!(f, "optimism"),
             Chain::Polygon => write!(f, "polygon"),
             Chain::Rootstock => write!(f, "rootstock"),
             Chain::SecretNetwork => write!(f, "secretnetwork"),
@@ -204,7 +207,7 @@ where
     }
 }
 
-pub fn _all_chains() -> Vec<Chain> {
+pub fn all_chains() -> Vec<Chain> {
     vec![
         Chain::Arbitrum,
         Chain::Avalanche,
@@ -220,6 +223,7 @@ pub fn _all_chains() -> Vec<Chain> {
         Chain::Moonriver,
         Chain::Near,
         Chain::OKEx,
+        Chain::Optimism,
         Chain::Polygon,
         Chain::Rootstock,
         Chain::SecretNetwork,
@@ -245,6 +249,7 @@ pub fn chain_description(chain: Chain) -> &'static str {
         Chain::Moonriver => "Moonriver",
         Chain::Near => "NEAR",
         Chain::OKEx => "OKEx",
+        Chain::Optimism => "Optimism",
         Chain::Polygon => "Polygon PoS",
         Chain::Rootstock => "Rootstock",
         Chain::SecretNetwork => "Secret Network",

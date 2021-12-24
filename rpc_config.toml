@@ -4,6 +4,8 @@
 # able to keep up with Solana block production.
 #
 # https://rpc.info/ - Ethereum-type chain endpoints
+#
+# https://github.com/cosmos/chain-registry - Cosmos chains rpc info
 
 [chains]
 arbitrum = "https://arb1.arbitrum.io/rpc"
@@ -20,14 +22,12 @@ kucoin = "https://rpc-mainnet.kcc.network"
 moonriver = "https://rpc.moonriver.moonbeam.network"
 near = "https://rpc.mainnet.near.org"
 okex = "https://exchainrpc.okex.org"
+optimism = "https://mainnet.optimism.io"
 polygon = "https://polygon-rpc.com"
 rootstock = "https://public-node.rsk.co"
 secretnetwork = "https://rpc-secret.scrtlabs.com/secret-4/rpc/"
-#  - node version for secretnetwork: 0.34.14 with url https://api.secretapi.io/
+# - node version for secretnetwork: 0.34.14 with url https://api.secretapi.io/
 # - node version for secretnetwork: QUWKxOSYaI with url https://rpc-secret.scrtlabs.com/secret-4/rpc/
 solana = "https://api.mainnet-beta.solana.com"
 terra = "http://public-node.terra.dev:26657"
 xdai = "https://rpc.xdaichain.com"
-
-
-

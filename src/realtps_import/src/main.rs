@@ -159,6 +159,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
         | Chain::KuCoin
         | Chain::Moonriver
         | Chain::OKEx
+        | Chain::Optimism
         | Chain::Polygon
         | Chain::Rootstock
         | Chain::XDai => client = Box::new(EthersClient::new(chain, &rpc_url)?),
