@@ -14,7 +14,6 @@ cosmoshub = "https://rpc-cosmoshub.keplr.app"
 cronos = "https://evm-cronos.crypto.org"
 ethereum = "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
 fantom = "https://rpc.ftm.tools"
-fuse = "https://rpc.fuse.io"
 harmony = "https://api.harmony.one"
 heco = "https://http-mainnet-node.huobichain.com"
 kucoin = "https://rpc-mainnet.kcc.network"
@@ -23,9 +22,12 @@ near = "https://rpc.mainnet.near.org"
 okex = "https://exchainrpc.okex.org"
 polygon = "https://polygon-rpc.com"
 rootstock = "https://public-node.rsk.co"
-secretnetwork = "https://rpc.secretapi.io"
+secretnetwork = "https://rpc-secret.scrtlabs.com/secret-4/rpc/"
+#  - node version for secretnetwork: 0.34.14 with url https://api.secretapi.io/
+# - node version for secretnetwork: QUWKxOSYaI with url https://rpc-secret.scrtlabs.com/secret-4/rpc/
 solana = "https://api.mainnet-beta.solana.com"
-telos = "https://mainnet.telos.net/evm"
 terra = "http://public-node.terra.dev:26657"
 xdai = "https://rpc.xdaichain.com"
+
+
 

@@ -172,9 +172,6 @@ impl Client for TendermintClient {
         let status = self.client.status().await?;
 
         Ok(status.node_info.moniker.to_string())
-        // node version for terra: public-node
-        // node version for secretnetwork: 0.34.14
-        // node version for cosmos: c0205cd52416077d
     }
 
     async fn get_latest_block_number(&self) -> Result<u64> {

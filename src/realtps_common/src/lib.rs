@@ -17,7 +17,6 @@ pub enum Chain {
     Cronos,
     Ethereum,
     Fantom,
-    Fuse,
     Harmony,
     Heco,
     KuCoin,
@@ -28,7 +27,6 @@ pub enum Chain {
     Rootstock,
     SecretNetwork,
     Solana,
-    Telos,
     Terra,
     XDai,
 }
@@ -45,7 +43,6 @@ impl TryFrom<String> for Chain {
             "cronos" => Ok(Chain::Cronos),
             "ethereum" => Ok(Chain::Ethereum),
             "fantom" => Ok(Chain::Fantom),
-            "fuse" => Ok(Chain::Fuse),
             "harmony" => Ok(Chain::Harmony),
             "heco" => Ok(Chain::Heco),
             "kucoin" => Ok(Chain::KuCoin),
@@ -56,7 +53,6 @@ impl TryFrom<String> for Chain {
             "rootstock" => Ok(Chain::Rootstock),
             "secretnetwork" => Ok(Chain::SecretNetwork),
             "solana" => Ok(Chain::Solana),
-            "telos" => Ok(Chain::Telos),
             "terra" => Ok(Chain::Terra),
             "xdai" => Ok(Chain::XDai),
             chain => bail!("failed parsing chain name {}", chain),
@@ -74,7 +70,6 @@ impl fmt::Display for Chain {
             Chain::CosmosHub => write!(f, "cosmoshub"),
             Chain::Cronos => write!(f, "cronos"),
             Chain::Ethereum => write!(f, "ethereum"),
-            Chain::Fuse => write!(f, "fuse"),
             Chain::Fantom => write!(f, "fantom"),
             Chain::Harmony => write!(f, "harmony"),
             Chain::Heco => write!(f, "heco"),
@@ -86,7 +81,6 @@ impl fmt::Display for Chain {
             Chain::Rootstock => write!(f, "rootstock"),
             Chain::SecretNetwork => write!(f, "secretnetwork"),
             Chain::Solana => write!(f, "solana"),
-            Chain::Telos => write!(f, "telos"),
             Chain::Terra => write!(f, "terra"),
             Chain::XDai => write!(f, "xdai"),
         }
@@ -210,7 +204,7 @@ where
     }
 }
 
-pub fn all_chains() -> Vec<Chain> {
+pub fn _all_chains() -> Vec<Chain> {
     vec![
         Chain::Arbitrum,
         Chain::Avalanche,
@@ -220,7 +214,6 @@ pub fn all_chains() -> Vec<Chain> {
         Chain::Cronos,
         Chain::Ethereum,
         Chain::Fantom,
-        Chain::Fuse,
         Chain::Harmony,
         Chain::Heco,
         Chain::KuCoin,
@@ -231,7 +224,6 @@ pub fn all_chains() -> Vec<Chain> {
         Chain::Rootstock,
         Chain::SecretNetwork,
         Chain::Solana,
-        Chain::Telos,
         Chain::Terra,
         Chain::XDai,
     ]
@@ -247,7 +239,6 @@ pub fn chain_description(chain: Chain) -> &'static str {
         Chain::Cronos => "Cronos",
         Chain::Ethereum => "Ethereum",
         Chain::Fantom => "Fantom",
-        Chain::Fuse => "Fuse",
         Chain::Harmony => "Harmony",
         Chain::Heco => "Heco",
         Chain::KuCoin => "KuCoin",
@@ -258,7 +249,6 @@ pub fn chain_description(chain: Chain) -> &'static str {
         Chain::Rootstock => "Rootstock",
         Chain::SecretNetwork => "Secret Network",
         Chain::Solana => "Solana",
-        Chain::Telos => "Telos",
         Chain::Terra => "Terra",
         Chain::XDai => "xDai",
     }
