@@ -32,10 +32,10 @@ pub enum Chain {
     XDai,
 }
 
-impl TryFrom<String> for Chain {
+impl<'a> TryFrom<&'a str> for Chain {
     type Error = anyhow::Error;
-    fn try_from(value: String) -> Result<Self> {
-        match value.as_str() {
+    fn try_from(value: &'a str) -> Result<Self> {
+        match value {
             "arbitrum" => Ok(Chain::Arbitrum),
             "avalanche" => Ok(Chain::Avalanche),
             "binance" => Ok(Chain::Binance),
@@ -59,6 +59,14 @@ impl TryFrom<String> for Chain {
             "xdai" => Ok(Chain::XDai),
             chain => bail!("failed parsing chain name {}", chain),
         }
+    }
+}
+
+impl TryFrom<String> for Chain {
+    type Error = anyhow::Error;
+
+    fn try_from(value: String) -> Result<Self> {
+        Chain::try_from(value.as_ref())
     }
 }
 

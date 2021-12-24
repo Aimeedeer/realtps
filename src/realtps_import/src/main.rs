@@ -24,6 +24,8 @@ mod import;
 struct Opts {
     #[structopt(subcommand)]
     cmd: Option<Command>,
+    #[structopt(parse(try_from_str = TryFrom::try_from))]
+    chain: Option<Chain>,
 }
 
 #[derive(StructOpt, Debug)]
@@ -50,19 +52,19 @@ async fn main() -> Result<()> {
     env_logger::init();
 
     let opts = Opts::from_args();
-    let cmd = opts.cmd.unwrap_or(Command::Run);
-
     let rpc_config = load_rpc_config(RPC_CONFIG_PATH)?;
 
-    Ok(run(cmd, rpc_config).await?)
+    Ok(run(opts, rpc_config).await?)
 }
 
-async fn run(cmd: Command, rpc_config: RpcConfig) -> Result<()> {
-    let importer = make_importer(&rpc_config).await?;
+async fn run(opts: Opts, rpc_config: RpcConfig) -> Result<()> {
+    let cmd = opts.cmd.unwrap_or(Command::Run);
+
+    let importer = make_importer(opts.chain, &rpc_config).await?;
 
     let mut jobs = FuturesUnordered::new();
 
-    for job in init_jobs(cmd).into_iter() {
+    for job in init_jobs(opts.chain, cmd).into_iter() {
         jobs.push(importer.do_job(job));
     }
 
@@ -98,25 +100,31 @@ fn print_error(e: &anyhow::Error) {
     }
 }
 
-fn init_jobs(cmd: Command) -> Vec<Job> {
+fn init_jobs(chain: Option<Chain>, cmd: Command) -> Vec<Job> {
     match cmd {
         Command::Run => {
-            let import_jobs = init_jobs(Command::Import);
-            let calculate_jobs = init_jobs(Command::Calculate);
+            let import_jobs = init_jobs(chain, Command::Import);
+            let calculate_jobs = init_jobs(chain, Command::Calculate);
             import_jobs
                 .into_iter()
                 .chain(calculate_jobs.into_iter())
                 .collect()
         }
-        Command::Import => all_chains().into_iter().map(Job::Import).collect(),
+        Command::Import => {
+            if let Some(chain) = chain {
+                vec![Job::Import(chain)]
+            } else {
+                all_chains().into_iter().map(Job::Import).collect()
+            }
+        }
         Command::Calculate => {
             vec![Job::Calculate]
         }
     }
 }
 
-async fn make_importer(rpc_config: &RpcConfig) -> Result<Importer> {
-    let clients = make_all_clients(rpc_config).await?;
+async fn make_importer(chain: Option<Chain>, rpc_config: &RpcConfig) -> Result<Importer> {
+    let clients = make_all_clients(chain, rpc_config).await?;
 
     Ok(Importer {
         db: Arc::new(JsonDb),
@@ -124,9 +132,17 @@ async fn make_importer(rpc_config: &RpcConfig) -> Result<Importer> {
     })
 }
 
-async fn make_all_clients(rpc_config: &RpcConfig) -> Result<HashMap<Chain, Box<dyn Client>>> {
+async fn make_all_clients(chain: Option<Chain>, rpc_config: &RpcConfig) -> Result<HashMap<Chain, Box<dyn Client>>> {
     let mut client_futures = vec![];
-    for chain in all_chains() {
+
+    let chains: Vec<Chain>;
+    if let Some(chain) = chain {
+        chains = vec![chain];
+    } else {
+        chains = all_chains();
+    }
+    
+    for chain in chains {
         let rpc_url = get_rpc_url(&chain, rpc_config).to_string();
         let client_future = task::spawn(make_client(chain, rpc_url));
         client_futures.push((chain, client_future));
