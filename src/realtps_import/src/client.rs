@@ -147,7 +147,8 @@ impl Client for SolanaClient {
         let client = self.client.clone();
         let block = task::spawn_blocking(move || {
             client.get_block_with_encoding(block_number, UiTransactionEncoding::Base64)
-        }).await??;
+        })
+        .await??;
 
         solana_block_to_block(block, block_number).map(Some)
     }
