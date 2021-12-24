@@ -2,14 +2,6 @@
 
 {% block body %}
 
-<div class="p">
-  <p id="warning">
-    <img alt="warning" class="icon" src="/static/icons/mdi-sign-caution.svg">
-    This is a work in progress.
-    <img alt="warning" class="icon" src="/static/icons/mdi-sign-caution.svg">
-  </p>
-</div>
-
 <table>
   <thead>
     <tr>
