@@ -7,7 +7,7 @@ use rand::{
 use tokio::time::{self, Duration};
 
 async fn delay(base_ms: u64) {
-    let jitter = Uniform::from(0..100);
+    let jitter = Uniform::from(0..10);
     let delay_msecs = base_ms + jitter.sample(&mut rand::thread_rng());
     let delay_time = Duration::from_millis(delay_msecs);
     time::sleep(delay_time).await;
