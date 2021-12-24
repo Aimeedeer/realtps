@@ -128,16 +128,16 @@ impl SolanaClient {
 impl Client for SolanaClient {
     async fn client_version(&self) -> Result<String> {
         let client = self.client.clone();
-        let version = task::spawn_blocking(move || client.get_version());
+        let version = task::spawn_blocking(move || client.get_version()).await??;
 
-        Ok(version.await??.solana_core)
+        Ok(version.solana_core)
     }
 
     async fn get_latest_block_number(&self) -> Result<u64> {
         let client = self.client.clone();
-        let slot = task::spawn_blocking(move || client.get_slot());
+        let slot = task::spawn_blocking(move || client.get_slot()).await??;
 
-        Ok(slot.await??)
+        Ok(slot)
     }
 
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
@@ -147,9 +147,9 @@ impl Client for SolanaClient {
         let client = self.client.clone();
         let block = task::spawn_blocking(move || {
             client.get_block_with_encoding(block_number, UiTransactionEncoding::Base64)
-        });
+        }).await??;
 
-        solana_block_to_block(block.await??, block_number).map(Some)
+        solana_block_to_block(block, block_number).map(Some)
     }
 }
 
