@@ -12,6 +12,8 @@
     /* https://codepen.io/sosuke/pen/Pjoqqp */
     --black-filter: invert(20%) sepia(0%) saturate(0%) hue-rotate(338deg) brightness(94%) contrast(97%);
     --warning-dark-filter: invert(40%) sepia(96%) saturate(3876%) hue-rotate(353deg) brightness(95%) contrast(101%);
+
+    --icon-size: 1rem;
 }
 
 @font-face {
@@ -153,6 +155,13 @@ h3 {
 }
 
 img.icon {
-    vertical-align: text-bottom;
+    vertical-align: baseline;
     filter: var(--black-filter);
+    width: var(--icon-size);
+    height: var(--icon-size);
+}
+
+footer img.icon {
+    width: calc(var(--icon-size) * 2);
+    height: calc(var(--icon-size) * 2);
 }
