@@ -228,7 +228,7 @@ impl Importer {
     async fn calculate(&self, chains: Vec<Chain>) -> Result<Vec<Job>> {
         info!("beginning tps calculation");
 
-        let tasks: Vec<JoinHandle<(Chain, Result<ChainCalcs>)>> = chains
+        let tasks: FuturesUnordered<JoinHandle<(Chain, Result<ChainCalcs>)>> = chains
             .iter()
             .map(|chain| {
                 let chain = *chain;
