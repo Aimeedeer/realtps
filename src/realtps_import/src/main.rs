@@ -3,6 +3,7 @@
 use anyhow::{Context, Result};
 use calculate::ChainCalcs;
 use client::{Client, EthersClient, NearClient, SolanaClient, TendermintClient};
+use delay::retry_if_err;
 use futures::future::FutureExt;
 use futures::stream::{FuturesUnordered, StreamExt};
 use log::{error, info};
@@ -15,7 +16,6 @@ use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
 use tokio::task::JoinHandle;
-use delay::retry_if_err;
 
 mod calculate;
 mod client;

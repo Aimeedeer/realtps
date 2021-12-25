@@ -1,13 +1,13 @@
 use crate::Chain;
+use anyhow::Result;
 use log::{debug, warn};
 use rand::{
     self,
     distributions::{Distribution, Uniform},
 };
-use tokio::time::{self, Duration};
-use anyhow::Result;
 use std::future::Future;
 use std::pin::Pin;
+use tokio::time::{self, Duration};
 
 async fn delay(base_ms: u64) {
     let jitter = Uniform::from(0..10);
@@ -50,7 +50,8 @@ pub async fn recalculate_delay() {
 }
 
 pub async fn retry_if_err<'caller, F, T>(f: F) -> Result<T>
-where F: Fn() -> Pin<Box<dyn Future<Output = Result<T>> + Send + 'caller>>,
+where
+    F: Fn() -> Pin<Box<dyn Future<Output = Result<T>> + Send + 'caller>>,
 {
     let tries = 3;
     let base_delay_ms = 100;
@@ -75,7 +76,8 @@ where F: Fn() -> Pin<Box<dyn Future<Output = Result<T>> + Send + 'caller>>,
 }
 
 pub async fn retry_if_none<'caller, F, T>(f: F) -> Result<Option<T>>
-where F: Fn() -> Pin<Box<dyn Future<Output = Result<Option<T>>> + Send + 'caller>>,
+where
+    F: Fn() -> Pin<Box<dyn Future<Output = Result<Option<T>>> + Send + 'caller>>,
 {
     let tries = 3;
     let base_delay_ms = 100;

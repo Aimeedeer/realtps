@@ -1,6 +1,6 @@
 use crate::client::Client;
 use crate::delay::{self, retry_if_err, retry_if_none};
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 use log::{debug, info, warn};
 use realtps_common::{Chain, Db};
 use std::sync::Arc;
@@ -45,7 +45,8 @@ pub async fn import(chain: Chain, client: &dyn Client, db: &Arc<dyn Db>) -> Resu
 
             let get_block = || retry_if_err(|| Box::pin(client.get_block(block_number)));
             let block = retry_if_none(|| Box::pin(get_block())).await?;
-            let block = block.ok_or_else(|| anyhow!("get block returned None for chain {}", chain))?;
+            let block =
+                block.ok_or_else(|| anyhow!("get block returned None for chain {}", chain))?;
 
             let parent_hash = block.parent_hash.clone();
 
