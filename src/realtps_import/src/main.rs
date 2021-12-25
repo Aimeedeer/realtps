@@ -188,7 +188,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
 
 fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
     if let Some(url) = rpc_config.chains.get(chain) {
-        return url;
+        url
     } else {
         todo!()
     }
@@ -244,7 +244,7 @@ impl Importer {
                     task::spawn_blocking(move || db.store_tps(calcs.chain, calcs.tps)).await??;
                 }
                 Err(e) => {
-                    print_error(&anyhow::Error::from(e));
+                    print_error(&e);
                     error!("error calculating for {}", chain);
                 }
             }

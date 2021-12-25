@@ -193,7 +193,7 @@ fn ethers_block_to_block(chain: Chain, block: ethers::prelude::Block<H256>) -> R
     let block_number = block.number.expect("block number").as_u64();
     Ok(Block {
         chain,
-        block_number: block_number,
+        block_number,
         prev_block_number: block_number.checked_sub(1),
         timestamp: u64::try_from(block.timestamp).map_err(|e| anyhow!("{}", e))?,
         num_txs: u64::try_from(block.transactions.len())?,
