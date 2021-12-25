@@ -4,6 +4,7 @@ use anyhow::{Context, Result};
 use calculate::ChainCalcs;
 use client::{Client, EthersClient, NearClient, SolanaClient, TendermintClient};
 use futures::stream::{FuturesUnordered, StreamExt};
+use futures::future::FutureExt;
 use log::{error, info};
 use realtps_common::{all_chains, Chain, Db, JsonDb};
 use serde_derive::{Deserialize, Serialize};
@@ -227,16 +228,18 @@ impl Importer {
     async fn calculate(&self, chains: Vec<Chain>) -> Result<Vec<Job>> {
         info!("beginning tps calculation");
 
-        let tasks: Vec<(Chain, JoinHandle<Result<ChainCalcs>>)> = chains
+        let tasks: Vec<JoinHandle<(Chain, Result<ChainCalcs>)>> = chains
             .iter()
             .map(|chain| {
-                let calc_future = calculate::calculate_for_chain(*chain, self.db.clone());
-                (*chain, task::spawn(calc_future))
+                let chain = *chain;
+                let calc_future = calculate::calculate_for_chain(chain, self.db.clone());
+                let calc_future = calc_future.map(move |r| (chain, r));
+                task::spawn(calc_future)
             })
             .collect();
 
-        for (chain, task) in tasks {
-            let res = task.await?;
+        for task in tasks {
+            let (chain, res) = task.await?;
             match res {
                 Ok(calcs) => {
                     info!("calculated {} tps for chain {}", calcs.tps, calcs.chain);
