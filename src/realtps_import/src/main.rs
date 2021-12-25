@@ -25,7 +25,11 @@ mod import;
 struct Opts {
     #[structopt(subcommand)]
     cmd: Option<Command>,
-    #[structopt(parse(try_from_str = TryFrom::try_from))]
+    #[structopt(
+        global = true,
+        long,
+        parse(try_from_str = TryFrom::try_from)
+    )]
     chain: Option<Chain>,
 }
 
