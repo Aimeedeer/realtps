@@ -15,6 +15,7 @@ use std::sync::Arc;
 use structopt::StructOpt;
 use tokio::task;
 use tokio::task::JoinHandle;
+use delay::retry_if_err;
 
 mod calculate;
 mod client;
@@ -185,7 +186,8 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
         Chain::Near => client = Box::new(NearClient::new(&rpc_url)?),
         Chain::Solana => client = Box::new(SolanaClient::new(&rpc_url)?),
     }
-    let version = client.client_version().await?;
+
+    let version = retry_if_err(|| client.client_version()).await?;
     info!("node version for {}: {}", chain, version);
 
     Ok(client)

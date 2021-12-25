@@ -1,6 +1,6 @@
 use crate::client::Client;
-use crate::delay;
-use anyhow::Result;
+use crate::delay::{self, retry_if_err, retry_if_none};
+use anyhow::{Result, anyhow};
 use log::{debug, info, warn};
 use realtps_common::{Chain, Db};
 use std::sync::Arc;
@@ -9,7 +9,7 @@ use tokio::task;
 pub async fn import(chain: Chain, client: &dyn Client, db: &Arc<dyn Db>) -> Result<()> {
     info!("beginning import for {}", chain);
 
-    let head_block_number = client.get_latest_block_number().await?;
+    let head_block_number = retry_if_err(|| Box::pin(client.get_latest_block_number())).await?;
     let head_block_number = head_block_number;
     debug!("head block number for {}: {}", chain, head_block_number);
 
@@ -43,19 +43,9 @@ pub async fn import(chain: Chain, client: &dyn Client, db: &Arc<dyn Db>) -> Resu
         loop {
             debug!("fetching block {} for {}", block_number, chain);
 
-            let block = loop {
-                let block = client.get_block(block_number).await?;
-
-                if let Some(block) = block {
-                    break block;
-                } else {
-                    debug!(
-                        "received no block for number {} on chain {}",
-                        block_number, chain
-                    );
-                    delay::retry_delay().await;
-                }
-            };
+            let get_block = || retry_if_err(|| Box::pin(client.get_block(block_number)));
+            let block = retry_if_none(|| Box::pin(get_block())).await?;
+            let block = block.ok_or_else(|| anyhow!("get block returned None for chain {}", chain))?;
 
             let parent_hash = block.parent_hash.clone();
 

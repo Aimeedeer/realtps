@@ -1,10 +1,13 @@
 use crate::Chain;
-use log::debug;
+use log::{debug, warn};
 use rand::{
     self,
     distributions::{Distribution, Uniform},
 };
 use tokio::time::{self, Duration};
+use anyhow::Result;
+use std::future::Future;
+use std::pin::Pin;
 
 async fn delay(base_ms: u64) {
     let jitter = Uniform::from(0..10);
@@ -34,12 +37,6 @@ pub async fn rescan_delay(chain: Chain) {
     delay(msecs).await
 }
 
-pub async fn retry_delay() {
-    let msecs = 100;
-    debug!("delaying {} ms to retry request", msecs);
-    delay(msecs).await
-}
-
 pub async fn job_error_delay() {
     let msecs = 1000;
     debug!("delaying {} ms to retry job", msecs);
@@ -50,4 +47,54 @@ pub async fn recalculate_delay() {
     let msecs = 5000;
     debug!("delaying {} ms before recaclulating", msecs);
     delay(msecs).await;
+}
+
+pub async fn retry_if_err<'caller, F, T>(f: F) -> Result<T>
+where F: Fn() -> Pin<Box<dyn Future<Output = Result<T>> + Send + 'caller>>,
+{
+    let tries = 3;
+    let base_delay_ms = 100;
+    let mut try_num = 1;
+    let r = loop {
+        let r = f().await;
+        match r {
+            Ok(r) => break Ok(r),
+            Err(e) => {
+                if try_num == tries {
+                    break Err(e);
+                } else {
+                    let delay_ms = base_delay_ms * try_num;
+                    warn!("received err {}. retrying in {} ms", e, delay_ms);
+                    delay(delay_ms).await;
+                }
+            }
+        }
+        try_num += 1;
+    };
+    r
+}
+
+pub async fn retry_if_none<'caller, F, T>(f: F) -> Result<Option<T>>
+where F: Fn() -> Pin<Box<dyn Future<Output = Result<Option<T>>> + Send + 'caller>>,
+{
+    let tries = 3;
+    let base_delay_ms = 100;
+    let mut try_num = 1;
+    let r = loop {
+        let r = f().await?;
+        match r {
+            Some(r) => break Ok(Some(r)),
+            None => {
+                if try_num == tries {
+                    break Ok(None);
+                } else {
+                    let delay_ms = base_delay_ms * try_num;
+                    warn!("received None. retrying in {} ms", delay_ms);
+                    delay(delay_ms).await;
+                }
+            }
+        }
+        try_num += 1;
+    };
+    r
 }
