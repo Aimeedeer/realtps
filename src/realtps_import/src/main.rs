@@ -9,7 +9,7 @@ use realtps_common::{
     chain::{Chain, ChainType},
     db::JsonDb,
 };
-use serde_derive::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;

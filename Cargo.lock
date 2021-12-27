@@ -3939,7 +3939,6 @@ dependencies = [
  "rand 0.8.4",
  "realtps_common",
  "serde",
- "serde_derive",
  "solana-client",
  "solana-sdk",
  "solana-transaction-status",

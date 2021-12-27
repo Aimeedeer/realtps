@@ -12,8 +12,7 @@ structopt = "0.3.25"
 ethers = "0.6.2"
 tokio = { version = "1.15.0", features = ["macros", "rt-multi-thread", "time"] }
 rand = "0.8.4"
-serde = "1.0.132"
-serde_derive = "1.0.132"
+serde = { version = "1.0.132", features = ["derive"] }
 toml = "0.5.8"
 futures = "0.3.19"
 log = "0.4.14"
