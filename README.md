@@ -1,6 +1,6 @@
-# Real TPS
+# RealTPS
 
-Real TPS measures the current number of transactions per second committed by
+RealTPS measures the current number of transactions per second committed by
 various blockchains.
 
 ## About the software
@@ -37,7 +37,7 @@ Full details are on [the website].
 
 [the website]: https://realtps.net/about
 
-## Run RealTPS yourself 
+## Run RealTPS yourself
 
 ```
 $ git clone https://github.com/Aimeedeer/realtps
@@ -54,7 +54,7 @@ With the data in `db`, you can see the list of results by running the website:
 $ cargo run -p realtps_web
 ```
 
-And check it in your browser.
+And check it in your browser at `http://localhost:8000`.
 
 To update data for a specific chain, run `realtps_import` with arguments.
 e.g.
