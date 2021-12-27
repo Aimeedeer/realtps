@@ -84,13 +84,11 @@ async fn run(opts: Opts, rpc_config: RpcConfig) -> Result<()> {
 }
 
 fn get_chains(maybe_chain: Option<Chain>) -> Vec<Chain> {
-    let chains: Vec<Chain>;
     if let Some(chain) = maybe_chain {
-        chains = vec![chain];
+        vec![chain]
     } else {
-        chains = all_chains();
+        all_chains()
     }
-    chains
 }
 
 fn load_rpc_config<P: AsRef<Path>>(path: P) -> Result<RpcConfig> {
