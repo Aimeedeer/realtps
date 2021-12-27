@@ -56,7 +56,7 @@ $ cargo run -p realtps_web
 
 And check it in your browser.
 
-For updating data for a specific chain, run `realtps_import` with arguments.
+To update data for a specific chain, run `realtps_import` with arguments.
 e.g.
 
 ```
