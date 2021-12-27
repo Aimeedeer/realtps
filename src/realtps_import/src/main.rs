@@ -38,12 +38,12 @@ enum Command {
     Calculate,
 }
 
-static RPC_CONFIG_PATH: &str = "rpc_config.toml";
-
 #[derive(Deserialize, Serialize)]
 struct RpcConfig {
     chains: HashMap<Chain, String>,
 }
+
+static RPC_CONFIG_PATH: &str = "rpc_config.toml";
 
 #[tokio::main]
 async fn main() -> Result<()> {
