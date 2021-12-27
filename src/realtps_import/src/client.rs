@@ -7,7 +7,7 @@ use near_jsonrpc_client::{auth::Unauthenticated, methods, JsonRpcClient};
 use near_jsonrpc_primitives::types::chunks::ChunkReference;
 use near_primitives::{
     types::{BlockId, BlockReference},
-    views::{BlockHeaderView, BlockView, ChunkHeaderView},
+    views::BlockView,
 };
 use realtps_common::{Block, Chain};
 use solana_client::rpc_client::RpcClient;
