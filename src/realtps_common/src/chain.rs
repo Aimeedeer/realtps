@@ -7,6 +7,7 @@ pub enum ChainType {
     Near,
     Solana,
     Tendermint,
+    Substrate,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
@@ -28,6 +29,7 @@ pub enum Chain {
     Near,
     OKEx,
     Optimism,
+    Polkadot,
     Polygon,
     Rootstock,
     SecretNetwork,
@@ -54,6 +56,7 @@ impl Chain {
             Chain::Near,
             Chain::OKEx,
             Chain::Optimism,
+            Chain::Polkadot,
             Chain::Polygon,
             Chain::Rootstock,
             Chain::SecretNetwork,
@@ -81,6 +84,7 @@ impl Chain {
             Chain::Near => "NEAR",
             Chain::OKEx => "OKEx",
             Chain::Optimism => "Optimism",
+            Chain::Polkadot => "Polkadot",
             Chain::Polygon => "Polygon PoS",
             Chain::Rootstock => "Rootstock",
             Chain::SecretNetwork => "Secret Network",
@@ -111,6 +115,7 @@ impl Chain {
             Chain::Near => ChainType::Near,
             Chain::Solana => ChainType::Solana,
             Chain::CosmosHub | Chain::SecretNetwork | Chain::Terra => ChainType::Tendermint,
+            Chain::Polkadot => ChainType::Substrate,
         }
     }
 }
@@ -136,6 +141,7 @@ impl<'a> TryFrom<&'a str> for Chain {
             "near" => Ok(Chain::Near),
             "okex" => Ok(Chain::OKEx),
             "optimism" => Ok(Chain::Optimism),
+            "polkadot" => Ok(Chain::Polkadot),
             "polygon" => Ok(Chain::Polygon),
             "rootstock" => Ok(Chain::Rootstock),
             "secretnetwork" => Ok(Chain::SecretNetwork),

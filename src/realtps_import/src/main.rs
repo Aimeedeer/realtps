@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use client::{Client, EthersClient, NearClient, SolanaClient, TendermintClient};
 use delay::retry_if_err;
 use futures::future::FutureExt;
@@ -22,6 +22,7 @@ mod client;
 mod delay;
 mod import;
 mod jobs;
+mod substrate;
 
 #[derive(StructOpt, Debug)]
 struct Opts {
@@ -159,12 +160,23 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
         ChainType::Near => Box::new(NearClient::new(&rpc_url)?),
         ChainType::Solana => Box::new(SolanaClient::new(&rpc_url)?),
         ChainType::Tendermint => Box::new(TendermintClient::new(chain, &rpc_url)?),
+        ChainType::Substrate => make_substrate_client(chain, rpc_url).await?,
     };
 
     let version = retry_if_err(|| client.client_version()).await?;
     info!("node version for {}: {}", chain, version);
 
     Ok(client)
+}
+
+async fn make_substrate_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
+    Ok(match chain {
+        Chain::Polkadot => Box::new(substrate::PolkadotClient::new(&rpc_url).await?),
+        _ => bail!(
+            "don't know how to make a substrate client for chain {}",
+            chain
+        ),
+    })
 }
 
 fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
