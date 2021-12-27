@@ -59,11 +59,12 @@ async fn run(opts: Opts, rpc_config: RpcConfig) -> Result<()> {
     let cmd = opts.cmd.unwrap_or(Command::Run);
 
     let chains = get_chains(opts.chain);
+    let init_jobs = init_jobs(&chains, cmd);
     let job_runner = make_job_runner(&chains, &rpc_config).await?;
 
     let mut jobs = FuturesUnordered::new();
 
-    for job in init_jobs(&chains, cmd).into_iter() {
+    for job in init_jobs.into_iter() {
         jobs.push(job_runner.do_job(job));
     }
 
