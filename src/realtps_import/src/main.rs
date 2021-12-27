@@ -105,15 +105,6 @@ fn load_rpc_config<P: AsRef<Path>>(path: P) -> Result<RpcConfig> {
     Ok(rpc_config)
 }
 
-fn print_error(e: &anyhow::Error) {
-    error!("error: {}", e);
-    let mut source = e.source();
-    while let Some(source_) = source {
-        error!("source: {}", source_);
-        source = source_.source();
-    }
-}
-
 fn init_jobs(chains: &[Chain], cmd: Command) -> Vec<Job> {
     match cmd {
         Command::Run => {
@@ -269,5 +260,14 @@ impl Importer {
         delay::recalculate_delay().await;
 
         Ok(vec![Job::Calculate(chains)])
+    }
+}
+
+fn print_error(e: &anyhow::Error) {
+    error!("error: {}", e);
+    let mut source = e.source();
+    while let Some(source_) = source {
+        error!("source: {}", source_);
+        source = source_.source();
     }
 }
