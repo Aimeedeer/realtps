@@ -37,6 +37,65 @@ Full details are on [the website].
 
 [the website]: https://realtps.net/about
 
+## Run RealTPS yourself 
+
+```
+$ git clone https://github.com/Aimeedeer/realtps
+$ cd realtps
+$ RUST_LOG=info cargo run -p realtps_import
+```
+
+You'll see the `db` directory for fetched data under the root.
+You can kill it any time or just keep it running.
+
+With the data in `db`, you can see the list of results by running the website:
+
+```
+$ cargo run -p realtps_web
+```
+
+And check it in your browser.
+
+For updating data for a specific chain, run `realtps_import` with arguments.
+e.g.
+
+```
+$ RUST_LOG=info cargo run -p realtps_import -- import --chain polygon
+    Finished dev [unoptimized + debuginfo] target(s) in 0.33s
+     Running `target/debug/realtps_import import --chain polygon`
+[realtps_import] creating client for polygon at https://polygon-rpc.com
+[realtps_import] node version for polygon: bor/v0.2.12-stable-488ea2bc/linux-amd64/go1.17
+[realtps_import::import] beginning import for polygon
+[realtps_import::import] importing at least 43020 blocks for polygon
+[realtps_import::import] fast-forwarding chain polygon from block 23004376
+[realtps_import::import] fast-forwarded chain polygon to block 23004283
+```
+
+Have fun!
+
+## Contributing 
+
+Contributing to RealTPS by adding more chains support:
+- add the chain's public RPC to [`rpc_config.toml`]
+- add the chain to [`realtps_common/src/lib.rs`]
+- implement trait `Client` for the chain in
+  [`realtps_import/src/client.rs`] and make changes to the
+  `make_client` method in [`realtps_import/src/main.rs`]
+
+```
+#[async_trait]
+pub trait Client: Send + Sync + 'static {
+    async fn client_version(&self) -> Result<String>;
+    async fn get_latest_block_number(&self) -> Result<u64>;
+    async fn get_block(&self, block_number: u64) -> Result<Option<Block>>;
+}
+```
+
+[`rpc_config.toml`]: rpc_config.toml
+[`realtps_common/src/lib.rs`]: src/realtps_common/src/lib.rs
+[`realtps_import/src/client.rs`]: src/realtps_import/src/client.rs
+[`realtps_import/src/main.rs`]:  src/realtps_import/src/main.rs
+ 
 ## License
 
 MIT
