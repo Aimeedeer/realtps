@@ -29,7 +29,7 @@ pub enum Chain {
     XDai,
 }
 
-// for parsing command line used in `structopt`
+// For parsing command line used in `structopt`.
 impl<'a> TryFrom<&'a str> for Chain {
     type Error = anyhow::Error;
 
@@ -61,7 +61,7 @@ impl<'a> TryFrom<&'a str> for Chain {
     }
 }
 
-// for serde deserializing
+// For serde deserializing.
 impl TryFrom<String> for Chain {
     type Error = anyhow::Error;
 
@@ -70,7 +70,7 @@ impl TryFrom<String> for Chain {
     }
 }
 
-// for serde serializing
+// Displays a "chain id". Used in `JsonDb` paths and logging.
 impl fmt::Display for Chain {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
