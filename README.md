@@ -73,29 +73,6 @@ $ RUST_LOG=info cargo run -p realtps_import -- import --chain polygon
 
 Have fun!
 
-## Contributing 
-
-Contributing to RealTPS by adding more chains support:
-- add the chain's public RPC to [`rpc_config.toml`]
-- add the chain to [`realtps_common/src/chain.rs`]
-- implement trait `Client` for the chain in
-  [`realtps_import/src/client.rs`] and make changes to the
-  `make_client` method in [`realtps_import/src/main.rs`]
-
-```
-#[async_trait]
-pub trait Client: Send + Sync + 'static {
-    async fn client_version(&self) -> Result<String>;
-    async fn get_latest_block_number(&self) -> Result<u64>;
-    async fn get_block(&self, block_number: u64) -> Result<Option<Block>>;
-}
-```
-
-[`rpc_config.toml`]: rpc_config.toml
-[`realtps_common/src/lib.rs`]: src/realtps_common/src/lib.rs
-[`realtps_import/src/client.rs`]: src/realtps_import/src/client.rs
-[`realtps_import/src/main.rs`]:  src/realtps_import/src/main.rs
- 
 ## License
 
 MIT
