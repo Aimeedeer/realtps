@@ -6,6 +6,7 @@ use client::{Client, EthersClient, NearClient, SolanaClient, TendermintClient};
 use delay::retry_if_err;
 use futures::future::FutureExt;
 use futures::stream::{FuturesUnordered, StreamExt};
+use jobs::{Job, JobRunner};
 use log::{error, info};
 use realtps_common::{all_chains, Chain, Db, JsonDb};
 use serde_derive::{Deserialize, Serialize};
@@ -22,6 +23,7 @@ mod calculate;
 mod client;
 mod delay;
 mod import;
+mod jobs;
 
 #[derive(StructOpt, Debug)]
 struct Opts {
@@ -40,11 +42,6 @@ enum Command {
     Run,
     Import,
     Calculate,
-}
-
-enum Job {
-    Import(Chain),
-    Calculate(Vec<Chain>),
 }
 
 static RPC_CONFIG_PATH: &str = "rpc_config.toml";
@@ -190,84 +187,5 @@ fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
         url
     } else {
         todo!()
-    }
-}
-
-struct JobRunner {
-    db: Arc<dyn Db>,
-    clients: HashMap<Chain, Box<dyn Client>>,
-}
-
-impl JobRunner {
-    async fn do_job(&self, job: Job) -> Vec<Job> {
-        let r = match job {
-            Job::Import(chain) => self.import(chain).await,
-            Job::Calculate(ref chains) => self.calculate(chains.to_vec()).await,
-        };
-
-        match r {
-            Ok(new_jobs) => new_jobs,
-            Err(e) => {
-                print_error(&e);
-                error!("error running job. repeating");
-                delay::job_error_delay().await;
-                vec![job]
-            }
-        }
-    }
-
-    async fn import(&self, chain: Chain) -> Result<Vec<Job>> {
-        let client = self.clients.get(&chain).expect("client");
-        import::import(chain, client.as_ref(), &self.db).await?;
-
-        Ok(vec![Job::Import(chain)])
-    }
-
-    async fn calculate(&self, chains: Vec<Chain>) -> Result<Vec<Job>> {
-        info!("beginning tps calculation");
-
-        let start = Instant::now();
-
-        let tasks: FuturesUnordered<JoinHandle<(Chain, Result<ChainCalcs>)>> = chains
-            .iter()
-            .map(|chain| {
-                let chain = *chain;
-                let calc_future = calculate::calculate_for_chain(chain, self.db.clone());
-                let calc_future = calc_future.map(move |r| (chain, r));
-                task::spawn(calc_future)
-            })
-            .collect();
-
-        for task in tasks {
-            let (chain, res) = task.await?;
-            match res {
-                Ok(calcs) => {
-                    info!("calculated {} tps for chain {}", calcs.tps, calcs.chain);
-                    let db = self.db.clone();
-                    task::spawn_blocking(move || db.store_tps(calcs.chain, calcs.tps)).await??;
-                }
-                Err(e) => {
-                    print_error(&e);
-                    error!("error calculating for {}", chain);
-                }
-            }
-        }
-
-        let end = Instant::now();
-        let duration = end - start;
-        info!("calculation took {} s", duration.as_secs());
-
-        delay::recalculate_delay().await;
-
-        Ok(vec![Job::Calculate(chains)])
-    }
-}
-
-fn print_error(e: &anyhow::Error) {
-    error!("error: {}", e);
-    let mut source = e.source();
-    while let Some(source_) = source {
-        error!("source: {}", source_);
-        source = source_.source();
     }
 }
