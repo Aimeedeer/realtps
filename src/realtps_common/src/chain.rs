@@ -29,7 +29,7 @@ pub enum Chain {
     XDai,
 }
 
-// for serde deserializing
+// for parsing command line used in `structopt`
 impl<'a> TryFrom<&'a str> for Chain {
     type Error = anyhow::Error;
 
@@ -61,7 +61,7 @@ impl<'a> TryFrom<&'a str> for Chain {
     }
 }
 
-// for parsing command line used in `structopt`
+// for serde deserializing
 impl TryFrom<String> for Chain {
     type Error = anyhow::Error;
 
