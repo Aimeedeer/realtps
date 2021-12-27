@@ -7,7 +7,10 @@ use delay::retry_if_err;
 use futures::future::FutureExt;
 use futures::stream::{FuturesUnordered, StreamExt};
 use log::{error, info};
-use realtps_common::{chain::{all_chains, Chain}, db::{Db, JsonDb}};
+use realtps_common::{
+    chain::{all_chains, Chain},
+    db::{Db, JsonDb},
+};
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;

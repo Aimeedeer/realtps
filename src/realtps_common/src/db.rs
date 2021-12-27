@@ -1,9 +1,9 @@
+use crate::chain::Chain;
 use anyhow::{bail, Result};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
 use std::io::{BufReader, BufWriter};
-use crate::chain::Chain;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Block {
