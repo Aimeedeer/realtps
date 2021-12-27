@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
 use client::{Client, EthersClient, NearClient, SolanaClient, TendermintClient};
 use delay::retry_if_err;
+use futures::future::FutureExt;
 use futures::stream::{FuturesUnordered, StreamExt};
 use jobs::{Job, JobRunner};
 use log::{error, info};
@@ -127,19 +128,20 @@ async fn make_all_clients(
     chains: &[Chain],
     rpc_config: &RpcConfig,
 ) -> Result<HashMap<Chain, Box<dyn Client>>> {
-    let mut client_futures = vec![];
+    let mut client_futures = FuturesUnordered::new();
 
     for chain in chains {
         let rpc_url = get_rpc_url(chain, rpc_config).to_string();
         let client_future = task::spawn(make_client(*chain, rpc_url));
-        client_futures.push((chain, client_future));
+        let client_future = client_future.map(move |client| (*chain, client));
+        client_futures.push(client_future);
     }
 
     let mut clients = HashMap::new();
 
-    for (chain, client_future) in client_futures {
-        let client = client_future.await??;
-        clients.insert(*chain, client);
+    while let Some((chain, client)) = client_futures.next().await {
+        let client = client??;
+        clients.insert(chain, client);
     }
 
     Ok(clients)
