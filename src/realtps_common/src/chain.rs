@@ -159,28 +159,6 @@ impl TryFrom<String> for Chain {
 // Displays a "chain id". Used in `JsonDb` paths and logging.
 impl fmt::Display for Chain {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Chain::Arbitrum => write!(f, "arbitrum"),
-            Chain::Avalanche => write!(f, "avalanche"),
-            Chain::Binance => write!(f, "binance"),
-            Chain::Celo => write!(f, "celo"),
-            Chain::CosmosHub => write!(f, "cosmoshub"),
-            Chain::Cronos => write!(f, "cronos"),
-            Chain::Ethereum => write!(f, "ethereum"),
-            Chain::Fantom => write!(f, "fantom"),
-            Chain::Harmony => write!(f, "harmony"),
-            Chain::Heco => write!(f, "heco"),
-            Chain::KuCoin => write!(f, "kucoin"),
-            Chain::Moonriver => write!(f, "moonriver"),
-            Chain::Near => write!(f, "near"),
-            Chain::OKEx => write!(f, "okex"),
-            Chain::Optimism => write!(f, "optimism"),
-            Chain::Polygon => write!(f, "polygon"),
-            Chain::Rootstock => write!(f, "rootstock"),
-            Chain::SecretNetwork => write!(f, "secretnetwork"),
-            Chain::Solana => write!(f, "solana"),
-            Chain::Terra => write!(f, "terra"),
-            Chain::XDai => write!(f, "xdai"),
-        }
+        self.serialize(f)
     }
 }
