@@ -126,6 +126,41 @@ pub fn chain_description(chain: Chain) -> &'static str {
     }
 }
 
+pub enum ChainType {
+    Ethers,
+    Near,
+    Solana,
+    Tendermint,
+}
+
+impl Chain {
+    pub fn chain_type(&self) -> ChainType {
+        match self {
+            Chain::Arbitrum
+                | Chain::Avalanche
+                | Chain::Binance
+                | Chain::Celo
+                | Chain::Cronos
+                | Chain::Ethereum
+                | Chain::Fantom
+                | Chain::Harmony
+                | Chain::Heco
+                | Chain::KuCoin
+                | Chain::Moonriver
+                | Chain::OKEx
+                | Chain::Optimism
+                | Chain::Polygon
+                | Chain::Rootstock
+                | Chain::XDai => ChainType::Ethers,
+            Chain::Near => ChainType::Near,
+            Chain::Solana => ChainType::Solana,
+            Chain::CosmosHub
+                | Chain::SecretNetwork
+                | Chain::Terra => ChainType::Tendermint,
+        }
+    }
+}
+
 pub fn all_chains() -> Vec<Chain> {
     vec![
         Chain::Arbitrum,

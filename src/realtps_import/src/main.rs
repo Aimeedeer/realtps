@@ -6,7 +6,7 @@ use futures::stream::{FuturesUnordered, StreamExt};
 use jobs::{Job, JobRunner};
 use log::{error, info};
 use realtps_common::{
-    chain::{all_chains, Chain},
+    chain::{all_chains, Chain, ChainType},
     db::JsonDb,
 };
 use serde_derive::{Deserialize, Serialize};
@@ -153,31 +153,13 @@ async fn make_all_clients(
 
 async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
     info!("creating client for {} at {}", chain, rpc_url);
-    let client: Box<dyn Client>;
-
-    match chain {
-        Chain::Arbitrum
-        | Chain::Avalanche
-        | Chain::Binance
-        | Chain::Celo
-        | Chain::Cronos
-        | Chain::Ethereum
-        | Chain::Fantom
-        | Chain::Harmony
-        | Chain::Heco
-        | Chain::KuCoin
-        | Chain::Moonriver
-        | Chain::OKEx
-        | Chain::Optimism
-        | Chain::Polygon
-        | Chain::Rootstock
-        | Chain::XDai => client = Box::new(EthersClient::new(chain, &rpc_url)?),
-        Chain::CosmosHub | Chain::SecretNetwork | Chain::Terra => {
-            client = Box::new(TendermintClient::new(chain, &rpc_url)?)
-        }
-        Chain::Near => client = Box::new(NearClient::new(&rpc_url)?),
-        Chain::Solana => client = Box::new(SolanaClient::new(&rpc_url)?),
-    }
+    
+    let client: Box<dyn Client> = match chain.chain_type() {
+        ChainType::Ethers => Box::new(EthersClient::new(chain, &rpc_url)?),
+        ChainType::Near => Box::new(NearClient::new(&rpc_url)?),
+        ChainType::Solana => Box::new(SolanaClient::new(&rpc_url)?),
+        ChainType::Tendermint => Box::new(TendermintClient::new(chain, &rpc_url)?),
+    };
 
     let version = retry_if_err(|| client.client_version()).await?;
     info!("node version for {}: {}", chain, version);
