@@ -74,19 +74,19 @@ async fn run(opts: Opts, rpc_config: RpcConfig) -> Result<()> {
         chains = all_chains();
     }
 
-    let importer = make_importer(&chains, &rpc_config).await?;
+    let job_runner = make_job_runner(&chains, &rpc_config).await?;
 
     let mut jobs = FuturesUnordered::new();
 
     for job in init_jobs(&chains, cmd).into_iter() {
-        jobs.push(importer.do_job(job));
+        jobs.push(job_runner.do_job(job));
     }
 
     loop {
         let job_result = jobs.next().await;
         if let Some(new_jobs) = job_result {
             for new_job in new_jobs {
-                jobs.push(importer.do_job(new_job));
+                jobs.push(job_runner.do_job(new_job));
             }
         } else {
             error!("no more jobs?!");
@@ -120,10 +120,10 @@ fn init_jobs(chains: &[Chain], cmd: Command) -> Vec<Job> {
     }
 }
 
-async fn make_importer(chains: &[Chain], rpc_config: &RpcConfig) -> Result<Importer> {
+async fn make_job_runner(chains: &[Chain], rpc_config: &RpcConfig) -> Result<JobRunner> {
     let clients = make_all_clients(chains, rpc_config).await?;
 
-    Ok(Importer {
+    Ok(JobRunner {
         db: Arc::new(JsonDb),
         clients,
     })
@@ -193,12 +193,12 @@ fn get_rpc_url<'a>(chain: &Chain, rpc_config: &'a RpcConfig) -> &'a str {
     }
 }
 
-struct Importer {
+struct JobRunner {
     db: Arc<dyn Db>,
     clients: HashMap<Chain, Box<dyn Client>>,
 }
 
-impl Importer {
+impl JobRunner {
     async fn do_job(&self, job: Job) -> Vec<Job> {
         let r = match job {
             Job::Import(chain) => self.import(chain).await,
