@@ -25,8 +25,8 @@ pub trait Client: Send + Sync + 'static {
 }
 
 pub struct EthersClient {
-    pub chain: Chain,
-    pub provider: Provider<Http>,
+    chain: Chain,
+    provider: Provider<Http>,
 }
 
 impl EthersClient {
@@ -58,7 +58,7 @@ impl Client for EthersClient {
 }
 
 pub struct NearClient {
-    pub client: JsonRpcClient<Unauthenticated>,
+    client: JsonRpcClient<Unauthenticated>,
 }
 
 impl NearClient {
@@ -113,7 +113,7 @@ impl Client for NearClient {
 }
 
 pub struct SolanaClient {
-    pub client: Arc<RpcClient>,
+    client: Arc<RpcClient>,
 }
 
 impl SolanaClient {
@@ -155,8 +155,8 @@ impl Client for SolanaClient {
 }
 
 pub struct TendermintClient {
-    pub chain: Chain,
-    pub client: HttpClient,
+    chain: Chain,
+    client: HttpClient,
 }
 
 impl TendermintClient {
