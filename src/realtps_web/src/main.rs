@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate rocket;
 
-use realtps_common::{all_chains, chain_description, Chain, Db, JsonDb};
+use realtps_common::{chain::{all_chains, chain_description, Chain}, db::{Db, JsonDb}};
 use rocket::fs::{relative, FileServer};
 use rocket_dyn_templates::Template;
 use serde::{Deserialize, Serialize};

@@ -9,7 +9,7 @@ use near_primitives::{
     types::{BlockId, BlockReference},
     views::{BlockHeaderView, BlockView, ChunkHeaderView},
 };
-use realtps_common::{Block, Chain};
+use realtps_common::{db::Block, chain::Chain};
 use solana_client::rpc_client::RpcClient;
 use solana_transaction_status::UiTransactionEncoding;
 use std::sync::Arc;

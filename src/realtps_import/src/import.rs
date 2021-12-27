@@ -2,7 +2,7 @@ use crate::client::Client;
 use crate::delay::{self, retry_if_err, retry_if_none};
 use anyhow::{anyhow, Result};
 use log::{debug, info, warn};
-use realtps_common::{Block, Chain, Db};
+use realtps_common::{db::{Block, Db}, chain::Chain};
 use std::sync::Arc;
 use tokio::task;
 

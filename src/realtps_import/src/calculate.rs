@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use log::{debug, warn};
-use realtps_common::{Block, Chain, Db};
+use realtps_common::{db::{Block, Db}, chain::Chain};
 use std::sync::Arc;
 use std::time;
 use tokio::task;
