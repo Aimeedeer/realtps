@@ -2,7 +2,7 @@
 extern crate rocket;
 
 use realtps_common::{
-    chain::{all_chains, Chain},
+    chain::Chain,
     db::{Db, JsonDb},
 };
 use rocket::fs::{relative, FileServer};
@@ -30,7 +30,7 @@ fn index() -> Template {
     let mut list = Vec::new();
     let db = JsonDb;
 
-    for chain in all_chains() {
+    for chain in Chain::all_chains() {
         if let Some(tps) = db
             .load_tps(chain)
             .expect(&format!("No tps data for chain {}", &chain))

@@ -6,7 +6,7 @@ use futures::stream::{FuturesUnordered, StreamExt};
 use jobs::{Job, JobRunner};
 use log::{error, info};
 use realtps_common::{
-    chain::{all_chains, Chain, ChainType},
+    chain::{Chain, ChainType},
     db::JsonDb,
 };
 use serde_derive::{Deserialize, Serialize};
@@ -91,7 +91,7 @@ fn get_chains(maybe_chain: Option<Chain>) -> Vec<Chain> {
     if let Some(chain) = maybe_chain {
         vec![chain]
     } else {
-        all_chains()
+        Chain::all_chains()
     }
 }
 

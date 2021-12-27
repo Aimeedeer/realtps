@@ -107,6 +107,32 @@ impl fmt::Display for Chain {
 }
 
 impl Chain {
+    pub fn all_chains() -> Vec<Chain> {
+        vec![
+            Chain::Arbitrum,
+            Chain::Avalanche,
+            Chain::Binance,
+            Chain::Celo,
+            Chain::CosmosHub,
+            Chain::Cronos,
+            Chain::Ethereum,
+            Chain::Fantom,
+            Chain::Harmony,
+            Chain::Heco,
+            Chain::KuCoin,
+            Chain::Moonriver,
+            Chain::Near,
+            Chain::OKEx,
+            Chain::Optimism,
+            Chain::Polygon,
+            Chain::Rootstock,
+            Chain::SecretNetwork,
+            Chain::Solana,
+            Chain::Terra,
+            Chain::XDai,
+        ]
+    }
+
     /// Chain names showed on the website
     pub fn description(&self) -> &'static str {
         match *self {
@@ -157,30 +183,4 @@ impl Chain {
             Chain::CosmosHub | Chain::SecretNetwork | Chain::Terra => ChainType::Tendermint,
         }
     }
-}
-
-pub fn all_chains() -> Vec<Chain> {
-    vec![
-        Chain::Arbitrum,
-        Chain::Avalanche,
-        Chain::Binance,
-        Chain::Celo,
-        Chain::CosmosHub,
-        Chain::Cronos,
-        Chain::Ethereum,
-        Chain::Fantom,
-        Chain::Harmony,
-        Chain::Heco,
-        Chain::KuCoin,
-        Chain::Moonriver,
-        Chain::Near,
-        Chain::OKEx,
-        Chain::Optimism,
-        Chain::Polygon,
-        Chain::Rootstock,
-        Chain::SecretNetwork,
-        Chain::Solana,
-        Chain::Terra,
-        Chain::XDai,
-    ]
 }
