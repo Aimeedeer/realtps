@@ -2,7 +2,7 @@
 extern crate rocket;
 
 use realtps_common::{
-    chain::{all_chains, chain_description, Chain},
+    chain::{all_chains, Chain},
     db::{Db, JsonDb},
 };
 use rocket::fs::{relative, FileServer};
@@ -36,7 +36,7 @@ fn index() -> Template {
             .expect(&format!("No tps data for chain {}", &chain))
         {
             let note = chain_note(chain).map(ToString::to_string);
-            let chain = chain_description(chain).to_string();
+            let chain = chain.description().to_string();
             let tps_str = format!("{:.2}", tps);
             list.push(Row {
                 chain,

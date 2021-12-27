@@ -2,6 +2,13 @@ use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+pub enum ChainType {
+    Ethers,
+    Near,
+    Solana,
+    Tendermint,
+}
+
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
 #[serde(try_from = "String")]
 #[serde(rename_all = "lowercase")]
@@ -99,41 +106,34 @@ impl fmt::Display for Chain {
     }
 }
 
-// Chain names showed on the website
-pub fn chain_description(chain: Chain) -> &'static str {
-    match chain {
-        Chain::Arbitrum => "Arbitrum",
-        Chain::Avalanche => "Avalanche C-Chain",
-        Chain::Binance => "Binance Smart Chain",
-        Chain::Celo => "Celo",
-        Chain::CosmosHub => "Cosmos Hub",
-        Chain::Cronos => "Cronos",
-        Chain::Ethereum => "Ethereum",
-        Chain::Fantom => "Fantom",
-        Chain::Harmony => "Harmony",
-        Chain::Heco => "Heco",
-        Chain::KuCoin => "KuCoin",
-        Chain::Moonriver => "Moonriver",
-        Chain::Near => "NEAR",
-        Chain::OKEx => "OKEx",
-        Chain::Optimism => "Optimism",
-        Chain::Polygon => "Polygon PoS",
-        Chain::Rootstock => "Rootstock",
-        Chain::SecretNetwork => "Secret Network",
-        Chain::Solana => "Solana",
-        Chain::Terra => "Terra",
-        Chain::XDai => "xDai",
-    }
-}
-
-pub enum ChainType {
-    Ethers,
-    Near,
-    Solana,
-    Tendermint,
-}
-
 impl Chain {
+    /// Chain names showed on the website
+    pub fn description(&self) -> &'static str {
+        match *self {
+            Chain::Arbitrum => "Arbitrum",
+            Chain::Avalanche => "Avalanche C-Chain",
+            Chain::Binance => "Binance Smart Chain",
+            Chain::Celo => "Celo",
+            Chain::CosmosHub => "Cosmos Hub",
+            Chain::Cronos => "Cronos",
+            Chain::Ethereum => "Ethereum",
+            Chain::Fantom => "Fantom",
+            Chain::Harmony => "Harmony",
+            Chain::Heco => "Heco",
+            Chain::KuCoin => "KuCoin",
+            Chain::Moonriver => "Moonriver",
+            Chain::Near => "NEAR",
+            Chain::OKEx => "OKEx",
+            Chain::Optimism => "Optimism",
+            Chain::Polygon => "Polygon PoS",
+            Chain::Rootstock => "Rootstock",
+            Chain::SecretNetwork => "Secret Network",
+            Chain::Solana => "Solana",
+            Chain::Terra => "Terra",
+            Chain::XDai => "xDai",
+        }
+    }
+
     pub fn chain_type(&self) -> ChainType {
         match self {
             Chain::Arbitrum
