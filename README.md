@@ -77,7 +77,7 @@ Have fun!
 
 Contributing to RealTPS by adding more chains support:
 - add the chain's public RPC to [`rpc_config.toml`]
-- add the chain to [`realtps_common/src/lib.rs`]
+- add the chain to [`realtps_common/src/chain.rs`]
 - implement trait `Client` for the chain in
   [`realtps_import/src/client.rs`] and make changes to the
   `make_client` method in [`realtps_import/src/main.rs`]
