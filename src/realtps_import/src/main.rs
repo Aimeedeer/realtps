@@ -69,8 +69,8 @@ async fn run(opts: Opts, rpc_config: RpcConfig) -> Result<()> {
         .collect();
 
     loop {
-        let job_result = jobs.next().await;
-        if let Some(new_jobs) = job_result {
+        let new_jobs = jobs.next().await;
+        if let Some(new_jobs) = new_jobs {
             for new_job in new_jobs {
                 jobs.push(job_runner.do_job(new_job));
             }
