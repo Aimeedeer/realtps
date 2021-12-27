@@ -13,6 +13,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::sync::Arc;
+use std::time::Instant;
 use structopt::StructOpt;
 use tokio::task;
 use tokio::task::JoinHandle;
@@ -234,6 +235,8 @@ impl Importer {
     async fn calculate(&self, chains: Vec<Chain>) -> Result<Vec<Job>> {
         info!("beginning tps calculation");
 
+        let start = Instant::now();
+
         let tasks: FuturesUnordered<JoinHandle<(Chain, Result<ChainCalcs>)>> = chains
             .iter()
             .map(|chain| {
@@ -258,6 +261,10 @@ impl Importer {
                 }
             }
         }
+
+        let end = Instant::now();
+        let duration = end - start;
+        info!("calculation took {} s", duration.as_secs());
 
         delay::recalculate_delay().await;
 
