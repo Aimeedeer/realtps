@@ -58,13 +58,7 @@ async fn main() -> Result<()> {
 async fn run(opts: Opts, rpc_config: RpcConfig) -> Result<()> {
     let cmd = opts.cmd.unwrap_or(Command::Run);
 
-    let chains: Vec<Chain>;
-    if let Some(chain) = opts.chain {
-        chains = vec![chain];
-    } else {
-        chains = all_chains();
-    }
-
+    let chains = get_chains(opts.chain);
     let job_runner = make_job_runner(&chains, &rpc_config).await?;
 
     let mut jobs = FuturesUnordered::new();
@@ -86,6 +80,16 @@ async fn run(opts: Opts, rpc_config: RpcConfig) -> Result<()> {
     }
 
     Ok(())
+}
+
+fn get_chains(maybe_chain: Option<Chain>) -> Vec<Chain> {
+    let chains: Vec<Chain>;
+    if let Some(chain) = maybe_chain {
+        chains = vec![chain];
+    } else {
+        chains = all_chains();
+    }
+    chains
 }
 
 fn load_rpc_config<P: AsRef<Path>>(path: P) -> Result<RpcConfig> {
