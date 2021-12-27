@@ -153,7 +153,7 @@ async fn make_all_clients(
 
 async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
     info!("creating client for {} at {}", chain, rpc_url);
-    
+
     let client: Box<dyn Client> = match chain.chain_type() {
         ChainType::Ethers => Box::new(EthersClient::new(chain, &rpc_url)?),
         ChainType::Near => Box::new(NearClient::new(&rpc_url)?),
