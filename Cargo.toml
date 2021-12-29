@@ -8,4 +8,4 @@ members = [
 
 [patch.crates-io]
 # have to turn prometheus default features off so substrate can compile
-near-metrics = { path = "../nearcore/core/metrics" }
+near-metrics = { git = "https://github.com/brson/nearcore.git", branch = "realtps-patches" }

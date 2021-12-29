@@ -17,18 +17,24 @@ pub type Header = sp_runtime::generic::Header<BlockNumber, BlakeTwo256>;
 //pub type UncheckedExtrinsic = sp_runtime::generic::UncheckedExtrinsic<Address, Call, Signature, SignedExtra>;
 
 pub struct PolkadotClient {
+    api: Api<sr25519::Pair>,
 }
 
 impl PolkadotClient {
     pub async fn new(url: &str) -> Result<Self> {
-        todo!()
+        let url = url.to_string();
+        let api = task::spawn_blocking(move || Api::new(url)).await??;
+
+        Ok(PolkadotClient {
+            api,
+        })
     }
 }
 
 #[async_trait]
 impl Client for PolkadotClient {
     async fn client_version(&self) -> Result<String> {
-        todo!()
+        Ok(format!("{}", self.api.runtime_version))
     }
 
     async fn get_latest_block_number(&self) -> Result<u64> {

@@ -3825,6 +3825,7 @@ dependencies = [
 [[package]]
 name = "near-metrics"
 version = "0.11.0"
+source = "git+https://github.com/brson/nearcore.git?branch=realtps-patches#49f7cfbaa6eadb005727009068f13133dfe697ee"
 dependencies = [
  "lazy_static",
  "log",
