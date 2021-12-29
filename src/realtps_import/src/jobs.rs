@@ -1,18 +1,16 @@
 use crate::calculate;
-use crate::calculate::ChainCalcs;
 use crate::client::Client;
 use crate::delay;
 use crate::import;
 use anyhow::Result;
 use futures::future::FutureExt;
-use futures::stream::FuturesUnordered;
+use futures::stream::{FuturesUnordered, StreamExt};
 use log::{error, info};
 use realtps_common::{chain::Chain, db::Db};
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::task;
-use tokio::task::JoinHandle;
 
 pub enum Job {
     Import(Chain),
@@ -54,19 +52,19 @@ impl JobRunner {
 
         let start = Instant::now();
 
-        let tasks: FuturesUnordered<JoinHandle<(Chain, Result<ChainCalcs>)>> = chains
+        let mut tasks: FuturesUnordered<_> = chains
             .iter()
             .map(|chain| {
                 let chain = *chain;
                 let calc_future = calculate::calculate_for_chain(chain, self.db.clone());
-                let calc_future = calc_future.map(move |r| (chain, r));
-                task::spawn(calc_future)
+                let calc_future = task::spawn(calc_future);
+                calc_future.map(move |calcs| (chain, calcs))
             })
             .collect();
 
-        for task in tasks {
-            let (chain, res) = task.await?;
-            match res {
+        while let Some((chain, calcs)) = tasks.next().await {
+            let calcs = calcs?;
+            match calcs {
                 Ok(calcs) => {
                     info!("calculated {} tps for chain {}", calcs.tps, calcs.chain);
                     let db = self.db.clone();

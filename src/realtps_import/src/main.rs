@@ -134,7 +134,7 @@ async fn make_all_clients(
     chains: &[Chain],
     rpc_config: &RpcConfig,
 ) -> Result<HashMap<Chain, Box<dyn Client>>> {
-    let client_futures = FuturesUnordered::new();
+    let mut client_futures = FuturesUnordered::new();
 
     for chain in chains {
         let rpc_url = get_rpc_url(chain, rpc_config).to_string();
@@ -145,8 +145,7 @@ async fn make_all_clients(
 
     let mut clients = HashMap::new();
 
-    for client in client_futures {
-        let (chain, client) = client.await;
+    while let Some((chain, client)) = client_futures.next().await {
         let client = client??;
         clients.insert(chain, client);
     }
