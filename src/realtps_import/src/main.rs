@@ -15,6 +15,7 @@ use std::fs;
 use std::path::Path;
 use std::sync::Arc;
 use structopt::StructOpt;
+use substrate::SubstrateClient;
 use tokio::task;
 
 mod calculate;
@@ -23,6 +24,7 @@ mod delay;
 mod helpers;
 mod import;
 mod jobs;
+mod substrate;
 
 #[derive(StructOpt, Debug)]
 struct Opts {
@@ -160,6 +162,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
         ChainType::Near => Box::new(NearClient::new(&rpc_url)?),
         ChainType::Solana => Box::new(SolanaClient::new(&rpc_url)?),
         ChainType::Tendermint => Box::new(TendermintClient::new(chain, &rpc_url)?),
+        ChainType::Substrate => Box::new(SubstrateClient::new(chain, &rpc_url).await?),
     };
 
     let version = retry_if_err(|| client.client_version()).await?;

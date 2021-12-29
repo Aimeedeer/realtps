@@ -157,7 +157,7 @@ async fn import_first_blocks(
     db: &Arc<dyn Db>,
     head_block_number: u64,
 ) -> Result<()> {
-    info!("importing first block for {}", chain);
+    info!("importing first blocks for {}", chain);
 
     let head_block = fetch_block(chain, client, head_block_number).await?;
     let prev_block_number = head_block.prev_block_number.expect("not genesis block");
@@ -172,6 +172,8 @@ async fn import_first_blocks(
     store_block(db, head_block).await?;
     store_block(db, prev_block).await?;
     store_highest_known_block_number(chain, db, head_block_number).await?;
+
+    info!("completed first import for {}", chain);
 
     Ok(())
 }
