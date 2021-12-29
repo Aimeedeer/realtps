@@ -27,6 +27,7 @@ near-jsonrpc-primitives = "0.11.0"
 tendermint-rpc = { version = "0.23.1", features = ["http-client"] }
 tendermint = "0.23.1"
 tendermint-proto = "0.23.1"
-substrate-api-client = { git = "https://github.com/scs/substrate-api-client.git", rev = "147e6d6a4736a9e77c9f5865f3184fff6402babc" }
-sp-core = { version = "4.1.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master", features = ["full_crypto"] }
-sp-runtime = { version = "4.0.0-dev", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "master" }
+
+substrate-api-client = "0.6.6"
+sp-core = "3"
+sp-runtime = "3"

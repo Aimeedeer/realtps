@@ -5,3 +5,7 @@ members = [
     "src/realtps_web",
     "src/realtps_import",
 ]
+
+[patch.crates-io]
+# have to turn prometheus default features off so substrate can compile
+near-metrics = { path = "../nearcore/core/metrics" }
