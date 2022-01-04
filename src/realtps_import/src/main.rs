@@ -119,7 +119,7 @@ fn init_jobs(chains: &[Chain], cmd: Command) -> Vec<Job> {
 
 async fn make_job_runner(chains: &[Chain], rpc_config: &RpcConfig) -> Result<JobRunner> {
     let clients = make_all_clients(chains, rpc_config).await?;
-    
+
     Ok(JobRunner {
         db: Arc::new(JsonDb),
         clients,

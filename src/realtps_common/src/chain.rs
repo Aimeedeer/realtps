@@ -1,7 +1,7 @@
 use anyhow::{bail, Result};
+use clap;
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use clap;
 
 pub enum ChainType {
     Ethers,
