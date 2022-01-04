@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use clap::{Parser, Subcommand};
 use client::{Client, EthersClient, NearClient, SolanaClient, TendermintClient};
 use delay::retry_if_err;
 use futures::future::FutureExt;
@@ -16,7 +17,6 @@ use std::path::Path;
 use std::sync::Arc;
 use substrate::SubstrateClient;
 use tokio::task;
-use clap::{Parser, Subcommand};
 
 mod calculate;
 mod client;
