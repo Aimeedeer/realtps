@@ -8,7 +8,6 @@ edition = "2021"
 [dependencies]
 realtps_common = { path = "../realtps_common" }
 anyhow = "1.0.51"
-structopt = "0.3.25"
 ethers = "0.6.2"
 tokio = { version = "1.15.0", features = ["macros", "rt-multi-thread", "time"] }
 rand = "0.8.4"
@@ -33,3 +32,4 @@ near-jsonrpc-primitives = "0.11.0"
 tendermint-rpc = { version = "0.23.1", features = ["http-client"] }
 tendermint = "0.23.1"
 tendermint-proto = "0.23.1"
+clap = { version = "3.0.1", features = ["derive"] }

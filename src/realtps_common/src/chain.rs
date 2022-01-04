@@ -1,6 +1,7 @@
 use anyhow::{bail, Result};
 use serde::{Deserialize, Serialize};
 use std::fmt;
+use clap;
 
 pub enum ChainType {
     Ethers,
@@ -13,6 +14,7 @@ pub enum ChainType {
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
 #[serde(try_from = "String")]
 #[serde(rename_all = "lowercase")]
+#[derive(clap::ArgEnum)]
 pub enum Chain {
     Arbitrum,
     Avalanche,

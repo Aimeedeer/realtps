@@ -14,7 +14,6 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::sync::Arc;
-use structopt::StructOpt;
 use substrate::SubstrateClient;
 use tokio::task;
 
@@ -25,20 +24,18 @@ mod helpers;
 mod import;
 mod jobs;
 mod substrate;
+use clap::Parser;
 
-#[derive(StructOpt, Debug)]
+#[derive(clap::Parser, Debug)]
 struct Opts {
-    #[structopt(subcommand)]
+    #[clap(subcommand, arg_enum)]
     cmd: Option<Command>,
-    #[structopt(
-        global = true,
-        long,
-        parse(try_from_str = TryFrom::try_from)
-    )]
+
+    #[clap(long, arg_enum, global = true)]
     chain: Option<Chain>,
 }
 
-#[derive(StructOpt, Debug)]
+#[derive(clap::Parser, clap::ArgEnum, Clone, Debug)]
 enum Command {
     Run,
     Import,
@@ -56,7 +53,7 @@ static RPC_CONFIG_PATH: &str = "rpc_config.toml";
 async fn main() -> Result<()> {
     env_logger::init();
 
-    let opts = Opts::from_args();
+    let opts = Opts::parse();
     let rpc_config = load_rpc_config(RPC_CONFIG_PATH)?;
 
     Ok(run(opts, rpc_config).await?)
@@ -69,7 +66,6 @@ async fn run(opts: Opts, rpc_config: RpcConfig) -> Result<()> {
     let init_jobs = init_jobs(&chains, cmd);
 
     let job_runner = make_job_runner(&chains, &rpc_config).await?;
-
     let mut jobs: FuturesUnordered<_> = init_jobs
         .into_iter()
         .map(|job| job_runner.do_job(job))
@@ -123,7 +119,7 @@ fn init_jobs(chains: &[Chain], cmd: Command) -> Vec<Job> {
 
 async fn make_job_runner(chains: &[Chain], rpc_config: &RpcConfig) -> Result<JobRunner> {
     let clients = make_all_clients(chains, rpc_config).await?;
-
+    
     Ok(JobRunner {
         db: Arc::new(JsonDb),
         clients,
