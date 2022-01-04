@@ -16,6 +16,7 @@ use std::path::Path;
 use std::sync::Arc;
 use substrate::SubstrateClient;
 use tokio::task;
+use clap::{Parser, Subcommand};
 
 mod calculate;
 mod client;
@@ -24,18 +25,17 @@ mod helpers;
 mod import;
 mod jobs;
 mod substrate;
-use clap::Parser;
 
-#[derive(clap::Parser, Debug)]
+#[derive(Parser, Debug)]
 struct Opts {
-    #[clap(subcommand, arg_enum)]
+    #[clap(subcommand)]
     cmd: Option<Command>,
 
     #[clap(long, arg_enum, global = true)]
     chain: Option<Chain>,
 }
 
-#[derive(clap::Parser, clap::ArgEnum, Clone, Debug)]
+#[derive(Subcommand, Debug)]
 enum Command {
     Run,
     Import,

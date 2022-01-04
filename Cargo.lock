@@ -757,9 +757,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.0.1"
+version = "3.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1121e32687f7f90b905d4775273305baa4f32cd418923e9b0fa726533221857"
+checksum = "17a98d95cbe8abdf3bfe1a2bd4aa7215700403b79a0eb03cbddb017a5824e186"
 dependencies = [
  "atty",
  "bitflags",
@@ -4530,7 +4530,7 @@ name = "realtps_common"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "clap 3.0.1",
+ "clap 3.0.3",
  "rand 0.8.4",
  "serde",
  "serde_json",
@@ -4542,7 +4542,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "clap 3.0.1",
+ "clap 3.0.3",
  "env_logger",
  "ethers",
  "futures 0.3.19",
