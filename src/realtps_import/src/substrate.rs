@@ -1,5 +1,5 @@
 use crate::client::Client;
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, bail, Result};
 use async_trait::async_trait;
 use hex::FromHex;
 use jsonrpc_core::types::{Params, Value};
