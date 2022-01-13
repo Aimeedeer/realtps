@@ -70,7 +70,13 @@ impl Client for SubstrateClient {
 
         trace!("hash: {:#?}", hash);
 
-        let hash = hash.as_str().expect("str");
+        let hash = match hash.as_str() {
+            Some(hash) => hash,
+            None => {
+                // TODO: figure out why this happens. May need to check for null.
+                bail!("substrate hash wasn't a string: {:?}", hash);
+            }
+        };
 
         let block = self
             .client
