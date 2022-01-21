@@ -60,7 +60,8 @@ impl Chain {
             Chain::Moonriver,
             Chain::Near,
             Chain::OKEx,
-            Chain::Optimism,
+            // todo banned, need own node
+            // Chain::Optimism,
             Chain::Osmosis,
             Chain::Polkadot,
             Chain::Polygon,
