@@ -160,7 +160,9 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
         ChainType::Substrate => Box::new(SubstrateClient::new(chain, &rpc_url).await?),
     };
 
-    let version = retry_if_err(|| client.client_version()).await?;
+    let version = retry_if_err(|| client.client_version())
+        .await
+        .context(format!("error getting client version for {}", chain))?;
     info!("node version for {}: {}", chain, version);
 
     Ok(client)

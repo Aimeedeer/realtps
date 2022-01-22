@@ -62,7 +62,8 @@ impl Chain {
             Chain::OKEx,
             // todo banned, need own node
             // Chain::Optimism,
-            Chain::Osmosis,
+            // todo banned, need own node
+            // Chain::Osmosis,
             Chain::Polkadot,
             Chain::Polygon,
             Chain::Rootstock,
