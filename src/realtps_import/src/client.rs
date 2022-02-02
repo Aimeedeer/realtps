@@ -356,7 +356,7 @@ fn tendermint_block_to_block(
             .block
             .header
             .last_block_id
-            .expect("previous block hash")
+            .ok_or_else(|| anyhow!("no previous block id"))?
             .hash
             .to_string(),
     })
