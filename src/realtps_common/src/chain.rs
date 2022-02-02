@@ -9,6 +9,7 @@ pub enum ChainType {
     Solana,
     Tendermint,
     Substrate,
+    Stellar,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
@@ -38,6 +39,7 @@ pub enum Chain {
     Rootstock,
     SecretNetwork,
     Solana,
+    Stellar,
     Terra,
     XDai,
 }
@@ -69,6 +71,7 @@ impl Chain {
             Chain::Rootstock,
             Chain::SecretNetwork,
             Chain::Solana,
+            Chain::Stellar,
             Chain::Terra,
             Chain::XDai,
         ]
@@ -99,6 +102,7 @@ impl Chain {
             Chain::Rootstock => "Rootstock",
             Chain::SecretNetwork => "Secret Network",
             Chain::Solana => "Solana",
+            Chain::Stellar => "Stellar",
             Chain::Terra => "Terra",
             Chain::XDai => "xDai",
         }
@@ -124,6 +128,7 @@ impl Chain {
             | Chain::XDai => ChainType::Ethers,
             Chain::Near => ChainType::Near,
             Chain::Solana => ChainType::Solana,
+            Chain::Stellar => ChainType::Stellar,
             // Chain::CosmosHub |
             Chain::Osmosis | Chain::SecretNetwork | Chain::Terra => ChainType::Tendermint,
             Chain::Kusama | Chain::Polkadot => ChainType::Substrate,
@@ -159,6 +164,7 @@ impl<'a> TryFrom<&'a str> for Chain {
             "rootstock" => Ok(Chain::Rootstock),
             "secretnetwork" => Ok(Chain::SecretNetwork),
             "solana" => Ok(Chain::Solana),
+            "stellar" => Ok(Chain::Stellar),
             "terra" => Ok(Chain::Terra),
             "xdai" => Ok(Chain::XDai),
             chain => bail!("failed parsing chain name {}", chain),

@@ -14,6 +14,9 @@ use solana_client::rpc_client::RpcClient;
 use solana_transaction_status::UiTransactionEncoding;
 use std::sync::Arc;
 use std::time::Duration;
+use stellar_horizon::client::{HorizonClient, HorizonHttpClient};
+use stellar_horizon::request::{Order, PageRequest};
+use stellar_horizon::resources::Ledger;
 use tendermint_rpc::{Client as TendermintClientTrait, HttpClient};
 use tokio::task;
 
@@ -151,6 +154,67 @@ impl Client for SolanaClient {
         .await??;
 
         solana_block_to_block(block, block_number).map(Some)
+    }
+}
+
+pub struct StellarClient {
+    client: HorizonHttpClient,
+}
+
+impl StellarClient {
+    pub fn new(url: &str) -> Result<Self> {
+        Ok(Self {
+            client: HorizonHttpClient::new(url)?,
+        })
+    }
+}
+
+#[async_trait]
+impl Client for StellarClient {
+    async fn client_version(&self) -> Result<String> {
+        Ok(stellar_horizon::VERSION.into())
+    }
+    async fn get_latest_block_number(&self) -> Result<u64> {
+        let req = stellar_horizon::api::ledgers::all()
+            .with_limit(1)
+            .with_order(&Order::Descending);
+        let (_headers, mut ledgers) = self.client.request(req).await?;
+        let ledger: Ledger = match ledgers.records.pop() {
+            Some(lg) => lg,
+            None => return Err(anyhow!("request returned empty set of ledgers")),
+        };
+        Ok(ledger.sequence as u64)
+    }
+    async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
+        if block_number > i32::MAX as u64 {
+            return Err(anyhow!("ledger number out of range"));
+        }
+        let req = stellar_horizon::api::ledgers::single(block_number as i32);
+        let (_headers, ledger) = self.client.request(req).await?;
+        let parent_hash = match ledger.previous_hash {
+            Some(h) => h,
+            None => return Err(anyhow!("missing parent hash")),
+        };
+        Ok(Some(Block {
+            chain: Chain::Stellar,
+            block_number,
+            prev_block_number: if block_number > 0 {
+                Some(block_number - 1)
+            } else {
+                None
+            },
+            timestamp: ledger.closed_at.timestamp() as u64,
+            num_txs: ledger.operation_count as u64,
+            // NB: operation_count corresponds most-closely to what is usually
+            // meant by a "transaction" -- a payment, a trade, etc. Stellar's
+            // transaction format is structured such that users can bundle
+            // together multiple operations into a composite unit for purposes
+            // of atomicity which, since it's the outermost atomic unit, is the
+            // unit in the protocol called a "transaction": operations are
+            // sub-transactions, within the outer transaction object.
+            hash: ledger.hash,
+            parent_hash,
+        }))
     }
 }
 

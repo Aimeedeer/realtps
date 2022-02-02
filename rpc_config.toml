@@ -34,5 +34,6 @@ secretnetwork = "https://rpc-secret.scrtlabs.com/secret-4/rpc/"
 # - node version for secretnetwork: 0.34.14 with url https://api.secretapi.io/
 # - node version for secretnetwork: QUWKxOSYaI with url https://rpc-secret.scrtlabs.com/secret-4/rpc/
 solana = "https://api.mainnet-beta.solana.com"
+stellar = "https://horizon.stellar.org"
 terra = "http://public-node.terra.dev:26657"
 xdai = "https://rpc.xdaichain.com"
