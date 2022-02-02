@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-use client::{Client, EthersClient, NearClient, SolanaClient, TendermintClient};
+use client::{Client, EthersClient, NearClient, SolanaClient, StellarClient, TendermintClient};
 use delay::retry_if_err;
 use futures::future::FutureExt;
 use futures::stream::{FuturesUnordered, StreamExt};
@@ -156,6 +156,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
         ChainType::Ethers => Box::new(EthersClient::new(chain, &rpc_url)?),
         ChainType::Near => Box::new(NearClient::new(&rpc_url)?),
         ChainType::Solana => Box::new(SolanaClient::new(&rpc_url)?),
+        ChainType::Stellar => Box::new(StellarClient::new(&rpc_url)?),
         ChainType::Tendermint => Box::new(TendermintClient::new(chain, &rpc_url)?),
         ChainType::Substrate => Box::new(SubstrateClient::new(chain, &rpc_url).await?),
     };
