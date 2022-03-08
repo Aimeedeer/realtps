@@ -26,6 +26,7 @@ mod delay;
 mod helpers;
 mod import;
 mod jobs;
+mod remove;
 mod substrate;
 
 #[derive(Parser, Debug)]
