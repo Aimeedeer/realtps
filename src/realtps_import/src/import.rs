@@ -178,7 +178,7 @@ async fn import_first_blocks(
     Ok(())
 }
 
-/// Starting from a known good block, fast-forward until we see a black with a
+/// Starting from a known good block, fast-forward until we see a block with a
 /// hash mismatch, or that we don't have yet.
 async fn fast_forward(chain: Chain, db: &Arc<dyn Db>, known_block: Block) -> Result<u64> {
     let mut block = known_block;

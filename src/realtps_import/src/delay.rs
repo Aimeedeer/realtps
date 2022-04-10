@@ -18,10 +18,11 @@ async fn delay(base_ms: u64) {
 
 pub async fn courtesy_delay(chain: Chain) {
     let msecs = match chain {
+        Chain::Elrond => 1000, // 6s block time
         // Need to go fast to keep up.
         // Solana's RpcClient will use its built in rate limiter when connecting to public nodes.
         Chain::Solana => 0,
-        _ => 200,
+        _ => 250,
     };
     debug!("delaying {} ms to retrieve next block", msecs);
     delay(msecs).await

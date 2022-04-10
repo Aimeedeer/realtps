@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 pub enum ChainType {
+    Elrond,
     Ethers,
     Near,
     Solana,
@@ -23,6 +24,7 @@ pub enum Chain {
     Celo,
     //    CosmosHub,
     Cronos,
+    Elrond,
     Ethereum,
     Fantom,
     Harmony,
@@ -53,6 +55,7 @@ impl Chain {
             Chain::Celo,
             //            Chain::CosmosHub,
             Chain::Cronos,
+            Chain::Elrond,
             Chain::Ethereum,
             Chain::Fantom,
             Chain::Harmony,
@@ -86,6 +89,7 @@ impl Chain {
             Chain::Celo => "Celo",
             //            Chain::CosmosHub => "Cosmos Hub",
             Chain::Cronos => "Cronos",
+            Chain::Elrond => "Elrond",
             Chain::Ethereum => "Ethereum",
             Chain::Fantom => "Fantom",
             Chain::Harmony => "Harmony",
@@ -126,6 +130,7 @@ impl Chain {
             | Chain::Polygon
             | Chain::Rootstock
             | Chain::XDai => ChainType::Ethers,
+            Chain::Elrond => ChainType::Elrond,
             Chain::Near => ChainType::Near,
             Chain::Solana => ChainType::Solana,
             Chain::Stellar => ChainType::Stellar,
@@ -148,6 +153,7 @@ impl<'a> TryFrom<&'a str> for Chain {
             "celo" => Ok(Chain::Celo),
             //            "cosmoshub" => Ok(Chain::CosmosHub),
             "cronos" => Ok(Chain::Cronos),
+            "elrond" => Ok(Chain::Elrond),
             "ethereum" => Ok(Chain::Ethereum),
             "fantom" => Ok(Chain::Fantom),
             "harmony" => Ok(Chain::Harmony),
