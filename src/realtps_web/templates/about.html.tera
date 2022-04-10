@@ -4,12 +4,16 @@
 
 
 <p>
-  This site measures the current number of transactions per second committed by various blockchains.
+  This site measures the average number of transactions per second committed by various blockchains.
 </p>
 
 <p>
   It does so with a simple method of counting the transactions in every block over the time period spanning from one week ago until the present moment,
   then dividing that total number of transactions by the number of seconds from the beginning of the first block until the end of the last block.
+</p>
+
+<p>
+  It says nothing about theoretical throughput, nor peak burst throughput.
 </p>
 
 <h2>Chain-specific notes</h2>
