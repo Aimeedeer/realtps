@@ -14,9 +14,12 @@ use solana_client::rpc_client::RpcClient;
 use solana_transaction_status::UiTransactionEncoding;
 use std::sync::Arc;
 use std::time::Duration;
-use stellar_horizon::client::{HorizonClient, HorizonHttpClient};
-use stellar_horizon::request::{Order, PageRequest};
-use stellar_horizon::resources::Ledger;
+#[cfg(feature = "stellar")]
+use stellar_horizon::{
+    client::{HorizonClient, HorizonHttpClient},
+    request::{Order, PageRequest},
+    resources::Ledger,
+};
 use tendermint_rpc::{Client as TendermintClientTrait, HttpClient};
 use tokio::task;
 
@@ -157,10 +160,12 @@ impl Client for SolanaClient {
     }
 }
 
+#[cfg(feature = "stellar")]
 pub struct StellarClient {
     client: HorizonHttpClient,
 }
 
+#[cfg(feature = "stellar")]
 impl StellarClient {
     pub fn new(url: &str) -> Result<Self> {
         Ok(Self {
@@ -169,6 +174,7 @@ impl StellarClient {
     }
 }
 
+#[cfg(feature = "stellar")]
 #[async_trait]
 impl Client for StellarClient {
     async fn client_version(&self) -> Result<String> {

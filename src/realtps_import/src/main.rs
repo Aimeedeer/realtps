@@ -1,6 +1,8 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-use client::{Client, EthersClient, NearClient, SolanaClient, StellarClient, TendermintClient};
+#[cfg(feature = "stellar")]
+use client::StellarClient;
+use client::{Client, EthersClient, NearClient, SolanaClient, TendermintClient};
 use delay::retry_if_err;
 use futures::future::FutureExt;
 use futures::stream::{FuturesUnordered, StreamExt};
@@ -96,6 +98,7 @@ fn get_chains(maybe_chain: Option<Chain>) -> Vec<Chain> {
 
 fn load_rpc_config<P: AsRef<Path>>(path: P) -> Result<RpcConfig> {
     let rpc_config_file = fs::read_to_string(path).context("unable to load RPC configuration")?;
+
     let rpc_config = toml::from_str::<RpcConfig>(&rpc_config_file)
         .context("unable to parse RPC configuration")?;
 
@@ -143,28 +146,40 @@ async fn make_all_clients(
 
     while let Some((chain, client)) = client_futures.next().await {
         let client = client??;
-        clients.insert(chain, client);
+        if let Some(client) = client {
+            clients.insert(chain, client);
+        }
     }
 
     Ok(clients)
 }
 
-async fn make_client(chain: Chain, rpc_url: String) -> Result<Box<dyn Client>> {
+async fn make_client(chain: Chain, rpc_url: String) -> Result<Option<Box<dyn Client>>> {
     info!("creating client for {} at {}", chain, rpc_url);
 
-    let client: Box<dyn Client> = match chain.chain_type() {
-        ChainType::Ethers => Box::new(EthersClient::new(chain, &rpc_url)?),
-        ChainType::Near => Box::new(NearClient::new(&rpc_url)?),
-        ChainType::Solana => Box::new(SolanaClient::new(&rpc_url)?),
-        ChainType::Stellar => Box::new(StellarClient::new(&rpc_url)?),
-        ChainType::Tendermint => Box::new(TendermintClient::new(chain, &rpc_url)?),
-        ChainType::Substrate => Box::new(SubstrateClient::new(chain, &rpc_url).await?),
+    let client: Option<Box<dyn Client>> = match chain.chain_type() {
+        ChainType::Ethers => Some(Box::new(EthersClient::new(chain, &rpc_url)?)),
+        ChainType::Near => Some(Box::new(NearClient::new(&rpc_url)?)),
+        ChainType::Solana => Some(Box::new(SolanaClient::new(&rpc_url)?)),
+        ChainType::Stellar => {
+            #[cfg(not(feature = "stellar"))]
+            let client = None;
+
+            #[cfg(feature = "stellar")]
+            let client = Some(Box::new(StellarClient::new(&rpc_url)?));
+
+            client
+        }
+        ChainType::Tendermint => Some(Box::new(TendermintClient::new(chain, &rpc_url)?)),
+        ChainType::Substrate => Some(Box::new(SubstrateClient::new(chain, &rpc_url).await?)),
     };
 
-    let version = retry_if_err(|| client.client_version())
-        .await
-        .context(format!("error getting client version for {}", chain))?;
-    info!("node version for {}: {}", chain, version);
+    if let Some(ref client) = client {
+        let version = retry_if_err(|| client.client_version())
+            .await
+            .context(format!("error getting client version for {}", chain))?;
+        info!("node version for {}: {}", chain, version);
+    }
 
     Ok(client)
 }
