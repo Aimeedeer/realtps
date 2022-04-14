@@ -167,7 +167,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Option<Box<dyn Cli
             let client = None;
 
             #[cfg(feature = "stellar")]
-            let client = Some(Box::new(StellarClient::new(&rpc_url)?));
+            let client: Option<Box<dyn Client>> = Some(Box::new(StellarClient::new(&rpc_url)?));
 
             client
         }
