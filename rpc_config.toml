@@ -15,6 +15,8 @@ celo = "https://forno.celo.org"
 # rpc disappeared
 # cosmoshub = "https://rpc-cosmoshub.keplr.app"
 cronos = "https://evm-cronos.crypto.org"
+#elrond = "https://gateway.elrond.com"
+elrond = "https://api.elrond.com"
 ethereum = "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
 fantom = "https://rpc.ftm.tools"
 harmony = "https://api.harmony.one"

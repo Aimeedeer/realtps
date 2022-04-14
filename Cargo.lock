@@ -5026,6 +5026,7 @@ dependencies = [
  "near-primitives",
  "rand 0.8.4",
  "realtps_common",
+ "reqwest",
  "serde",
  "serde_json",
  "sodiumoxide",

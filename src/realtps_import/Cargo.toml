@@ -36,11 +36,12 @@ tendermint-rpc = { version = "0.23.3", features = ["http-client"] }
 tendermint = "0.23.3"
 tendermint-proto = "0.23.3"
 clap = { version = "3.0.2", features = ["derive"] }
+reqwest = "0.11.8"
 
 [features]
-# libsodium-sys, one of stellar's dependencies, doesn't build on macOS.
-# by putting `Stellar` code to the feature "stellar",
-# we can disable it with `cargo build --no-default-features`
-# when running it on macOS
+# We set up "stellar" feature because
+# one of Stellar's dependencies "libsodium-sys" doesn't build on macOS.
+# use `cargo run --no-default-features` to disable Stellar when needed
 default = ["stellar"]
 stellar = ["stellar-horizon", "sodiumoxide"]
+

@@ -16,6 +16,7 @@ pub struct Block {
     pub timestamp: u64, // seconds since unix epoch
     pub num_txs: u64,
     pub hash: String,
+    // FIXME this could be None, like prev_block_number
     pub parent_hash: String,
 }
 
