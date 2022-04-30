@@ -150,9 +150,15 @@ async fn make_all_clients(
     let mut clients = HashMap::new();
 
     while let Some((chain, client)) = client_futures.next().await {
-        let client = client??;
-        if let Some(client) = client {
-            clients.insert(chain, client);
+        let client = client?;
+        match client {
+            Ok(Some(client)) => {
+                clients.insert(chain, client);
+            }
+            Ok(None) => { /* pass */ },
+            Err(e) => {
+                error!("{}", e);
+            }
         }
     }
 
