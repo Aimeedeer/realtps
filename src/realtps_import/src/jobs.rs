@@ -3,7 +3,7 @@ use crate::client::Client;
 use crate::delay;
 use crate::import;
 use crate::remove;
-use anyhow::{Result, Context};
+use anyhow::{Context, Result};
 use futures::future::FutureExt;
 use futures::stream::{FuturesUnordered, StreamExt};
 use log::{error, info};
@@ -44,7 +44,9 @@ impl JobRunner {
     }
 
     async fn import(&self, chain: Chain) -> Result<Vec<Job>> {
-        let client = self.clients.get(&chain)
+        let client = self
+            .clients
+            .get(&chain)
             .context(format!("no client for {}", chain))?;
         import::import(chain, client.as_ref(), &self.db).await?;
 

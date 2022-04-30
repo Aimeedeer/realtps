@@ -155,7 +155,7 @@ async fn make_all_clients(
             Ok(Some(client)) => {
                 clients.insert(chain, client);
             }
-            Ok(None) => { /* pass */ },
+            Ok(None) => { /* pass */ }
             Err(e) => {
                 error!("{}", e);
             }

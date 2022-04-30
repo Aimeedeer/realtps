@@ -72,7 +72,10 @@ where
                     break Err(e);
                 } else {
                     let delay_ms = base_delay_ms * try_num;
-                    warn!("for {} received err {}. retrying in {} ms", chain, e, delay_ms);
+                    warn!(
+                        "for {} received err {}. retrying in {} ms",
+                        chain, e, delay_ms
+                    );
                     delay(delay_ms).await;
                 }
             }
