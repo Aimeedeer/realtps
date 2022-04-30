@@ -56,7 +56,7 @@ pub async fn remove_data_delay() {
     delay(msecs).await;
 }
 
-pub async fn retry_if_err<'caller, F, T>(f: F) -> Result<T>
+pub async fn retry_if_err<'caller, F, T>(chain: Chain, f: F) -> Result<T>
 where
     F: Fn() -> Pin<Box<dyn Future<Output = Result<T>> + Send + 'caller>>,
 {
@@ -72,7 +72,7 @@ where
                     break Err(e);
                 } else {
                     let delay_ms = base_delay_ms * try_num;
-                    warn!("received err {}. retrying in {} ms", e, delay_ms);
+                    warn!("for {} received err {}. retrying in {} ms", chain, e, delay_ms);
                     delay(delay_ms).await;
                 }
             }
@@ -82,7 +82,7 @@ where
     r
 }
 
-pub async fn retry_if_none<'caller, F, T>(f: F) -> Result<Option<T>>
+pub async fn retry_if_none<'caller, F, T>(chain: Chain, f: F) -> Result<Option<T>>
 where
     F: Fn() -> Pin<Box<dyn Future<Output = Result<Option<T>>> + Send + 'caller>>,
 {
@@ -98,7 +98,7 @@ where
                     break Ok(None);
                 } else {
                     let delay_ms = base_delay_ms * try_num;
-                    warn!("received None. retrying in {} ms", delay_ms);
+                    warn!("for {} received None. retrying in {} ms", chain, delay_ms);
                     delay(delay_ms).await;
                 }
             }

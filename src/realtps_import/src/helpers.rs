@@ -11,7 +11,7 @@ use tokio::task;
 
 pub async fn fetch_live_head_block_number(chain: Chain, client: &dyn Client) -> Result<u64> {
     let live_head_block_number =
-        retry_if_err(|| Box::pin(client.get_latest_block_number())).await?;
+        retry_if_err(chain, || Box::pin(client.get_latest_block_number())).await?;
 
     debug!(
         "live head block number for {}: {}",
@@ -24,8 +24,8 @@ pub async fn fetch_live_head_block_number(chain: Chain, client: &dyn Client) -> 
 pub async fn fetch_block(chain: Chain, client: &dyn Client, block_number: u64) -> Result<Block> {
     debug!("fetching block {} for {}", block_number, chain);
 
-    let get_block = || retry_if_err(|| Box::pin(client.get_block(block_number)));
-    let maybe_block = retry_if_none(|| Box::pin(get_block())).await?;
+    let get_block = || retry_if_err(chain, || Box::pin(client.get_block(block_number)));
+    let maybe_block = retry_if_none(chain, || Box::pin(get_block())).await?;
     let block =
         maybe_block.ok_or_else(|| anyhow!("get block returned None for chain {}", chain))?;
 
