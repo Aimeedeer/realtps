@@ -1,8 +1,7 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-use client::{
-    Client, ElrondClient, EthersClient, NearClient, SolanaClient, StellarClient, TendermintClient,
-};
+use client::Client;
+use clients::*;
 use delay::retry_if_err;
 use futures::future::FutureExt;
 use futures::stream::{FuturesUnordered, StreamExt};
@@ -17,17 +16,16 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::sync::Arc;
-use substrate::SubstrateClient;
 use tokio::task;
 
 mod calculate;
 mod client;
+mod clients;
 mod delay;
 mod helpers;
 mod import;
 mod jobs;
 mod remove;
-mod substrate;
 
 #[derive(Parser, Debug)]
 struct Opts {
