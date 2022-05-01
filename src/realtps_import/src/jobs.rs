@@ -101,13 +101,12 @@ impl JobRunner {
                 rm_future.map(move |rm| (chain, rm))
             })
             .collect();
-        println!("tasks: {:#?}", tasks);
 
         while let Some((chain, rm)) = tasks.next().await {
             let rm = rm?;
             match rm {
                 Ok(()) => {
-                    info!("remove old data for chain {}", chain);
+                    info!("cleaned up old data for chain {}", chain);
                 }
                 Err(e) => {
                     print_error(&e);
@@ -115,6 +114,8 @@ impl JobRunner {
                 }
             }
         }
+
+        delay::remove_data_delay().await;
 
         Ok(vec![Job::Remove(chains)])
     }

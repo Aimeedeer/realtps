@@ -15,7 +15,6 @@ pub async fn remove_old_data_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<
     let highest_block_number = load_highest_known_block_number(chain, &db).await?;
     let highest_block_number =
         highest_block_number.ok_or_else(|| anyhow!("no data for chain {}", chain))?;
-    println!("highest_known_block_number: {}", highest_block_number);
 
     let load_block = |number| load_block(chain, &db, number);
 
@@ -24,9 +23,7 @@ pub async fn remove_old_data_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<
         .expect("firt block")
         .timestamp;
 
-    // todo
-    //    let seconds_per_week = 60 * 60 * 24 * 7;
-    let seconds_per_week = 60; //for testing
+    let seconds_per_week = 60 * 60 * 24 * 7;
     let min_timestamp = latest_timestamp
         .checked_sub(seconds_per_week)
         .expect("underflow");
@@ -41,7 +38,6 @@ pub async fn remove_old_data_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<
         if prev_block_number.is_none() {
             break;
         }
-
         let prev_block_number = prev_block_number.unwrap();
 
         let prev_block = load_block(prev_block_number).await?;
@@ -55,6 +51,7 @@ pub async fn remove_old_data_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<
         if prev_block.timestamp == 0 {
             break;
         }
+
         if prev_block.timestamp < min_timestamp {
             to_remove_blocks.push(prev_block_number);
         }
@@ -62,18 +59,17 @@ pub async fn remove_old_data_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<
         current_block = prev_block;
     }
 
-    println!("to_remove_blocks: {:#?}", to_remove_blocks);
-
     if !to_remove_blocks.is_empty() {
-        to_remove_blocks.sort(); // todo: no sorting
+        info!(
+            "remove {} blocks for chain: {}",
+            to_remove_blocks.len(),
+            chain
+        );
 
-        println!("sorted to_remove_blocks: {:#?}", to_remove_blocks);
-
+        to_remove_blocks.reverse();
         remove_blocks(chain, to_remove_blocks).await?;
     } else {
         info!("no old data in chain {}", chain);
-
-        // todo delay jobs
     }
 
     Ok(())

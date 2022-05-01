@@ -112,9 +112,11 @@ fn init_jobs(chains: &[Chain], cmd: Command) -> Vec<Job> {
         Command::Run => {
             let import_jobs = init_jobs(chains, Command::Import);
             let calculate_jobs = init_jobs(chains, Command::Calculate);
+            let remove_jobs = init_jobs(chains, Command::Remove);
             import_jobs
                 .into_iter()
                 .chain(calculate_jobs.into_iter())
+                .chain(remove_jobs.into_iter())
                 .collect()
         }
         Command::Import => chains.iter().cloned().map(Job::Import).collect(),

@@ -50,6 +50,12 @@ pub async fn recalculate_delay() {
     delay(msecs).await;
 }
 
+pub async fn remove_data_delay() {
+    let msecs = 60 * 60 * 24;
+    debug!("delaying {} ms to remove old blocks", msecs);
+    delay(msecs).await;
+}
+
 pub async fn retry_if_err<'caller, F, T>(f: F) -> Result<T>
 where
     F: Fn() -> Pin<Box<dyn Future<Output = Result<T>> + Send + 'caller>>,
