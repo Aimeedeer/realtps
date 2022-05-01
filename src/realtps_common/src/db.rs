@@ -78,6 +78,15 @@ impl Db for JsonDb {
     }
 }
 
+pub fn remove_blocks_for_chain(chain: Chain, blocks: Vec<u64>) -> Result<()> {
+    for block in blocks {
+        let file_path = format!("{}/{}/{}", JSON_DB_DIR, chain, block);
+        fs::remove_file(file_path)?;
+    }
+
+    Ok(())
+}
+
 fn write_json_db<T>(dir: &str, path: &str, data: &T) -> Result<()>
 where
     T: Serialize,

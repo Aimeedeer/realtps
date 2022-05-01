@@ -16,7 +16,7 @@ use tokio::task;
 pub enum Job {
     Import(Chain),
     Calculate(Vec<Chain>),
-//    Remove(Vec<Chain>),
+    Remove(Vec<Chain>),
 }
 
 pub struct JobRunner {
@@ -29,7 +29,7 @@ impl JobRunner {
         let r = match job {
             Job::Import(chain) => self.import(chain).await,
             Job::Calculate(ref chains) => self.calculate(chains.to_vec()).await,
-//            Job::Remove(ref chains) => self.remove(chain.to_vec()).await,
+            Job::Remove(ref chains) => self.remove(chains.to_vec()).await,
         };
 
         match r {
@@ -42,7 +42,7 @@ impl JobRunner {
             }
         }
     }
-    
+
     async fn import(&self, chain: Chain) -> Result<Vec<Job>> {
         let client = self.clients.get(&chain).expect("client");
         import::import(chain, client.as_ref(), &self.db).await?;
@@ -74,7 +74,7 @@ impl JobRunner {
                     task::spawn_blocking(move || db.store_tps(calcs.chain, calcs.tps)).await??;
                 }
                 Err(e) => {
-                    Print_error(&e);
+                    print_error(&e);
                     error!("error calculating for {}", chain);
                 }
             }
@@ -88,10 +88,10 @@ impl JobRunner {
 
         Ok(vec![Job::Calculate(chains)])
     }
-    
-/*        
+
     async fn remove(&self, chains: Vec<Chain>) -> Result<Vec<Job>> {
         info!("removing data older than a week");
+
         let mut tasks: FuturesUnordered<_> = chains
             .iter()
             .map(|chain| {
@@ -101,24 +101,25 @@ impl JobRunner {
                 rm_future.map(move |rm| (chain, rm))
             })
             .collect();
+        println!("tasks: {:#?}", tasks);
 
         while let Some((chain, rm)) = tasks.next().await {
             let rm = rm?;
             match rm {
-                Ok(rm) => {
-                    info!("remove old data for chain {}", rm.chain);
+                Ok(()) => {
+                    info!("remove old data for chain {}", chain);
                 }
                 Err(e) => {
-                    Print_error(&e);
+                    print_error(&e);
                     error!("error removing old data for chain {}", chain);
                 }
             }
         }
 
-        Ok(vec![Job::Remove(chain)])
+        Ok(vec![Job::Remove(chains)])
     }
 }
-*/
+
 fn print_error(e: &anyhow::Error) {
     error!("error: {}", e);
     let mut source = e.source();

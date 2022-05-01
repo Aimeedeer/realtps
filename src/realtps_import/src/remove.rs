@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use crate::client::Client;
 use crate::delay;
 use crate::helpers::*;
@@ -9,9 +11,11 @@ use realtps_common::{
 };
 use std::sync::Arc;
 
-pub async fn remove_old_data_for_chain(chain: Chain, db: &Arc<dyn Db>) -> Result<()> {
-    let highest_block_number = load_highest_know_block_number(chain, &db).await?;
-    let highest_block_number = highest_block_number.ok_or_else(|| anyhow!("no data for chain {}", chain))?;
+pub async fn remove_old_data_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<()> {
+    let highest_block_number = load_highest_known_block_number(chain, &db).await?;
+    let highest_block_number =
+        highest_block_number.ok_or_else(|| anyhow!("no data for chain {}", chain))?;
+    println!("highest_known_block_number: {}", highest_block_number);
 
     let load_block = |number| load_block(chain, &db, number);
 
@@ -20,14 +24,14 @@ pub async fn remove_old_data_for_chain(chain: Chain, db: &Arc<dyn Db>) -> Result
         .expect("firt block")
         .timestamp;
 
-    let seconds_per_week = 60 * 60 * 24 * 7;
+    // todo
+    //    let seconds_per_week = 60 * 60 * 24 * 7;
+    let seconds_per_week = 60; //for testing
     let min_timestamp = latest_timestamp
-        .checked_sub(second_per_week)
+        .checked_sub(seconds_per_week)
         .expect("underflow");
 
-    let mut current_block = load_block(highest_block_number)
-        .await?
-        .expect("firt_block");
+    let mut current_block = load_block(highest_block_number).await?.expect("firt_block");
 
     let mut to_remove_blocks = vec![];
 
@@ -56,15 +60,21 @@ pub async fn remove_old_data_for_chain(chain: Chain, db: &Arc<dyn Db>) -> Result
         }
 
         current_block = prev_block;
-        break;
     }
 
+    println!("to_remove_blocks: {:#?}", to_remove_blocks);
 
-    // todo
-    // remove data according to `to_remove_blocks`
-    // from the earlist block
-    
-    
+    if !to_remove_blocks.is_empty() {
+        to_remove_blocks.sort(); // todo: no sorting
+
+        println!("sorted to_remove_blocks: {:#?}", to_remove_blocks);
+
+        remove_blocks(chain, to_remove_blocks).await?;
+    } else {
+        info!("no old data in chain {}", chain);
+
+        // todo delay jobs
+    }
+
     Ok(())
 }
-

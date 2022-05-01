@@ -43,6 +43,7 @@ enum Command {
     Run,
     Import,
     Calculate,
+    Remove,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -118,6 +119,7 @@ fn init_jobs(chains: &[Chain], cmd: Command) -> Vec<Job> {
         }
         Command::Import => chains.iter().cloned().map(Job::Import).collect(),
         Command::Calculate => vec![Job::Calculate(chains.to_vec())],
+        Command::Remove => vec![Job::Remove(chains.to_vec())],
     }
 }
 

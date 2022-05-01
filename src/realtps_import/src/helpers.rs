@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use log::debug;
 use realtps_common::{
     chain::Chain,
-    db::{Block, Db},
+    db::{remove_blocks_for_chain, Block, Db},
 };
 use std::sync::Arc;
 use tokio::task;
@@ -78,4 +78,9 @@ pub async fn load_block(
     let db = db.clone();
     let block = task::spawn_blocking(move || db.load_block(chain, block_number)).await??;
     Ok(block)
+}
+
+pub async fn remove_blocks(chain: Chain, blocks: Vec<u64>) -> Result<()> {
+    task::spawn_blocking(move || remove_blocks_for_chain(chain, blocks)).await??;
+    Ok(())
 }
