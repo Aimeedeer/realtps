@@ -51,7 +51,7 @@ pub async fn recalculate_delay() {
 }
 
 pub async fn remove_data_delay() {
-    let msecs = 60 * 60 * 24;
+    let msecs = 60 * 60 * 24 * 1000;
     debug!("delaying {} ms to remove old blocks", msecs);
     delay(msecs).await;
 }
