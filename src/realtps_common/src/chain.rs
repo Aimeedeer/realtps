@@ -22,7 +22,7 @@ pub enum Chain {
     Avalanche,
     Binance,
     Celo,
-    //    CosmosHub,
+    CosmosHub,
     Cronos,
     Elrond,
     Ethereum,
@@ -53,21 +53,23 @@ impl Chain {
             Chain::Avalanche,
             Chain::Binance,
             Chain::Celo,
-            //            Chain::CosmosHub,
+            // todo rpc disappeared
+            // Chain::CosmosHub,
             Chain::Cronos,
             Chain::Elrond,
             Chain::Ethereum,
             Chain::Fantom,
             Chain::Harmony,
-            Chain::Heco,
+            // todo ssl handshake failure
+            // Chain::Heco,
             Chain::KuCoin,
             Chain::Kusama,
             Chain::Moonriver,
             Chain::Near,
             Chain::OKEx,
-            // todo banned, need own node
+            // todo banned
             // Chain::Optimism,
-            // todo banned, need own node
+            // todo banned
             // Chain::Osmosis,
             Chain::Polkadot,
             Chain::Polygon,
@@ -88,7 +90,7 @@ impl Chain {
             Chain::Avalanche => "Avalanche C-Chain",
             Chain::Binance => "Binance Smart Chain",
             Chain::Celo => "Celo",
-            //            Chain::CosmosHub => "Cosmos Hub",
+            Chain::CosmosHub => "Cosmos Hub",
             Chain::Cronos => "Cronos",
             Chain::Elrond => "Elrond",
             Chain::Ethereum => "Ethereum",
@@ -135,7 +137,7 @@ impl Chain {
             Chain::Near => ChainType::Near,
             Chain::Solana => ChainType::Solana,
             Chain::Stellar => ChainType::Stellar,
-            // Chain::CosmosHub |
+            Chain::CosmosHub |
             Chain::Osmosis | Chain::SecretNetwork | Chain::Terra => ChainType::Tendermint,
             Chain::Kusama | Chain::Polkadot => ChainType::Substrate,
         }
@@ -152,7 +154,7 @@ impl<'a> TryFrom<&'a str> for Chain {
             "avalanche" => Ok(Chain::Avalanche),
             "binance" => Ok(Chain::Binance),
             "celo" => Ok(Chain::Celo),
-            //            "cosmoshub" => Ok(Chain::CosmosHub),
+            "cosmoshub" => Ok(Chain::CosmosHub),
             "cronos" => Ok(Chain::Cronos),
             "elrond" => Ok(Chain::Elrond),
             "ethereum" => Ok(Chain::Ethereum),
