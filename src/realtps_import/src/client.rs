@@ -329,9 +329,6 @@ impl Client for StellarClient {
         Ok(network_details.history_latest_ledger as u64)
     }
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
-        if block_number > i32::MAX as u64 {
-            return Err(anyhow!("ledger number out of range"));
-        }
         let url = format!("{}/ledgers/{}", &self.url, block_number);
         let resp = self.client.get(url).send().await?;
         let ledger: StellarLedgerResponse = resp.json().await?;
