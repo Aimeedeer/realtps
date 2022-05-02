@@ -354,6 +354,41 @@ impl Client for StellarClient {
     }
 }
 
+#[cfg(test)]
+mod test_stellar {
+    use super::{Client, StellarClient};
+
+    const TEST_RPC_URL: &str = "https://horizon-testnet.stellar.org";
+
+    #[tokio::test]
+    async fn client_version() -> Result<(), anyhow::Error> {
+        let client = StellarClient::new(TEST_RPC_URL)?;
+        let ver = client.client_version().await?;
+        println!("client_version: {}", ver);
+        ver.parse::<u32>()?;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn get_latest_block_number() -> Result<(), anyhow::Error> {
+        let client = StellarClient::new(TEST_RPC_URL)?;
+        let latest_block_number = client.get_latest_block_number().await?;
+        println!("latest_block_number: {}", latest_block_number);
+        assert!(latest_block_number > 0);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn get_block() -> Result<(), anyhow::Error> {
+        let client = StellarClient::new(TEST_RPC_URL)?;
+        let latest_block_number = client.get_latest_block_number().await?;
+        println!("latest_block_number: {}", latest_block_number);
+        let block = client.get_block(latest_block_number).await?;
+        println!("block: {:?}", block);
+        Ok(())
+    }
+}
+
 pub struct TendermintClient {
     chain: Chain,
     client: HttpClient,
