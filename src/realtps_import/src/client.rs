@@ -304,7 +304,7 @@ impl StellarClient {
 
 #[derive(serde::Deserialize)]
 struct StellarNetworkDetailsResponse {
-    current_protocol_version: u32,
+    horizon_version: String,
     history_latest_ledger: u32,
 }
 
@@ -321,7 +321,7 @@ impl Client for StellarClient {
     async fn client_version(&self) -> Result<String> {
         let resp = self.client.get(&self.url).send().await?;
         let network_details: StellarNetworkDetailsResponse = resp.json().await?;
-        Ok(network_details.current_protocol_version.to_string())
+        Ok(network_details.horizon_version)
     }
     async fn get_latest_block_number(&self) -> Result<u64> {
         let resp = self.client.get(&self.url).send().await?;
@@ -365,7 +365,7 @@ mod test_stellar {
         let client = StellarClient::new(RPC_URL)?;
         let ver = client.client_version().await?;
         println!("client_version: {}", ver);
-        ver.parse::<u32>()?;
+        assert!(ver.len() > 0);
         Ok(())
     }
 
