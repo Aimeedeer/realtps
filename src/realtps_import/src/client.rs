@@ -335,7 +335,11 @@ impl Client for StellarClient {
         Ok(Some(Block {
             chain: Chain::Stellar,
             block_number,
-            prev_block_number: Some(block_number - 1),
+            prev_block_number: if block_number > 0 {
+                Some(block_number - 1)
+            } else {
+                None
+            },
             timestamp: ledger.closed_at.timestamp() as u64,
             num_txs: ledger.operation_count as u64,
             // NB: operation_count corresponds most-closely to what is usually
