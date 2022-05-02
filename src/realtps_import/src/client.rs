@@ -304,15 +304,15 @@ impl StellarClient {
 
 #[derive(serde::Deserialize)]
 struct StellarNetworkDetailsResponse {
-    current_protocol_version: String,
+    current_protocol_version: u32,
     history_latest_ledger: u32,
 }
 
 #[derive(serde::Deserialize)]
 struct StellarLedgerResponse {
-    closed_at: chrono::DateTime<chrono::Utc>,
     hash: String,
     prev_hash: String,
+    closed_at: chrono::DateTime<chrono::Utc>,
     operation_count: u32,
 }
 
@@ -321,7 +321,7 @@ impl Client for StellarClient {
     async fn client_version(&self) -> Result<String> {
         let resp = self.client.get(&self.url).send().await?;
         let network_details: StellarNetworkDetailsResponse = resp.json().await?;
-        Ok(network_details.current_protocol_version)
+        Ok(network_details.current_protocol_version.to_string())
     }
     async fn get_latest_block_number(&self) -> Result<u64> {
         let resp = self.client.get(&self.url).send().await?;
