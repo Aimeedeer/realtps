@@ -29,10 +29,14 @@ pub async fn remove_old_data_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<
         .expect("underflow");
 
     let mut current_block = load_block(highest_block_number).await?.expect("firt_block");
-
     let mut to_remove_blocks = vec![];
+    let mut is_old_block = false;
 
     loop {
+        if is_old_block {
+            to_remove_blocks.push(current_block.block_number);
+        }
+
         let prev_block_number = current_block.prev_block_number;
 
         if prev_block_number.is_none() {
@@ -52,8 +56,8 @@ pub async fn remove_old_data_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<
             break;
         }
 
-        if prev_block.timestamp < min_timestamp {
-            to_remove_blocks.push(prev_block_number);
+        if !is_old_block && prev_block.timestamp < min_timestamp {
+            is_old_block = true;
         }
 
         current_block = prev_block;
@@ -61,13 +65,14 @@ pub async fn remove_old_data_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<
 
     if !to_remove_blocks.is_empty() {
         info!(
-            "remove {} blocks for chain: {}",
+            "removing {} blocks for chain: {}",
             to_remove_blocks.len(),
             chain
         );
 
         to_remove_blocks.reverse();
-        remove_blocks(chain, to_remove_blocks).await?;
+
+        remove_blocks(chain, &db, to_remove_blocks).await?;
     } else {
         info!("no old data in chain {}", chain);
     }
