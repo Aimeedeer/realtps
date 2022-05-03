@@ -1,8 +1,8 @@
 use anyhow::{Context, Result};
 use clap::{Parser, Subcommand};
-#[cfg(feature = "stellar")]
-use client::StellarClient;
-use client::{Client, ElrondClient, EthersClient, NearClient, SolanaClient, TendermintClient};
+use client::{
+    Client, ElrondClient, EthersClient, NearClient, SolanaClient, StellarClient, TendermintClient,
+};
 use delay::retry_if_err;
 use futures::future::FutureExt;
 use futures::stream::{FuturesUnordered, StreamExt};
@@ -173,15 +173,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Option<Box<dyn Cli
         ChainType::Ethers => Some(Box::new(EthersClient::new(chain, &rpc_url)?)),
         ChainType::Near => Some(Box::new(NearClient::new(&rpc_url)?)),
         ChainType::Solana => Some(Box::new(SolanaClient::new(&rpc_url)?)),
-        ChainType::Stellar => {
-            #[cfg(not(feature = "stellar"))]
-            let client = None;
-
-            #[cfg(feature = "stellar")]
-            let client: Option<Box<dyn Client>> = Some(Box::new(StellarClient::new(&rpc_url)?));
-
-            client
-        }
+        ChainType::Stellar => Some(Box::new(StellarClient::new(&rpc_url)?)),
         ChainType::Tendermint => Some(Box::new(TendermintClient::new(chain, &rpc_url)?)),
         ChainType::Substrate => Some(Box::new(SubstrateClient::new(chain, &rpc_url).await?)),
     };

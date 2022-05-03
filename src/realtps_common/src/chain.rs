@@ -76,7 +76,6 @@ impl Chain {
             Chain::Rootstock,
             Chain::SecretNetwork,
             Chain::Solana,
-            #[cfg(feature = "stellar")]
             Chain::Stellar,
             Chain::Terra,
             Chain::XDai,

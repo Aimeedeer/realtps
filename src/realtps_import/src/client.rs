@@ -14,12 +14,6 @@ use solana_client::rpc_client::RpcClient;
 use solana_transaction_status::UiTransactionEncoding;
 use std::sync::Arc;
 use std::time::Duration;
-#[cfg(feature = "stellar")]
-use stellar_horizon::{
-    client::{HorizonClient, HorizonHttpClient},
-    request::{Order, PageRequest},
-    resources::Ledger,
-};
 use tendermint_rpc::{Client as TendermintClientTrait, HttpClient};
 use tokio::task;
 
@@ -294,47 +288,50 @@ impl Client for SolanaClient {
     }
 }
 
-#[cfg(feature = "stellar")]
 pub struct StellarClient {
-    client: HorizonHttpClient,
+    client: reqwest::Client,
+    url: String,
 }
 
-#[cfg(feature = "stellar")]
 impl StellarClient {
     pub fn new(url: &str) -> Result<Self> {
         Ok(Self {
-            client: HorizonHttpClient::new(url)?,
+            client: reqwest::Client::new(),
+            url: url.to_string(),
         })
     }
 }
 
-#[cfg(feature = "stellar")]
+#[derive(serde::Deserialize)]
+struct StellarNetworkDetailsResponse {
+    horizon_version: String,
+    history_latest_ledger: u32,
+}
+
+#[derive(serde::Deserialize)]
+struct StellarLedgerResponse {
+    hash: String,
+    prev_hash: String,
+    closed_at: chrono::DateTime<chrono::Utc>,
+    operation_count: u32,
+}
+
 #[async_trait]
 impl Client for StellarClient {
     async fn client_version(&self) -> Result<String> {
-        Ok(stellar_horizon::VERSION.into())
+        let resp = self.client.get(&self.url).send().await?;
+        let network_details: StellarNetworkDetailsResponse = resp.json().await?;
+        Ok(network_details.horizon_version)
     }
     async fn get_latest_block_number(&self) -> Result<u64> {
-        let req = stellar_horizon::api::ledgers::all()
-            .with_limit(1)
-            .with_order(&Order::Descending);
-        let (_headers, mut ledgers) = self.client.request(req).await?;
-        let ledger: Ledger = match ledgers.records.pop() {
-            Some(lg) => lg,
-            None => return Err(anyhow!("request returned empty set of ledgers")),
-        };
-        Ok(ledger.sequence as u64)
+        let resp = self.client.get(&self.url).send().await?;
+        let network_details: StellarNetworkDetailsResponse = resp.json().await?;
+        Ok(network_details.history_latest_ledger as u64)
     }
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
-        if block_number > i32::MAX as u64 {
-            return Err(anyhow!("ledger number out of range"));
-        }
-        let req = stellar_horizon::api::ledgers::single(block_number as i32);
-        let (_headers, ledger) = self.client.request(req).await?;
-        let parent_hash = match ledger.previous_hash {
-            Some(h) => h,
-            None => return Err(anyhow!("missing parent hash")),
-        };
+        let url = format!("{}/ledgers/{}", &self.url, block_number);
+        let resp = self.client.get(url).send().await?;
+        let ledger: StellarLedgerResponse = resp.json().await?;
         Ok(Some(Block {
             chain: Chain::Stellar,
             block_number,
@@ -353,8 +350,43 @@ impl Client for StellarClient {
             // unit in the protocol called a "transaction": operations are
             // sub-transactions, within the outer transaction object.
             hash: ledger.hash,
-            parent_hash,
+            parent_hash: ledger.prev_hash,
         }))
+    }
+}
+
+#[cfg(test)]
+mod test_stellar {
+    use super::{Client, StellarClient};
+
+    const RPC_URL: &str = "https://horizon.stellar.org";
+
+    #[tokio::test]
+    async fn client_version() -> Result<(), anyhow::Error> {
+        let client = StellarClient::new(RPC_URL)?;
+        let ver = client.client_version().await?;
+        println!("client_version: {}", ver);
+        assert!(ver.len() > 0);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn get_latest_block_number() -> Result<(), anyhow::Error> {
+        let client = StellarClient::new(RPC_URL)?;
+        let latest_block_number = client.get_latest_block_number().await?;
+        println!("latest_block_number: {}", latest_block_number);
+        assert!(latest_block_number > 0);
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn get_block() -> Result<(), anyhow::Error> {
+        let client = StellarClient::new(RPC_URL)?;
+        let latest_block_number = client.get_latest_block_number().await?;
+        println!("latest_block_number: {}", latest_block_number);
+        let block = client.get_block(latest_block_number).await?;
+        println!("block: {:?}", block);
+        Ok(())
     }
 }
 
