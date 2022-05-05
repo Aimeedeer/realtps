@@ -93,29 +93,10 @@ impl JobRunner {
     }
 
     async fn remove(&self, chains: Vec<Chain>) -> Result<Vec<Job>> {
-        info!("removing data older than a week");
+        info!("removing old data");
 
-        let mut tasks: FuturesUnordered<_> = chains
-            .iter()
-            .map(|chain| {
-                let chain = *chain;
-                let rm_future = remove::remove_old_data_for_chain(chain, self.db.clone());
-                let rm_future = task::spawn(rm_future);
-                rm_future.map(move |rm| (chain, rm))
-            })
-            .collect();
-
-        while let Some((chain, rm)) = tasks.next().await {
-            let rm = rm?;
-            match rm {
-                Ok(()) => {
-                    info!("cleaned up old data for chain {}", chain);
-                }
-                Err(e) => {
-                    print_error(&e);
-                    error!("error removing old data for chain {}", chain);
-                }
-            }
+        for chain in &chains {
+            remove::remove_old_data_for_chain(*chain, self.db.clone()).await?;
         }
 
         delay::remove_data_delay().await;

@@ -52,10 +52,6 @@ pub async fn remove_old_data_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<
 
         let prev_block = prev_block.unwrap();
 
-        if prev_block.timestamp == 0 {
-            break;
-        }
-
         if !is_old_block && prev_block.timestamp < min_timestamp {
             is_old_block = true;
         }

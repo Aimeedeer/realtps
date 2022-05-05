@@ -30,7 +30,7 @@ pub trait Db: Send + Sync + 'static {
     fn store_tps(&self, chain: Chain, tps: f64) -> Result<()>;
     fn load_tps(&self, chain: Chain) -> Result<Option<f64>>;
 
-    fn remove_blocks(&self, chain: Chain, blocks: Vec<u64>) -> Result<()>;
+    fn remove_block(&self, chain: Chain, block: u64) -> Result<()>;
 }
 
 pub struct JsonDb;
@@ -79,12 +79,9 @@ impl Db for JsonDb {
         )
     }
 
-    fn remove_blocks(&self, chain: Chain, blocks: Vec<u64>) -> Result<()> {
-        for block in blocks {
-            let file_path = format!("{}/{}/{}", JSON_DB_DIR, chain, block);
-            fs::remove_file(file_path)?;
-        }
-
+    fn remove_block(&self, chain: Chain, block: u64) -> Result<()> {
+        let file_path = format!("{}/{}/{}", JSON_DB_DIR, chain, block);
+        fs::remove_file(file_path)?;
         Ok(())
     }
 }

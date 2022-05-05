@@ -82,6 +82,16 @@ pub async fn load_block(
 
 pub async fn remove_blocks(chain: Chain, db: &Arc<dyn Db>, blocks: Vec<u64>) -> Result<()> {
     let db = db.clone();
-    task::spawn_blocking(move || db.remove_blocks(chain, blocks)).await??;
+
+    task::spawn_blocking(move || {
+        for block in blocks {
+            db.remove_block(chain, block).expect(&format!(
+                "error removing block {} for chain {}",
+                block, chain
+            ));
+        }
+    })
+    .await?;
+
     Ok(())
 }
