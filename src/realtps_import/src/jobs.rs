@@ -7,6 +7,7 @@ use anyhow::{Context, Result};
 use futures::future::FutureExt;
 use futures::stream::{FuturesUnordered, StreamExt};
 use log::{error, info};
+use rand::prelude::*;
 use realtps_common::{chain::Chain, db::Db};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -94,6 +95,10 @@ impl JobRunner {
 
     async fn remove(&self, chains: Vec<Chain>) -> Result<Vec<Job>> {
         info!("removing old data");
+
+        let mut rng = rand::thread_rng();
+        let mut chains = chains;
+        chains.shuffle(&mut rng);
 
         for chain in &chains {
             remove::remove_old_data_for_chain(*chain, self.db.clone()).await?;
