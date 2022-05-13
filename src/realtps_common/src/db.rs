@@ -36,6 +36,8 @@ pub trait Db: Send + Sync + 'static {
 pub struct JsonDb;
 
 pub static JSON_DB_DIR: &str = "db";
+pub static DB_DIR_BLOCKS: &str = "blocks";
+pub static DB_DIR_META: &str = "meta";
 pub static HIGHEST_BLOCK_NUMBER: &str = "highest_block_number";
 pub static TRANSACTIONS_PER_SECOND: &str = "tps";
 
@@ -43,30 +45,41 @@ impl Db for JsonDb {
     fn store_block(&self, block: Block) -> Result<()> {
         write_json_db(
             &format!("{}", block.chain),
+            &format!("{}", DB_DIR_BLOCKS),
             &format!("{}", block.block_number),
             &block,
         )
     }
 
     fn load_block(&self, chain: Chain, block_number: u64) -> Result<Option<Block>> {
-        read_json_db(&format!("{}", chain), &format!("{}", block_number))
+        read_json_db(
+            &format!("{}", chain),
+            &format!("{}", DB_DIR_BLOCKS),
+            &format!("{}", block_number),
+        )
     }
 
     fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> {
         write_json_db(
             &format!("{}", chain),
+            &format!("{}", DB_DIR_META),
             &format!("{}", HIGHEST_BLOCK_NUMBER),
             &block_number,
         )
     }
 
     fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>> {
-        read_json_db(&format!("{}", chain), &format!("{}", HIGHEST_BLOCK_NUMBER))
+        read_json_db(
+            &format!("{}", chain),
+            &format!("{}", DB_DIR_META),
+            &format!("{}", HIGHEST_BLOCK_NUMBER),
+        )
     }
 
     fn store_tps(&self, chain: Chain, tps: f64) -> Result<()> {
         write_json_db(
             &format!("{}", chain),
+            &format!("{}", DB_DIR_META),
             &format!("{}", TRANSACTIONS_PER_SECOND),
             &tps,
         )
@@ -75,25 +88,26 @@ impl Db for JsonDb {
     fn load_tps(&self, chain: Chain) -> Result<Option<f64>> {
         read_json_db(
             &format!("{}", chain),
+            &format!("{}", DB_DIR_META),
             &format!("{}", TRANSACTIONS_PER_SECOND),
         )
     }
 
     fn remove_block(&self, chain: Chain, block: u64) -> Result<()> {
-        let file_path = format!("{}/{}/{}", JSON_DB_DIR, chain, block);
+        let file_path = format!("{}/{}/{}/{}", JSON_DB_DIR, chain, DB_DIR_BLOCKS, block);
         fs::remove_file(file_path)?;
         Ok(())
     }
 }
 
-fn write_json_db<T>(dir: &str, path: &str, data: &T) -> Result<()>
+fn write_json_db<T>(chain: &str, sub_dir: &str, file: &str, data: &T) -> Result<()>
 where
     T: Serialize,
 {
-    let file_dir = format!("{}/{}", JSON_DB_DIR, &dir);
+    let file_dir = format!("{}/{}/{}", JSON_DB_DIR, &chain, &sub_dir);
     fs::create_dir_all(&file_dir)?;
 
-    let file_path = format!("{}/{}/{}", JSON_DB_DIR, &dir, &path);
+    let file_path = format!("{}/{}/{}/{}", JSON_DB_DIR, &chain, &sub_dir, &file);
     let temp_file_path = format!("{}.{}.temp", &file_path, rand::random::<u32>());
 
     let file = File::create(&temp_file_path)?;
@@ -111,11 +125,11 @@ where
     }
 }
 
-fn read_json_db<T>(dir: &str, path: &str) -> Result<Option<T>>
+fn read_json_db<T>(chain: &str, sub_dir: &str, file: &str) -> Result<Option<T>>
 where
     T: DeserializeOwned,
 {
-    let path = format!("{}/{}/{}", JSON_DB_DIR, &dir, &path);
+    let path = format!("{}/{}/{}/{}", JSON_DB_DIR, &chain, &sub_dir, &file);
 
     let file = File::open(path);
     match file {
