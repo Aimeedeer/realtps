@@ -1,0 +1,28 @@
+{% extends "base" %}
+
+{% block body %}
+
+
+<p>
+  This page shows the TPS calculation log for various blockchains.
+</p>
+
+{% for log in log_list %}
+
+<h3>{{ log.chain }}</h3>
+
+<p> {{ log.details }}</p>
+
+{% endfor %}
+
+{% endblock body %}
+
+
+{% block footer %}
+
+<footer>
+  <a title="home" href="/"><img alt="home" class="icon" src="/static/icons/mdi-home.svg"></a>
+  <a title="code" href="https://github.com/Aimeedeer/realtps"><img alt="code" class="icon" src="/static/icons/mdi-github.svg"></a>
+</footer>
+
+{% endblock footer %}

@@ -71,17 +71,12 @@ pub async fn calculate_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<ChainC
     let end_processing_timestamp = SystemTime::now();
 
     let calculate_log = format!(
-        "done calculation for chain {}:
-processing start at: {:#?} and end at {:#?}.
+        "processing start at: {:#?} and end at {:#?}.
 timestamp of the newest block: {},
 timestamp of the oldest block: {}",
-        chain,
-        start_processing_timestamp,
-        end_processing_timestamp,
-        latest_timestamp,
-        init_timestamp,
+        start_processing_timestamp, end_processing_timestamp, latest_timestamp, init_timestamp,
     );
-    info!("{}", calculate_log);
+    info!("done calculation for chain {}: {}", chain, calculate_log);
     write_log(chain, &db, calculate_log).await?;
 
     Ok(ChainCalcs { chain, tps })

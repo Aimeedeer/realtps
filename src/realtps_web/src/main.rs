@@ -25,6 +25,17 @@ struct Row {
     tps_str: String,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+struct LogContext {
+    log_list: Vec<CalculationLog>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct CalculationLog {
+    chain: String,
+    details: String,
+}
+
 #[get("/")]
 fn index() -> Template {
     let mut list = Vec::new();
@@ -38,6 +49,7 @@ fn index() -> Template {
             let note = chain_note(chain).map(ToString::to_string);
             let chain = chain.description().to_string();
             let tps_str = format!("{:.2}", tps);
+
             list.push(Row {
                 chain,
                 note,
@@ -51,6 +63,25 @@ fn index() -> Template {
     Template::render("index", &context)
 }
 
+#[get("/log")]
+fn log() -> Template {
+    let mut list = Vec::new();
+    let db = JsonDb;
+
+    for chain in Chain::all_chains() {
+        if let Some(details) = db
+            .load_calculation_log(chain)
+            .expect(&format!("No calculation log for chain {}", &chain))
+        {
+            let chain = chain.description().to_string();
+            list.push(CalculationLog { chain, details });
+        }
+    }
+
+    let context = LogContext { log_list: list };
+    Template::render("log", &context)
+}
+
 #[get("/about")]
 fn about() -> Template {
     Template::render("about", EmptyContext {})
@@ -59,7 +90,7 @@ fn about() -> Template {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index, about])
+        .mount("/", routes![index, about, log])
         .mount("/static", FileServer::from(relative!("static")))
         .attach(Template::fairing())
 }
