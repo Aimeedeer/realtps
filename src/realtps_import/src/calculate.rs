@@ -1,9 +1,9 @@
 use crate::helpers::*;
 use anyhow::{anyhow, Result};
+use log::info;
 use realtps_common::{chain::Chain, db::Db};
 use std::sync::Arc;
 use std::time::SystemTime;
-use log::info;
 
 pub struct ChainCalcs {
     pub chain: Chain,
@@ -70,7 +70,7 @@ pub async fn calculate_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<ChainC
 
     let end_processing_timestamp = SystemTime::now();
 
-    info!(
+    let calculate_log = format!(
         "done calculation for chain {}:
 processing start at: {:#?} and end at {:#?}.
 timestamp of the newest block: {},
@@ -81,6 +81,8 @@ timestamp of the oldest block: {}",
         latest_timestamp,
         init_timestamp,
     );
+    info!("{}", calculate_log);
+    write_log(chain, &db, calculate_log).await?;
 
     Ok(ChainCalcs { chain, tps })
 }

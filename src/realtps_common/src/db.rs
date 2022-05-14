@@ -31,6 +31,10 @@ pub trait Db: Send + Sync + 'static {
     fn load_tps(&self, chain: Chain) -> Result<Option<f64>>;
 
     fn remove_block(&self, chain: Chain, block: u64) -> Result<()>;
+
+    fn store_calculation_log(&self, chain: Chain, log_str: &str) -> Result<()>;
+
+    fn load_calculation_log(&self, chain: Chain) -> Result<Option<String>>;
 }
 
 pub struct JsonDb;
@@ -40,6 +44,7 @@ pub static DB_DIR_BLOCKS: &str = "blocks";
 pub static DB_DIR_META: &str = "meta";
 pub static HIGHEST_BLOCK_NUMBER: &str = "highest_block_number";
 pub static TRANSACTIONS_PER_SECOND: &str = "tps";
+pub static CALCULATION_LOG: &str = "calculation_log";
 
 impl Db for JsonDb {
     fn store_block(&self, block: Block) -> Result<()> {
@@ -98,11 +103,28 @@ impl Db for JsonDb {
         fs::remove_file(file_path)?;
         Ok(())
     }
+
+    fn store_calculation_log(&self, chain: Chain, log_str: &str) -> Result<()> {
+        write_json_db(
+            &format!("{}", chain),
+            &format!("{}", DB_DIR_META),
+            &format!("{}", CALCULATION_LOG),
+            log_str,
+        )
+    }
+
+    fn load_calculation_log(&self, chain: Chain) -> Result<Option<String>> {
+        read_json_db(
+            &format!("{}", chain),
+            &format!("{}", DB_DIR_META),
+            &format!("{}", CALCULATION_LOG),
+        )
+    }
 }
 
 fn write_json_db<T>(chain: &str, sub_dir: &str, file: &str, data: &T) -> Result<()>
 where
-    T: Serialize,
+    T: Serialize + ?Sized,
 {
     let file_dir = format!("{}/{}/{}", JSON_DB_DIR, &chain, &sub_dir);
     fs::create_dir_all(&file_dir)?;
