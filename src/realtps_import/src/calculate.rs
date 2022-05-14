@@ -2,6 +2,8 @@ use crate::helpers::*;
 use anyhow::{anyhow, Result};
 use realtps_common::{chain::Chain, db::Db};
 use std::sync::Arc;
+use std::time::SystemTime;
+use log::info;
 
 pub struct ChainCalcs {
     pub chain: Chain,
@@ -9,6 +11,8 @@ pub struct ChainCalcs {
 }
 
 pub async fn calculate_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<ChainCalcs> {
+    let start_processing_timestamp = SystemTime::now();
+
     let highest_block_number = load_highest_known_block_number(chain, &db).await?;
     let highest_block_number =
         highest_block_number.ok_or_else(|| anyhow!("no data for chain {}", chain))?;
@@ -63,6 +67,20 @@ pub async fn calculate_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<ChainC
     };
 
     let tps = calculate_tps(init_timestamp, latest_timestamp, num_txs)?;
+
+    let end_processing_timestamp = SystemTime::now();
+
+    info!(
+        "done calculation for chain {}:
+processing start at: {:#?} and end at {:#?}.
+timestamp of the newest block: {},
+timestamp of the oldest block: {}",
+        chain,
+        start_processing_timestamp,
+        end_processing_timestamp,
+        latest_timestamp,
+        init_timestamp,
+    );
 
     Ok(ChainCalcs { chain, tps })
 }
