@@ -2,32 +2,37 @@
 
 {% block body %}
 
+<main>
 
-<p>
-  This site measures the average number of transactions per second committed by various blockchains.
-</p>
+  <h1 class="for-search-engines-only">About Real TPS</h1>
 
-<p>
-  It does so with a simple method of counting the transactions in every block over the time period spanning from one week ago until the present moment,
-  then dividing that total number of transactions by the number of seconds from the beginning of the first block until the end of the last block.
-</p>
+  <p>
+    This site measures and compares the average transaction throughput
+    (transactions per second) committed by various blockchains.
+  </p>
 
-<p>
-  It says nothing about theoretical throughput, nor peak burst throughput.
-</p>
+  <p>
+    It does so with a simple method of counting the transactions in every block over the time period spanning from one week ago until the present moment,
+    then dividing that total number of transactions by the number of seconds from the beginning of the first block until the end of the last block.
+  </p>
 
-<h2>Chain-specific notes</h2>
+  <p>
+    It says nothing about theoretical throughput, nor peak burst throughput, nor latency.
+  </p>
 
-<h3 id="solana">Solana</h3>
+  <h2>Chain-specific notes</h2>
 
-<p>
-  A large proportion of transactions reported by Solana nodes are validator <em>vote</em> transactions,
-  which are part of Solana's consensus mechanism.
-  As most chains do not expose this type of information as a standard transaction,
-  and to make a more useful comparison,
-  we do not include vote transactions in our TPS calculations.
-</p>
+  <h3 id="solana">Solana</h3>
 
+  <p>
+    A large proportion of transactions reported by Solana nodes are validator <em>vote</em> transactions,
+    which are part of Solana's consensus mechanism.
+    As most chains do not expose this type of information as a standard transaction,
+    and to make a more useful comparison,
+    we do not include vote transactions in our TPS calculations.
+  </p>
+
+</main>
 
 {% endblock body %}
 

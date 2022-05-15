@@ -142,11 +142,7 @@ p ~ p {
     padding-top: var(--section-padding);
 }
 
-h1 {
-    color: blue; /* todo unused */
-}
-
-h2 {
+h1, h2 {
     font-size: 120%;
 }
 
@@ -170,4 +166,9 @@ img.icon_red {
 footer img.icon {
     width: calc(var(--icon-size) * 2);
     height: calc(var(--icon-size) * 2);
+}
+
+.for-search-engines-only {
+    display: none;
+    padding-bottom: var(--section-padding);
 }

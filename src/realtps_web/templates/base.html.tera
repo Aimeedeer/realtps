@@ -4,15 +4,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Measuring transactions per second of various blockchains.">
+
+  <meta name="description" content="Measuring blockchain transaction throughput (transactions per second).">
+  <meta name="og:description" content="Measuring blockchain transaction throughput (transactions per second).">
+  <meta name="twitter:description" content="Measuring blockchain transaction throughput (transactions per second).">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="Real TPS">
-  <meta property="og:description" content="Measuring transactions per second of various blockchains.">
   <meta property="og:url" content="https://realtps.net">
 
   <meta property="twitter:card" content="summary">
-  <meta property="twitter:description" content="Measuring transactions per second of various blockchains.">
 
   <title>Real TPS</title>
 
