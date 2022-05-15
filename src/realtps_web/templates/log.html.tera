@@ -9,7 +9,7 @@
 
 {% for log in log_list %}
 
-<h3 id={{ log.chain }}>{{ log.chain }}</h3>
+<h3 id="{{ log.chain_id }}">{{ log.chain_name }}</h3>
 
 <p>
   calculating_start: {{ log.log_details.calculating_start }} <br>

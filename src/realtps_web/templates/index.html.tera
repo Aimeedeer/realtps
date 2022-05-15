@@ -13,7 +13,7 @@
     {% for row in rows  | sort(attribute="tps") | reverse %}
     <tr>
       <td>
-        {{ row.chain }}
+        {{ row.chain_name }}
 
         {% if row.note %}
           <a title="details" href="/about#{{ row.note }}"><img alt="details" class="icon" src="/static/icons/mdi-information-outline.svg"></a>
@@ -21,10 +21,9 @@
       </td>
       <td>
         {% if row.is_data_too_old == true %}
-        <a title="data too old" href="/log#{{ row.chain }}"><img alt="data too old" class="icon_red" src="/static/icons/mdi-exclamation-mark.svg"></a>
+        <a title="data too old" href="/log#{{ row.chain_id }}"><img alt="data too old" class="icon_red" src="/static/icons/mdi-exclamation-mark.svg"></a>
         {% endif %}
         {{ row.tps_str }}
-
       </td>
     </tr>
     {% endfor %}

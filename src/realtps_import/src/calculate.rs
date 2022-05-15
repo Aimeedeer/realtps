@@ -81,7 +81,8 @@ pub async fn calculate_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<ChainC
 
     log::debug!(
         "done calculation for chain {}: {:#?}",
-        chain, calculation_log
+        chain,
+        calculation_log
     );
 
     write_log(chain, &db, calculation_log).await?;

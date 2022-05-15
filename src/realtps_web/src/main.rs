@@ -20,7 +20,8 @@ struct Context {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Row {
-    chain: String,
+    chain_id: Chain,
+    chain_name: String,
     note: Option<String>,
     tps: f64,
     tps_str: String,
@@ -34,7 +35,8 @@ struct LogContext {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Log {
-    chain: String,
+    chain_id: Chain,
+    chain_name: String,
     log_details: CalculationLog,
 }
 
@@ -61,11 +63,13 @@ fn index() -> Template {
             }
 
             let note = chain_note(chain).map(ToString::to_string);
-            let chain = chain.description().to_string();
+            let chain_id = chain;
+            let chain_name = chain.description().to_string();
             let tps_str = format!("{:.2}", tps);
 
             list.push(Row {
-                chain,
+                chain_id,
+                chain_name,
                 note,
                 tps,
                 tps_str,
@@ -88,8 +92,14 @@ fn log() -> Template {
             .load_calculation_log(chain)
             .expect(&format!("No calculation log for chain {}", &chain))
         {
-            let chain = chain.description().to_string();
-            list.push(Log { chain, log_details });
+            let chain_id = chain;
+            let chain_name = chain.description().to_string();
+
+            list.push(Log {
+                chain_id,
+                chain_name,
+                log_details,
+            });
         }
     }
 
