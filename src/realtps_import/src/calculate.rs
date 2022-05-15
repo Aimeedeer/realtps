@@ -1,7 +1,6 @@
 use crate::helpers::*;
 use anyhow::{anyhow, Result};
 use chrono::{TimeZone, Utc};
-use log::info;
 use realtps_common::{chain::Chain, db::CalculationLog, db::Db};
 use std::sync::Arc;
 

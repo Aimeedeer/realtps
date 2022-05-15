@@ -80,7 +80,7 @@ impl Client for ElrondClient {
                     .as_u64()
                     .ok_or_else(|| anyhow!("not a u64"))?;
                 let timestamp = block
-                    .get("nonce")
+                    .get("timestamp")
                     .ok_or_else(|| anyhow!("no timestamp key"))?
                     .as_u64()
                     .ok_or_else(|| anyhow!("not a u64"))?;
