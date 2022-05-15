@@ -80,7 +80,7 @@ pub async fn calculate_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<ChainC
         oldest_block_timestamp,
     };
 
-    info!(
+    log::debug!(
         "done calculation for chain {}: {:#?}",
         chain, calculation_log
     );
