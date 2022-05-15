@@ -1,9 +1,9 @@
 use crate::helpers::*;
 use anyhow::{anyhow, Result};
+use chrono::{TimeZone, Utc};
 use log::info;
 use realtps_common::{chain::Chain, db::Db};
 use std::sync::Arc;
-use std::time::SystemTime;
 
 pub struct ChainCalcs {
     pub chain: Chain,
@@ -11,7 +11,7 @@ pub struct ChainCalcs {
 }
 
 pub async fn calculate_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<ChainCalcs> {
-    let start_processing_timestamp = SystemTime::now();
+    let start_calculating_timestamp = Utc::now();
 
     let highest_block_number = load_highest_known_block_number(chain, &db).await?;
     let highest_block_number =
@@ -68,16 +68,29 @@ pub async fn calculate_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<ChainC
 
     let tps = calculate_tps(init_timestamp, latest_timestamp, num_txs)?;
 
-    let end_processing_timestamp = SystemTime::now();
+    let end_calculating_timestamp = Utc::now();
 
-    let calculate_log = format!(
-        "processing start at: {:#?} and end at {:#?}.
-timestamp of the newest block: {},
-timestamp of the oldest block: {}",
-        start_processing_timestamp, end_processing_timestamp, latest_timestamp, init_timestamp,
+    let newest_block_timestamp = Utc.timestamp(i64::try_from(latest_timestamp)?, 0);
+    let oldest_block_timestamp = Utc.timestamp(i64::try_from(init_timestamp)?, 0);
+
+    let calculation_log = format!(
+        "start_calculating: {}
+end_calculating: {}
+newest_block_timestamp: {}
+oldest_block_timestamp: {}",
+        start_calculating_timestamp,
+        end_calculating_timestamp,
+        newest_block_timestamp,
+        oldest_block_timestamp,
     );
-    info!("done calculation for chain {}: {}", chain, calculate_log);
-    write_log(chain, &db, calculate_log).await?;
+
+    info!(
+        "done calculation for chain {}:
+{}",
+        chain, calculation_log
+    );
+
+    write_log(chain, &db, calculation_log).await?;
 
     Ok(ChainCalcs { chain, tps })
 }
