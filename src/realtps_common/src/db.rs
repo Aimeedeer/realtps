@@ -1,6 +1,6 @@
 use crate::chain::Chain;
 use anyhow::{bail, Result};
-use chrono::{serde::ts_seconds, DateTime, Utc};
+use chrono::{DateTime, Utc};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
