@@ -9,14 +9,18 @@
 
 {% for log in log_list %}
 
-<h3>{{ log.chain }}</h3>
+<h3 id={{ log.chain }}>{{ log.chain }}</h3>
 
-<p> {{ log.details }}</p>
+<p>
+  calculating_start: {{ log.log_details.calculating_start }} <br>
+  calculating_end: {{ log.log_details.calculating_end }} <br>
+  newest_block_timestamp: {{ log.log_details.newest_block_timestamp }} <br>
+  oldest_block_timestamp: {{ log.log_details.oldest_block_timestamp }}
+</p>
 
 {% endfor %}
 
 {% endblock body %}
-
 
 {% block footer %}
 

@@ -161,6 +161,12 @@ img.icon {
     height: var(--icon-size);
 }
 
+img.icon_red {
+    vertical-align: baseline;
+    width: var(--icon-size);
+    height: var(--icon-size);
+}
+
 footer img.icon {
     width: calc(var(--icon-size) * 2);
     height: calc(var(--icon-size) * 2);

@@ -1,5 +1,6 @@
 use crate::chain::Chain;
 use anyhow::{bail, Result};
+use chrono::{serde::ts_seconds, DateTime, Utc};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use std::fs::{self, File};
@@ -20,6 +21,14 @@ pub struct Block {
     pub parent_hash: String,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct CalculationLog {
+    pub calculating_start: DateTime<Utc>,
+    pub calculating_end: DateTime<Utc>,
+    pub newest_block_timestamp: DateTime<Utc>,
+    pub oldest_block_timestamp: DateTime<Utc>,
+}
+
 pub trait Db: Send + Sync + 'static {
     fn store_block(&self, block: Block) -> Result<()>;
     fn load_block(&self, chain: Chain, block_number: u64) -> Result<Option<Block>>;
@@ -32,9 +41,9 @@ pub trait Db: Send + Sync + 'static {
 
     fn remove_block(&self, chain: Chain, block: u64) -> Result<()>;
 
-    fn store_calculation_log(&self, chain: Chain, log_str: &str) -> Result<()>;
+    fn store_calculation_log(&self, chain: Chain, log: &CalculationLog) -> Result<()>;
 
-    fn load_calculation_log(&self, chain: Chain) -> Result<Option<String>>;
+    fn load_calculation_log(&self, chain: Chain) -> Result<Option<CalculationLog>>;
 }
 
 pub struct JsonDb;
@@ -104,16 +113,16 @@ impl Db for JsonDb {
         Ok(())
     }
 
-    fn store_calculation_log(&self, chain: Chain, log_str: &str) -> Result<()> {
+    fn store_calculation_log(&self, chain: Chain, log: &CalculationLog) -> Result<()> {
         write_json_db(
             &format!("{}", chain),
             &format!("{}", DB_DIR_META),
             &format!("{}", CALCULATION_LOG),
-            log_str,
+            log,
         )
     }
 
-    fn load_calculation_log(&self, chain: Chain) -> Result<Option<String>> {
+    fn load_calculation_log(&self, chain: Chain) -> Result<Option<CalculationLog>> {
         read_json_db(
             &format!("{}", chain),
             &format!("{}", DB_DIR_META),
