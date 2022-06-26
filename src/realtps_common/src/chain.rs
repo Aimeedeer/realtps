@@ -73,7 +73,8 @@ impl Chain {
             Chain::Polkadot,
             Chain::Polygon,
             Chain::Rootstock,
-            Chain::SecretNetwork,
+            // todo banned?
+            // Chain::SecretNetwork,
             Chain::Solana,
             Chain::Stellar,
             Chain::Terra,
