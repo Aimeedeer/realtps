@@ -43,7 +43,6 @@ pub enum Chain {
     Solana,
     Stellar,
     Terra,
-    XDai,
 }
 
 impl Chain {
@@ -78,7 +77,6 @@ impl Chain {
             Chain::Solana,
             Chain::Stellar,
             Chain::Terra,
-            Chain::XDai,
         ]
     }
 
@@ -110,7 +108,6 @@ impl Chain {
             Chain::Solana => "Solana",
             Chain::Stellar => "Stellar",
             Chain::Terra => "Terra",
-            Chain::XDai => "xDai",
         }
     }
 
@@ -130,8 +127,7 @@ impl Chain {
             | Chain::OKEx
             | Chain::Optimism
             | Chain::Polygon
-            | Chain::Rootstock
-            | Chain::XDai => ChainType::Ethers,
+            | Chain::Rootstock => ChainType::Ethers,
             Chain::Elrond => ChainType::Elrond,
             Chain::Near => ChainType::Near,
             Chain::Solana => ChainType::Solana,
@@ -175,7 +171,6 @@ impl<'a> TryFrom<&'a str> for Chain {
             "solana" => Ok(Chain::Solana),
             "stellar" => Ok(Chain::Stellar),
             "terra" => Ok(Chain::Terra),
-            "xdai" => Ok(Chain::XDai),
             chain => bail!("failed parsing chain name {}", chain),
         }
     }
