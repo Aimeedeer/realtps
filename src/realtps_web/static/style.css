@@ -107,6 +107,7 @@ tr:nth-child(even) {
 
 td {
     border-bottom: 1px solid var(--medium-gray);
+    min-width: 10ch;
 }
 
 footer {
