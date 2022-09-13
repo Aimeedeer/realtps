@@ -104,6 +104,156 @@ dependencies = [
 ]
 
 [[package]]
+name = "algonaut"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ed0a4dada048d7cdfae3f2d6c9ea43cd7268ab1242f1f233a317b5ccb3c5717"
+dependencies = [
+ "algonaut_abi",
+ "algonaut_client",
+ "algonaut_core",
+ "algonaut_crypto",
+ "algonaut_encoding",
+ "algonaut_model",
+ "algonaut_transaction",
+ "data-encoding",
+ "futures-timer",
+ "gloo-timers",
+ "instant",
+ "num-bigint 0.4.3",
+ "num-traits",
+ "rmp-serde",
+ "sha2 0.10.5",
+ "thiserror",
+]
+
+[[package]]
+name = "algonaut_abi"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e6391f3ee4e8fa4e4c51de86ccea7c5f7b9bcc5f4bfe83b060e50c0ceb8a2ba"
+dependencies = [
+ "algonaut_core",
+ "derive_more",
+ "lazy_static",
+ "num-bigint 0.4.3",
+ "regex",
+ "serde",
+ "sha2 0.10.5",
+ "thiserror",
+]
+
+[[package]]
+name = "algonaut_client"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "50d83ba1e5b2e2d52549650da2dd2353b06f683221c322a79281cd92dbc45f94"
+dependencies = [
+ "algonaut_core",
+ "algonaut_crypto",
+ "algonaut_encoding",
+ "algonaut_model",
+ "async-trait",
+ "data-encoding",
+ "derive_more",
+ "reqwest",
+ "rmp-serde",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "url 2.2.2",
+]
+
+[[package]]
+name = "algonaut_core"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b57e628aa2030b8718d64119a19e23c9371c6e5b0ca883af7e4a6d054d9a5c7"
+dependencies = [
+ "algonaut_crypto",
+ "algonaut_encoding",
+ "data-encoding",
+ "derive_more",
+ "ring",
+ "rmp-serde",
+ "serde",
+ "sha2 0.10.5",
+ "static_assertions",
+ "thiserror",
+]
+
+[[package]]
+name = "algonaut_crypto"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "678c5739fd5c6193fd9b7075b2ea3a54862192aa93eee5b4d1a413139cd36934"
+dependencies = [
+ "algonaut_encoding",
+ "data-encoding",
+ "derive_more",
+ "indexmap",
+ "lazy_static",
+ "ring",
+ "serde",
+ "sha2 0.10.5",
+ "static_assertions",
+ "thiserror",
+]
+
+[[package]]
+name = "algonaut_encoding"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fd705d4179c6cb4e5265fa64a61c5e6f3352b00907e1e8a86a1cbb783f9af291"
+dependencies = [
+ "data-encoding",
+ "serde",
+]
+
+[[package]]
+name = "algonaut_model"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5b375369f01c0be0d5d1736f1a502a2184c701939b452d2665a01885edc9befa"
+dependencies = [
+ "algonaut_core",
+ "algonaut_crypto",
+ "algonaut_encoding",
+ "data-encoding",
+ "serde",
+ "serde_bytes",
+ "serde_json",
+ "serde_with",
+]
+
+[[package]]
+name = "algonaut_transaction"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cc325d37d225e064549616f80d1802ef38009d148031c0ccc8f1846863ce014a"
+dependencies = [
+ "algonaut_abi",
+ "algonaut_core",
+ "algonaut_crypto",
+ "algonaut_encoding",
+ "algonaut_model",
+ "data-encoding",
+ "derive_more",
+ "getrandom 0.2.6",
+ "num-bigint 0.4.3",
+ "num-traits",
+ "rand 0.8.5",
+ "ring",
+ "rmp-serde",
+ "serde",
+ "serde_bytes",
+ "sha2 0.10.5",
+ "thiserror",
+ "url 2.2.2",
+ "urlencoding",
+]
+
+[[package]]
 name = "aliasable"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1164,6 +1314,41 @@ dependencies = [
 ]
 
 [[package]]
+name = "darling"
+version = "0.13.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a01d95850c592940db9b8194bc39f4bc0e89dee5c4265e4b1807c34a9aba453c"
+dependencies = [
+ "darling_core",
+ "darling_macro",
+]
+
+[[package]]
+name = "darling_core"
+version = "0.13.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "859d65a907b6852c9361e3185c862aae7fafd2887876799fa55f5f99dc40d610"
+dependencies = [
+ "fnv",
+ "ident_case",
+ "proc-macro2 1.0.37",
+ "quote 1.0.18",
+ "strsim 0.10.0",
+ "syn 1.0.91",
+]
+
+[[package]]
+name = "darling_macro"
+version = "0.13.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c972679f83bdf9c42bd905396b6c3588a843a17f0f16dfcfa3e2c5d57441835"
+dependencies = [
+ "darling_core",
+ "quote 1.0.18",
+ "syn 1.0.91",
+]
+
+[[package]]
 name = "dashmap"
 version = "4.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1173,6 +1358,12 @@ dependencies = [
  "num_cpus",
  "rayon",
 ]
+
+[[package]]
+name = "data-encoding"
+version = "2.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3ee2393c4a91429dffb4bedf19f4d6abf27d8a732c8ce4980305d782e5426d57"
 
 [[package]]
 name = "der"
@@ -2226,6 +2417,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "gloo-timers"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5fb7d06c1c8cc2a29bee7ec961009a0b2caa0793ee4900c2ffb348734ba1c8f9"
+dependencies = [
+ "futures-channel",
+ "futures-core",
+ "js-sys",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "group"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2546,6 +2749,12 @@ dependencies = [
  "tokio",
  "tokio-native-tls",
 ]
+
+[[package]]
+name = "ident_case"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
 
 [[package]]
 name = "idna"
@@ -3593,6 +3802,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "num-bigint"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f93ab6289c7b344a8a9f60f88d80aa20032336fe78da341afc91c8a2341fc75f"
+dependencies = [
+ "autocfg 1.1.0",
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
 name = "num-derive"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4627,6 +4847,7 @@ dependencies = [
 name = "realtps_import"
 version = "0.1.0"
 dependencies = [
+ "algonaut",
  "anyhow",
  "async-trait",
  "chrono",
@@ -4845,6 +5066,28 @@ dependencies = [
  "proc-macro2 1.0.37",
  "quote 1.0.18",
  "syn 1.0.91",
+]
+
+[[package]]
+name = "rmp"
+version = "0.8.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "44519172358fd6d58656c86ab8e7fbc9e1490c3e8f14d35ed78ca0dd07403c9f"
+dependencies = [
+ "byteorder",
+ "num-traits",
+ "paste",
+]
+
+[[package]]
+name = "rmp-serde"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25786b0d276110195fa3d6f3f31299900cf71dfbd6c28450f3f58a0e7f7a347e"
+dependencies = [
+ "byteorder",
+ "rmp",
+ "serde",
 ]
 
 [[package]]
@@ -5308,6 +5551,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_with"
+version = "1.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "678b5a069e50bf00ecd22d0cd8ddf7c236f68581b03db652061ed5eb13a312ff"
+dependencies = [
+ "serde",
+ "serde_with_macros",
+]
+
+[[package]]
+name = "serde_with_macros"
+version = "1.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e182d6ec6f05393cc0e5ed1bf81ad6db3a8feedf8ee515ecdd369809bcce8082"
+dependencies = [
+ "darling",
+ "proc-macro2 1.0.37",
+ "quote 1.0.18",
+ "syn 1.0.91",
+]
+
+[[package]]
 name = "serde_yaml"
 version = "0.8.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5394,6 +5659,17 @@ dependencies = [
  "digest 0.9.0",
  "opaque-debug 0.3.0",
  "sha2-asm",
+]
+
+[[package]]
+name = "sha2"
+version = "0.10.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cf9db03534dff993187064c4e0c05a5708d2a9728ace9a8959b77bedf415dac5"
+dependencies = [
+ "cfg-if 1.0.0",
+ "cpufeatures",
+ "digest 0.10.3",
 ]
 
 [[package]]
@@ -7391,6 +7667,12 @@ dependencies = [
  "matches",
  "percent-encoding 2.1.0",
 ]
+
+[[package]]
+name = "urlencoding"
+version = "2.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8db7427f936968176eaa7cdf81b7f98b980b18495ec28f1b5791ac3bfe3eea9"
 
 [[package]]
 name = "utf-8"

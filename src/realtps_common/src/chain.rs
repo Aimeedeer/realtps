@@ -11,6 +11,7 @@ pub enum ChainType {
     Tendermint,
     Substrate,
     Stellar,
+    Algorand,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
@@ -18,6 +19,7 @@ pub enum ChainType {
 #[serde(rename_all = "lowercase")]
 #[derive(clap::ArgEnum)]
 pub enum Chain {
+    Algorand,
     Arbitrum,
     Avalanche,
     Binance,
@@ -48,6 +50,7 @@ pub enum Chain {
 impl Chain {
     pub fn all_chains() -> Vec<Chain> {
         vec![
+            Chain::Algorand,
             Chain::Arbitrum,
             Chain::Avalanche,
             Chain::Binance,
@@ -83,6 +86,7 @@ impl Chain {
     /// Chain names showed on the website
     pub fn description(&self) -> &'static str {
         match *self {
+            Chain::Algorand => "Algorand",
             Chain::Arbitrum => "Arbitrum",
             Chain::Avalanche => "Avalanche C-Chain",
             Chain::Binance => "Binance Smart Chain",
@@ -136,6 +140,7 @@ impl Chain {
                 ChainType::Tendermint
             }
             Chain::Kusama | Chain::Polkadot => ChainType::Substrate,
+            Chain::Algorand => ChainType::Algorand,
         }
     }
 }
@@ -146,6 +151,7 @@ impl<'a> TryFrom<&'a str> for Chain {
 
     fn try_from(value: &'a str) -> Result<Self> {
         match value {
+            "algorand" => Ok(Chain::Algorand),
             "arbitrum" => Ok(Chain::Arbitrum),
             "avalanche" => Ok(Chain::Avalanche),
             "binance" => Ok(Chain::Binance),
