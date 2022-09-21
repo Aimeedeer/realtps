@@ -23,13 +23,12 @@ impl AlgorandClient {
 impl Client for AlgorandClient {
     async fn client_version(&self) -> Result<String> {
         let versions = self.algod.versions().await?;
-        let semver = versions.build.semver();
-        Ok(semver)
+        Ok(versions.build.semver())
     }
 
     async fn get_latest_block_number(&self) -> Result<u64> {
-        let last_round = self.algod.status().await?.last_round;
-        Ok(last_round)
+        let status = self.algod.status().await?;
+        Ok(status.last_round)
     }
 
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
@@ -48,7 +47,7 @@ impl Client for AlgorandClient {
             } else {
                 None
             },
-            timestamp: indexer_block.timestamp as u64,
+            timestamp: indexer_block.timestamp,
             num_txs: indexer_block.transactions.len() as u64,
             hash: block.hash().encode_hex(),
             parent_hash: indexer_block.previous_block_hash.encode_hex(),
@@ -70,7 +69,7 @@ mod test_algorand {
     async fn client_version() -> Result<(), anyhow::Error> {
         let client = create_client()?;
         let version = client.client_version().await?;
-        println!("version: {}", version);
+        println!("version: {version}");
         assert!(!version.is_empty());
         Ok(())
     }
@@ -79,7 +78,7 @@ mod test_algorand {
     async fn get_latest_block_number() -> Result<(), anyhow::Error> {
         let client = create_client()?;
         let latest_block_number = client.get_latest_block_number().await?;
-        println!("latest_block_number: {}", latest_block_number);
+        println!("latest_block_number: {latest_block_number}");
         assert!(latest_block_number > 0);
         Ok(())
     }
@@ -89,7 +88,7 @@ mod test_algorand {
         let client = create_client()?;
         let latest_block_number = client.get_latest_block_number().await?;
         let block = client.get_block(latest_block_number).await?;
-        println!("block: {:?}", block);
+        println!("block: {block:?}");
         Ok(())
     }
 }
