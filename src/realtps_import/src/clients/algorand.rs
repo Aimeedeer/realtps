@@ -11,10 +11,13 @@ pub struct AlgorandClient {
 }
 
 impl AlgorandClient {
-    pub fn new() -> Result<Self> {
+    pub fn new(urls: &str) -> Result<Self> {
+        let urls: Vec<&str> = urls.split(';').collect();
+        let algod_url = urls.get(0).expect("algorand algod url");
+        let indexer_url = urls.get(1).expect("algorand indexer url");
         Ok(Self {
-            algod: Algod::with_headers("https://mainnet-api.algonode.cloud", vec![])?,
-            indexer: Indexer::with_headers("https://mainnet-idx.algonode.cloud", vec![])?,
+            algod: Algod::with_headers(algod_url, vec![])?,
+            indexer: Indexer::with_headers(indexer_url, vec![])?,
         })
     }
 }

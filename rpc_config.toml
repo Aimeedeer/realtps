@@ -8,7 +8,7 @@
 # https://github.com/cosmos/chain-registry - Cosmos chains rpc info
 
 [chains]
-algorand = ""
+algorand = "https://mainnet-api.algonode.cloud;https://mainnet-idx.algonode.cloud"
 arbitrum = "https://arb1.arbitrum.io/rpc"
 avalanche = "https://api.avax.network/ext/bc/C/rpc"
 binance = "https://bsc-dataseed.binance.org"
