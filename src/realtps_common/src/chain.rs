@@ -76,7 +76,8 @@ impl Chain {
             // Chain::SecretNetwork,
             Chain::Solana,
             Chain::Stellar,
-            Chain::Terra,
+            // todo forked, rpc disappeared
+            //Chain::Terra,
         ]
     }
 
