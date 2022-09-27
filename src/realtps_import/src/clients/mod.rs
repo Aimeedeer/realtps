@@ -1,3 +1,4 @@
+mod algorand;
 mod elrond;
 mod ethers;
 mod near;
@@ -6,6 +7,7 @@ mod stellar;
 mod substrate;
 mod tendermint;
 
+pub use self::algorand::*;
 pub use self::elrond::*;
 pub use self::ethers::*;
 pub use self::near::*;
