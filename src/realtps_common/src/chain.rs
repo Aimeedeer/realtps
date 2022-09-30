@@ -21,6 +21,7 @@ pub enum ChainType {
 pub enum Chain {
     Algorand,
     Arbitrum,
+    Astar,
     Avalanche,
     Binance,
     Celo,
@@ -33,6 +34,7 @@ pub enum Chain {
     Heco,
     KuCoin,
     Kusama,
+    Moonbeam,
     Moonriver,
     Near,
     OKEx,
@@ -53,6 +55,7 @@ impl Chain {
             // todo https://github.com/Aimeedeer/realtps/issues/40
             // Chain::Algorand,
             Chain::Arbitrum,
+            Chain::Astar,
             Chain::Avalanche,
             Chain::Binance,
             Chain::Celo,
@@ -67,6 +70,7 @@ impl Chain {
             // Chain::Heco,
             Chain::KuCoin,
             Chain::Kusama,
+            Chain::Moonbeam,
             Chain::Moonriver,
             Chain::Near,
             Chain::OKEx,
@@ -90,6 +94,7 @@ impl Chain {
         match *self {
             Chain::Algorand => "Algorand",
             Chain::Arbitrum => "Arbitrum",
+            Chain::Astar => "Astar",
             Chain::Avalanche => "Avalanche C-Chain",
             Chain::Binance => "Binance Smart Chain",
             Chain::Celo => "Celo",
@@ -102,6 +107,7 @@ impl Chain {
             Chain::Heco => "Heco",
             Chain::KuCoin => "KuCoin",
             Chain::Kusama => "Kusama",
+            Chain::Moonbeam => "Moonbeam",
             Chain::Moonriver => "Moonriver",
             Chain::Near => "NEAR",
             Chain::OKEx => "OKEx",
@@ -120,6 +126,7 @@ impl Chain {
     pub fn chain_type(&self) -> ChainType {
         match self {
             Chain::Arbitrum
+            | Chain::Astar
             | Chain::Avalanche
             | Chain::Binance
             | Chain::Celo
@@ -129,6 +136,7 @@ impl Chain {
             | Chain::Harmony
             | Chain::Heco
             | Chain::KuCoin
+            | Chain::Moonbeam
             | Chain::Moonriver
             | Chain::OKEx
             | Chain::Optimism
@@ -155,6 +163,7 @@ impl<'a> TryFrom<&'a str> for Chain {
         match value {
             "algorand" => Ok(Chain::Algorand),
             "arbitrum" => Ok(Chain::Arbitrum),
+            "astar" => Ok(Chain::Astar),
             "avalanche" => Ok(Chain::Avalanche),
             "binance" => Ok(Chain::Binance),
             "celo" => Ok(Chain::Celo),
@@ -167,6 +176,7 @@ impl<'a> TryFrom<&'a str> for Chain {
             "heco" => Ok(Chain::Heco),
             "kucoin" => Ok(Chain::KuCoin),
             "kusama" => Ok(Chain::Kusama),
+            "moonbeam" => Ok(Chain::Moonbeam),
             "moonriver" => Ok(Chain::Moonriver),
             "near" => Ok(Chain::Near),
             "okex" => Ok(Chain::OKEx),
