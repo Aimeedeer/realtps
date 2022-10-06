@@ -105,9 +105,9 @@ dependencies = [
 
 [[package]]
 name = "algonaut"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb0b62234e025fc8cefa1b7aa36a4824ea30ce9dbbdb11e31c7cb7be8c028917"
+checksum = "482249cf718afe1a319eae814b8f665036651b3d34647ba0a7ef5583ae7902ff"
 dependencies = [
  "algonaut_abi",
  "algonaut_client",
@@ -129,9 +129,9 @@ dependencies = [
 
 [[package]]
 name = "algonaut_abi"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cfce702234255319b96789f31bfc0444a33e19f23eba47f453ba6b988c57cf06"
+checksum = "c1785bf9ba3c223c0099757d816474da161c8b9d200c58996af7362f8af43da2"
 dependencies = [
  "algonaut_core",
  "derive_more",
@@ -145,9 +145,9 @@ dependencies = [
 
 [[package]]
 name = "algonaut_client"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f12ca579b937e338ee384bcd05aa593e789d0ed38974700e15f6eb072138095"
+checksum = "9ecd97478866c89ee3cd60be46da40cbd5995bbaa6b638c8a563d5e2affbdf03"
 dependencies = [
  "algonaut_core",
  "algonaut_crypto",
@@ -166,9 +166,9 @@ dependencies = [
 
 [[package]]
 name = "algonaut_core"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd961ce1bc1577663f0887a6818973da679b828ea31c1372c8b7fc0303e6f53e"
+checksum = "c8a3b013ff0db2aa536465ed7e6a4de874b813707f491f5be0974323be1615bc"
 dependencies = [
  "algonaut_crypto",
  "algonaut_encoding",
@@ -184,9 +184,9 @@ dependencies = [
 
 [[package]]
 name = "algonaut_crypto"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "58674fafa09477e397cd463d791282a79e675c2e2f3ff397eedc839bc7a755bc"
+checksum = "e64cb7017b48c63e414685afbeacda4e7284485e945a0a2b83255f855737918e"
 dependencies = [
  "algonaut_encoding",
  "data-encoding",
@@ -202,9 +202,9 @@ dependencies = [
 
 [[package]]
 name = "algonaut_encoding"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8ec7d14deb3f693197b7dc315254acc854a7514487e37a93ad2cee719ee733f"
+checksum = "8196041512cec3e25345d7bb808654269ef11c24deb234b4f4615f0a2f8b7b5a"
 dependencies = [
  "data-encoding",
  "serde",
@@ -212,9 +212,9 @@ dependencies = [
 
 [[package]]
 name = "algonaut_model"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b93fe1698706cc3128d8b48122b04666d328742e77e47739e7efe867c3386506"
+checksum = "20aaacbc4748ec5e0b9575a9f545b8db279afdaaccd9eb6fc4a6f791f9a86059"
 dependencies = [
  "algonaut_core",
  "algonaut_crypto",
@@ -228,9 +228,9 @@ dependencies = [
 
 [[package]]
 name = "algonaut_transaction"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d6dd331dec9dc47624da3ed71f47e1e26abd9a709bcbf7890add83ed2780c6f"
+checksum = "baa6be33bfe2cb126a3509b87ec36c30a5fe8edae23df152a944cc778b5e726b"
 dependencies = [
  "algonaut_abi",
  "algonaut_core",

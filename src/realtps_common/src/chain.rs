@@ -52,8 +52,7 @@ pub enum Chain {
 impl Chain {
     pub fn all_chains() -> Vec<Chain> {
         vec![
-            // todo https://github.com/Aimeedeer/realtps/issues/40
-            // Chain::Algorand,
+            Chain::Algorand,
             Chain::Arbitrum,
             Chain::Astar,
             Chain::Avalanche,
