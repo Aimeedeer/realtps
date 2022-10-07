@@ -7,20 +7,20 @@ edition = "2021"
 
 [dependencies]
 realtps_common = { path = "../realtps_common" }
-anyhow = "1.0.51"
-ethers = "0.6.2"
-tokio = { version = "1.15.0", features = ["macros", "rt-multi-thread", "time"] }
-rand = "0.8.4"
-serde = { version = "1.0.132", features = ["derive"] }
-serde_json = "1"
-toml = "0.5.8"
-futures = "0.3.19"
+anyhow = "1.0.62"
+ethers = "0.17.0"
+tokio = { version = "1.20.1", features = ["macros", "rt-multi-thread", "time"] }
+rand = "0.8.5"
+serde = { version = "1.0.143", features = ["derive"] }
+serde_json = "1.0.83"
+toml = "0.5.9"
+futures = "0.3.23"
 hex = "0.4.3"
 jsonrpc-core = "18.0.0"
 jsonrpc-core-client = { version = "18.0.0", features = ["tls", "http", "ws"] }
-log = "0.4.14"
+log = "0.4.17"
 env_logger = "0.9.0"
-async-trait = "0.1.52"
+async-trait = "0.1.57"
 solana-client = "1.9.9"
 solana-sdk = "1.9.9"
 solana-transaction-status = "1.9.9"
