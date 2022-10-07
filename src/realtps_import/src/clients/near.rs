@@ -1,7 +1,7 @@
 use crate::client::Client;
 use anyhow::Result;
 use async_trait::async_trait;
-use near_jsonrpc_client::{auth::Unauthenticated, methods, JsonRpcClient};
+use near_jsonrpc_client::{methods, JsonRpcClient};
 use near_jsonrpc_primitives::types::chunks::ChunkReference;
 use near_primitives::{
     types::{BlockId, BlockReference},
@@ -11,7 +11,7 @@ use realtps_common::{chain::Chain, db::Block};
 use std::time::Duration;
 
 pub struct NearClient {
-    client: JsonRpcClient<Unauthenticated>,
+    client: JsonRpcClient,
 }
 
 impl NearClient {
