@@ -32,7 +32,7 @@ near-jsonrpc-primitives = "0.15.0"
 tendermint-rpc = { version = "0.23.9", features = ["http-client"] }
 tendermint = "0.23.9"
 tendermint-proto = "0.23.9"
-clap = { version = "3.0.2", features = ["derive"] }
-reqwest = "0.11.8"
-chrono = "0.4.19"
+clap = { version = "3.2.17", features = ["derive"] }
+reqwest = "0.11.11"
+chrono = "0.4.22"
 algonaut = "0.4.2"
