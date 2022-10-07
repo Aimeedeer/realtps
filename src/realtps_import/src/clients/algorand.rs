@@ -65,7 +65,7 @@ mod test_algorand {
     use super::{AlgorandClient, Client};
 
     fn create_client() -> Result<AlgorandClient> {
-        AlgorandClient::new()
+        AlgorandClient::new("https://mainnet-api.algonode.cloud;https://mainnet-idx.algonode.cloud")
     }
 
     #[tokio::test]
