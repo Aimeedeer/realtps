@@ -17,6 +17,7 @@ use std::fs;
 use std::path::Path;
 use std::sync::Arc;
 use tokio::task;
+use log4rs;
 
 mod calculate;
 mod client;
@@ -53,8 +54,12 @@ static RPC_CONFIG_PATH: &str = "rpc_config.toml";
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    env_logger::init();
+//    env_logger::init();
+    
+    log4rs::init_file("log4rs.yml", Default::default())?;
+    info!("booting up");
 
+    
     let opts = Opts::parse();
     let rpc_config = load_rpc_config(RPC_CONFIG_PATH)?;
 

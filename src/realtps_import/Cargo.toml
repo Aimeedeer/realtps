@@ -36,3 +36,4 @@ clap = { version = "3.2.17", features = ["derive"] }
 reqwest = "0.11.11"
 chrono = "0.4.22"
 algonaut = "0.4.2"
+log4rs = "1.1.1"

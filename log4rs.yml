@@ -1,0 +1,11 @@
+appenders:
+  stdout:
+    kind: file
+    path: "jobs.log"
+    encoder:
+      pattern: "{d} - {m}{n}"
+
+root:
+  level: info
+  appenders:
+    - stdout
