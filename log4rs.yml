@@ -2,20 +2,23 @@ appenders:
   console:
     kind: console
 
-  file:
-    kind: file
-    path: jobs.log
+  rolling_file:
+    kind: rolling_file
+    path: log/realtps.log
     encoder:
-      pattern: "{d} {l} {t} - {m}{n}"
+      kind: pattern
+    policy:
+      trigger:
+        kind: size
+        limit: 10 mb
+      roller:
+        kind: fixed_window
+        base: 1
+        count: 10
+        pattern: log/realtps.{}.log
 
 root:
   level: info
   appenders:
     - console
-
-loggers:
-  realtps_import:
-    level: info
-    appenders:
-      - file
-    additive: true
+    - rolling_file
