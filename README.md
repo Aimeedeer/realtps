@@ -42,7 +42,7 @@ Full details are on [the website].
 ```
 $ git clone https://github.com/Aimeedeer/realtps
 $ cd realtps
-$ RUST_LOG=info cargo run -p realtps_import
+$ cargo run -p realtps_import
 ```
 
 You'll see the `db` directory for fetched data under the root.
@@ -60,7 +60,7 @@ To update data for a specific chain, run `realtps_import` with arguments.
 e.g.
 
 ```
-$ RUST_LOG=info cargo run -p realtps_import -- import --chain polygon
+$ cargo run -p realtps_import -- import --chain polygon
     Finished dev [unoptimized + debuginfo] target(s) in 0.33s
      Running `target/debug/realtps_import import --chain polygon`
 [realtps_import] creating client for polygon at https://polygon-rpc.com
