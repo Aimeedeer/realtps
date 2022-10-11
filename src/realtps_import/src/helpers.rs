@@ -96,7 +96,11 @@ pub async fn remove_blocks(chain: Chain, db: &Arc<dyn Db>, blocks: Vec<u64>) -> 
     Ok(())
 }
 
-pub async fn write_calculation_log(chain: Chain, db: &Arc<dyn Db>, log: CalculationLog) -> Result<()> {
+pub async fn write_calculation_log(
+    chain: Chain,
+    db: &Arc<dyn Db>,
+    log: CalculationLog,
+) -> Result<()> {
     let db = db.clone();
     task::spawn_blocking(move || db.store_calculation_log(chain, &log)).await??;
 
