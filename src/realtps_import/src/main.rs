@@ -16,6 +16,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::sync::Arc;
+use tempdir::TempDir;
 use tokio::task;
 
 mod calculate;
@@ -50,13 +51,14 @@ struct RpcConfig {
 }
 
 static RPC_CONFIG_PATH: &str = "rpc_config.toml";
+static LOG_CONFIG_PATH: &str = "log_config.yml";
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    log4rs::init_file("log4rs.yml", Default::default())?;
-    info!("booting up");
-
     let opts = Opts::parse();
+
+    init_log(LOG_CONFIG_PATH, &opts.cmd)?;
+
     let rpc_config = load_rpc_config(RPC_CONFIG_PATH)?;
 
     Ok(run(opts, rpc_config).await?)
@@ -95,6 +97,35 @@ fn get_chains(maybe_chain: Option<Chain>) -> Vec<Chain> {
     } else {
         Chain::all_chains()
     }
+}
+
+fn init_log<P: AsRef<Path>>(path: P, job: &Option<Command>) -> Result<()> {
+    let job_name = if let Some(job) = job {
+        match job {
+            Command::Run => "all-jobs",
+            Command::Import => "import",
+            Command::Calculate => "calculate",
+            Command::Remove => "remove",
+        }
+    } else {
+        "all-jobs"
+    };
+
+    let temp_dir = TempDir::new("temp_dir")?;
+    let temp_config_dir = temp_dir.path().join("log_config.yml");
+
+    let mut config_file = std::fs::read_to_string(path)?;
+    config_file = config_file.replace("job-name", job_name);
+    std::fs::write(&temp_config_dir, config_file)?;
+
+    let log_config = log4rs::config::load_config_file(&temp_config_dir, Default::default())?;
+
+    log4rs::init_config(log_config)?;
+
+    drop(temp_config_dir);
+    temp_dir.close()?;
+
+    Ok(())
 }
 
 fn load_rpc_config<P: AsRef<Path>>(path: P) -> Result<RpcConfig> {
