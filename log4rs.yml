@@ -1,11 +1,21 @@
 appenders:
-  stdout:
+  console:
+    kind: console
+
+  file:
     kind: file
-    path: "jobs.log"
+    path: jobs.log
     encoder:
-      pattern: "{d} - {m}{n}"
+      pattern: "{d} {l} {t} - {m}{n}"
 
 root:
   level: info
   appenders:
-    - stdout
+    - console
+
+loggers:
+  realtps_import:
+    level: info
+    appenders:
+      - file
+    additive: true
