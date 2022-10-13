@@ -26,6 +26,7 @@ mod delay;
 mod helpers;
 mod import;
 mod jobs;
+mod pace_setter;
 mod remove;
 
 #[derive(Parser, Debug)]

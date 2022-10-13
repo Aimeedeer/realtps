@@ -1,6 +1,7 @@
 use crate::client::Client;
 use crate::delay;
 use crate::helpers::*;
+use crate::pace_setter::PaceSetter;
 use anyhow::{anyhow, Result};
 use log::{debug, info, warn};
 use realtps_common::{
@@ -89,6 +90,8 @@ async fn sync(
     let joined_chain_block_number;
     let joined_chain_block_hash;
 
+    let mut pace = PaceSetter::new(chain);
+
     loop {
         let block = fetch_block(chain, client, block_number).await?;
         let prev_block_number = block.prev_block_number.expect("not genesis block");
@@ -138,7 +141,7 @@ async fn sync(
         );
         block_number = block_number_to_fetch_next;
 
-        delay::courtesy_delay(chain).await;
+        pace.wait().await;
     }
 
     store_highest_known_block_number(chain, db, live_head_block_number).await?;

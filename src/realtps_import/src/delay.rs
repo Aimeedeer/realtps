@@ -16,7 +16,7 @@ async fn delay(base_ms: u64) {
     time::sleep(delay_time).await;
 }
 
-pub async fn courtesy_delay(chain: Chain) {
+pub fn courtesy_delay(chain: Chain) -> u64 {
     let msecs = match chain {
         Chain::Elrond => 1000, // 6s block time
         // Need to go fast to keep up.
@@ -24,8 +24,8 @@ pub async fn courtesy_delay(chain: Chain) {
         Chain::Solana => 0,
         _ => 250,
     };
-    debug!("delaying {} ms to retrieve next block", msecs);
-    delay(msecs).await
+
+    msecs
 }
 
 pub async fn rescan_delay(chain: Chain) {
