@@ -14,6 +14,7 @@ use std::sync::Arc;
 use std::time::Instant;
 use tokio::task;
 
+#[derive(Debug)]
 pub enum Job {
     Import(Chain),
     Calculate(Vec<Chain>),
@@ -38,7 +39,7 @@ impl JobRunner {
             Err(e) => {
                 print_error(&e);
                 error!("error running job. repeating");
-                delay::job_error_delay().await;
+                delay::job_error_delay(&job).await;
                 vec![job]
             }
         }

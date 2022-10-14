@@ -24,7 +24,7 @@ impl PaceSetter {
         if let Some(to_delay) = courtesy_delay.checked_sub(work_duration) {
             debug!(
                 "chain {} delaying {} ms to retrieve next block, courtesy delay {} ms",
-                self.chain.description(),
+                self.chain,
                 to_delay.as_millis(),
                 courtesy_delay.as_millis(),
             );
@@ -32,7 +32,7 @@ impl PaceSetter {
         } else {
             debug!(
                 "chain {} worked {} ms, {} ms longer than courtesy delay {} ms",
-                self.chain.description(),
+                self.chain,
                 work_duration.as_millis(),
                 work_duration
                     .checked_sub(courtesy_delay)

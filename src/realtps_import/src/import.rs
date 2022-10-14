@@ -55,7 +55,7 @@ async fn import_no_rescan_delay(chain: Chain, client: &dyn Client, db: &Arc<dyn 
         let needed_blocks = live_head_block_number
             .checked_sub(highest_known_block_number)
             .expect("underflow");
-        info!("importing at least {} blocks for {}", needed_blocks, chain);
+        info!("importing at least {} blocks for chain {}", needed_blocks, chain);
     }
 
     sync(
@@ -136,7 +136,7 @@ async fn sync(
         };
 
         debug!(
-            "still need block {} for {}",
+            "still need block {} for chain {}",
             block_number_to_fetch_next, chain
         );
         block_number = block_number_to_fetch_next;
@@ -160,7 +160,7 @@ async fn import_first_blocks(
     db: &Arc<dyn Db>,
     head_block_number: u64,
 ) -> Result<()> {
-    info!("importing first blocks for {}", chain);
+    info!("importing first blocks for chain {}", chain);
 
     let head_block = fetch_block(chain, client, head_block_number).await?;
     let prev_block_number = head_block.prev_block_number.expect("not genesis block");
@@ -176,7 +176,7 @@ async fn import_first_blocks(
     store_block(db, prev_block).await?;
     store_highest_known_block_number(chain, db, head_block_number).await?;
 
-    info!("completed first import for {}", chain);
+    info!("completed first import for chain {}", chain);
 
     Ok(())
 }

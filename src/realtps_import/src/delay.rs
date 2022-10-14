@@ -1,3 +1,4 @@
+use crate::Job;
 use crate::Chain;
 use anyhow::Result;
 use log::{debug, warn};
@@ -34,13 +35,13 @@ pub async fn rescan_delay(chain: Chain) {
         _ => 30,
     };
     let msecs = 1000 * delay_secs;
-    debug!("delaying {} ms to rescan", msecs);
+    debug!("delaying {} ms to rescan chain {}", msecs, chain);
     delay(msecs).await
 }
 
-pub async fn job_error_delay() {
+pub async fn job_error_delay(job: &Job) {
     let msecs = 1000;
-    debug!("delaying {} ms to retry job", msecs);
+    debug!("delaying {} ms to retry job {:?}", msecs, job);
     delay(msecs).await;
 }
 
