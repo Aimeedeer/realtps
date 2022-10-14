@@ -1,6 +1,9 @@
 appenders:
   console:
     kind: console
+    filters:
+      - kind: threshold
+        level: info
 
   rolling_file:
     kind: rolling_file
@@ -18,7 +21,7 @@ appenders:
         pattern: log/realtps-job-name.{}.log
 
 root:
-  level: info
+  level: debug
   appenders:
     - console
     - rolling_file

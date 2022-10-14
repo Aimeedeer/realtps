@@ -1,6 +1,6 @@
 use crate::delay;
 use crate::Chain;
-use log::{debug, trace};
+use log::debug;
 use std::time::Instant;
 use tokio::time::{self, Duration};
 
@@ -23,19 +23,22 @@ impl PaceSetter {
 
         if let Some(to_delay) = courtesy_delay.checked_sub(work_duration) {
             debug!(
-                "chain {} delaying {} ms to retrieve next block",
+                "chain {} delaying {} ms to retrieve next block, courtesy delay {} ms",
                 self.chain.description(),
-                to_delay.as_millis()
+                to_delay.as_millis(),
+                courtesy_delay.as_millis(),
             );
             time::sleep(to_delay).await;
         } else {
-            trace!(
-                "chain {} works {} ms longer than courtesy delay",
+            debug!(
+                "chain {} worked {} ms, {} ms longer than courtesy delay {} ms",
                 self.chain.description(),
+                work_duration.as_millis(),
                 work_duration
                     .checked_sub(courtesy_delay)
                     .expect("overflow")
-                    .as_millis()
+                    .as_millis(),
+                courtesy_delay.as_millis(),
             );
         }
 
