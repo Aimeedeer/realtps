@@ -21,7 +21,7 @@ async fn delay(base_ms: u64) {
 /// FIXME rename
 pub fn courtesy_delay(chain: Chain) -> u64 {
     let msecs = match chain {
-        Chain::Elrond => 1000, // 6s block time
+        Chain::Elrond => 1000,   // 6s block time
         Chain::Optimism => 1000, // got blocked at 500ms, unclear what rate they want
         // Need to go fast to keep up.
         // Solana's RpcClient will use its built in rate limiter when connecting to public nodes.
