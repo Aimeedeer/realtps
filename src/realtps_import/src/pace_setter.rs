@@ -19,26 +19,26 @@ impl PaceSetter {
 
     pub async fn wait(&mut self) -> &mut Self {
         let work_duration = Instant::now().duration_since(self.last_time);
-        let courtesy_delay = Duration::from_millis(delay::courtesy_delay(self.chain));
+        let block_pace = Duration::from_millis(delay::block_pace(self.chain));
 
-        if let Some(to_delay) = courtesy_delay.checked_sub(work_duration) {
+        if let Some(to_delay) = block_pace.checked_sub(work_duration) {
             debug!(
-                "chain {} delaying {} ms to retrieve next block, courtesy delay {} ms",
+                "chain {} delaying {} ms to retrieve next block, block_pace {} ms",
                 self.chain,
                 to_delay.as_millis(),
-                courtesy_delay.as_millis(),
+                block_pace.as_millis(),
             );
             time::sleep(to_delay).await;
         } else {
             debug!(
-                "chain {} worked {} ms, {} ms longer than courtesy delay {} ms",
+                "chain {} worked {} ms, {} ms longer than block_pace {} ms",
                 self.chain,
                 work_duration.as_millis(),
                 work_duration
-                    .checked_sub(courtesy_delay)
+                    .checked_sub(block_pace)
                     .expect("overflow")
                     .as_millis(),
-                courtesy_delay.as_millis(),
+                block_pace.as_millis(),
             );
         }
 

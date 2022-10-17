@@ -20,7 +20,7 @@ async fn delay(base_ms: u64) {
 /// The pace we want to request blocks at.
 ///
 /// FIXME rename
-pub fn courtesy_delay(chain: Chain) -> u64 {
+pub fn block_pace(chain: Chain) -> u64 {
     let msecs = match chain {
         Chain::Elrond => 1000,   // 6s block time
         Chain::Optimism => 1000, // got blocked at 500ms, unclear what rate they want
