@@ -214,7 +214,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Option<Box<dyn Cli
         let version = retry_if_err(chain, || client.client_version())
             .await
             .context(format!("error getting client version for {}", chain))?;
-        info!("node version for {}: {}", chain, version);
+        info!("node version for chain {}: {}", chain, version);
     }
 
     Ok(client)

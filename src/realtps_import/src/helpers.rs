@@ -14,7 +14,7 @@ pub async fn fetch_live_head_block_number(chain: Chain, client: &dyn Client) -> 
         retry_if_err(chain, || Box::pin(client.get_latest_block_number())).await?;
 
     debug!(
-        "live head block number for {}: {}",
+        "live head block number for chain {}: {}",
         chain, live_head_block_number
     );
 
@@ -22,7 +22,7 @@ pub async fn fetch_live_head_block_number(chain: Chain, client: &dyn Client) -> 
 }
 
 pub async fn fetch_block(chain: Chain, client: &dyn Client, block_number: u64) -> Result<Block> {
-    debug!("fetching block {} for {}", block_number, chain);
+    debug!("fetching block {} for chain {}", block_number, chain);
 
     let get_block = || retry_if_err(chain, || Box::pin(client.get_block(block_number)));
     let maybe_block = retry_if_none(chain, || Box::pin(get_block())).await?;
@@ -41,7 +41,7 @@ pub async fn store_highest_known_block_number(
     task::spawn_blocking(move || db.store_highest_block_number(chain, block_number)).await??;
 
     debug!(
-        "new highest known block number for {}: {}",
+        "new highest known block number for chain {}: {}",
         chain, block_number
     );
 
@@ -57,7 +57,7 @@ pub async fn load_highest_known_block_number(
         task::spawn_blocking(move || db.load_highest_block_number(chain)).await??;
 
     debug!(
-        "highest known block number for {}: {:?}",
+        "highest known block number for chain {}: {:?}",
         chain, highest_known_block_number
     );
 

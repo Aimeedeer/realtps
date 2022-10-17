@@ -78,7 +78,7 @@ where
                 } else {
                     let delay_ms = base_delay_ms * try_num;
                     warn!(
-                        "for {} received err {}. retrying in {} ms",
+                        "for chain {} received err {}. retrying in {} ms",
                         chain, e, delay_ms
                     );
                     delay(delay_ms).await;
@@ -106,7 +106,7 @@ where
                     break Ok(None);
                 } else {
                     let delay_ms = base_delay_ms * try_num;
-                    warn!("for {} received None. retrying in {} ms", chain, delay_ms);
+                    warn!("for chain {} received None. retrying in {} ms", chain, delay_ms);
                     delay(delay_ms).await;
                 }
             }
