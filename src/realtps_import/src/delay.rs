@@ -17,13 +17,17 @@ async fn delay(base_ms: u64) {
     time::sleep(delay_time).await;
 }
 
+/// The pace we want to request blocks at.
+///
+/// FIXME rename
 pub fn courtesy_delay(chain: Chain) -> u64 {
     let msecs = match chain {
-        Chain::Elrond => 1000, // 6s block time
+        Chain::Elrond => 1000,   // 6s block time
+        Chain::Optimism => 1000, // got blocked at 500ms, unclear what rate they want
         // Need to go fast to keep up.
         // Solana's RpcClient will use its built in rate limiter when connecting to public nodes.
         Chain::Solana => 0,
-        _ => 250,
+        _ => 500,
     };
 
     msecs
@@ -62,7 +66,7 @@ where
     F: Fn() -> Pin<Box<dyn Future<Output = Result<T>> + Send + 'caller>>,
 {
     let tries = 3;
-    let base_delay_ms = 100;
+    let base_delay_ms = 500;
     let mut try_num = 1;
     let r = loop {
         let r = f().await;
@@ -91,7 +95,7 @@ where
     F: Fn() -> Pin<Box<dyn Future<Output = Result<Option<T>>> + Send + 'caller>>,
 {
     let tries = 3;
-    let base_delay_ms = 100;
+    let base_delay_ms = 500;
     let mut try_num = 1;
     let r = loop {
         let r = f().await?;

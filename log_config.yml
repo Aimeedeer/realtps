@@ -13,7 +13,7 @@ appenders:
     policy:
       trigger:
         kind: size
-        limit: 10 mb
+        limit: 100 mb
       roller:
         kind: fixed_window
         base: 1
@@ -21,7 +21,15 @@ appenders:
         pattern: log/realtps-job-name.{}.log
 
 root:
-  level: debug
+  level: warn
   appenders:
     - console
     - rolling_file
+
+loggers:
+  realtps_common:
+    level: debug
+  realtps_import:
+    level: debug
+
+  
