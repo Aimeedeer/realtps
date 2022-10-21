@@ -1,6 +1,7 @@
 mod algorand;
 mod elrond;
 mod ethers;
+mod icp;
 mod near;
 mod solana;
 mod stellar;
@@ -10,6 +11,7 @@ mod tendermint;
 pub use self::algorand::*;
 pub use self::elrond::*;
 pub use self::ethers::*;
+pub use self::icp::*;
 pub use self::near::*;
 pub use self::solana::*;
 pub use self::stellar::*;

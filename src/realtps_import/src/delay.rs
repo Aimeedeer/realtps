@@ -39,6 +39,7 @@ pub fn block_pace(chain: Chain) -> u64 {
 /// avoid making requests for new blocks when there are non.
 pub async fn rescan_delay(chain: Chain) {
     let delay_secs = match chain {
+        Chain::InternetComputer => 1,
         Chain::Solana => 1, // Need to go fast to keep up
         Chain::Polkadot => 7, // 6s block time, server rate-limited, can't wait too long
         Chain::Kusama => 7, // "

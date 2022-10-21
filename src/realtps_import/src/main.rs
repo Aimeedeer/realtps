@@ -203,6 +203,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Option<Box<dyn Cli
         ChainType::Algorand => Some(Box::new(AlgorandClient::new(&rpc_url)?)),
         ChainType::Elrond => Some(Box::new(ElrondClient::new(&rpc_url)?)),
         ChainType::Ethers => Some(Box::new(EthersClient::new(chain, &rpc_url)?)),
+        ChainType::InternetComputer => Some(Box::new(IcpClient::new(&rpc_url)?)),
         ChainType::Near => Some(Box::new(NearClient::new(&rpc_url)?)),
         ChainType::Solana => Some(Box::new(SolanaClient::new(&rpc_url)?)),
         ChainType::Stellar => Some(Box::new(StellarClient::new(&rpc_url)?)),
