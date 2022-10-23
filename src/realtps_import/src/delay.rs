@@ -10,44 +10,51 @@ use std::future::Future;
 use std::pin::Pin;
 use tokio::time::{self, Duration};
 
-async fn delay(base_ms: u64) {
-    let jitter = Uniform::from(0..10);
-    let delay_msecs = base_ms + jitter.sample(&mut rand::thread_rng());
-    let delay_time = Duration::from_millis(delay_msecs);
-    time::sleep(delay_time).await;
-}
+/// The default rate to request blocks at, in ms.
+const DEFAULT_BLOCK_PACE: u64 = 500;
 
-/// The pace we want to request blocks at.
-///
-/// FIXME rename
+/// The default time to wait between imports, in s.
+const DEFAULT_RESCAN_DELAY: u64 = 30;
+
+/// The pace we want to request blocks at, in ms.
 pub fn block_pace(chain: Chain) -> u64 {
     let msecs = match chain {
-        Chain::Elrond => 1000,   // 6s block time
-        Chain::Optimism => 1000, // got blocked at 500ms, unclear what rate they want
+        Chain::Arbitrum => 400, // Subsecond block time
+        Chain::Elrond => 1000, // 6s block time
+        Chain::Optimism => 750, // got blocked at 500ms, unclear what rate they want
         // Need to go fast to keep up.
         // Solana's RpcClient will use its built in rate limiter when connecting to public nodes.
         Chain::Solana => 0,
-        _ => 500,
+        _ => DEFAULT_BLOCK_PACE,
     };
 
     msecs
 }
 
-/// How long to wait between imports.
+/// Wait between imports, in s.
 ///
 /// This should be somewhat longer than the average block production time to
-/// avoid making requests for new blocks when there are non.
+/// avoid making requests for new blocks when there are none, but low enough
+/// that the block pace can catch up to new blocks.
 pub async fn rescan_delay(chain: Chain) {
     let delay_secs = match chain {
-        Chain::Solana => 1, // Need to go fast to keep up
-        Chain::Polkadot => 7, // 6s block time, server rate-limited, can't wait too long
+        Chain::Arbitrum => 5, // Subsecond block time
         Chain::Kusama => 7, // "
         Chain::Optimism => 10, // Unclear, just experimenting
-        _ => 30,
+        Chain::Polkadot => 7, // 6s block time, server rate-limited, can't wait too long
+        Chain::Solana => 1, // Need to go fast to keep up
+        _ => DEFAULT_RESCAN_DELAY,
     };
     let msecs = 1000 * delay_secs;
     debug!("delaying {} ms to rescan chain {}", msecs, chain);
     delay(msecs).await
+}
+
+async fn delay(base_ms: u64) {
+    let jitter = Uniform::from(0..10);
+    let delay_msecs = base_ms + jitter.sample(&mut rand::thread_rng());
+    let delay_time = Duration::from_millis(delay_msecs);
+    time::sleep(delay_time).await;
 }
 
 pub async fn job_error_delay(job: &Job) {
