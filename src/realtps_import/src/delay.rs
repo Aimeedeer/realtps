@@ -33,14 +33,15 @@ pub fn block_pace(chain: Chain) -> u64 {
 
 /// Wait between imports, in s.
 ///
-/// This should be somewhat longer than the average block production time to
-/// avoid making requests for new blocks when there are none, but low enough
-/// that the block pace can catch up to new blocks.
+/// This should be somewhat longer than the average block production time (or
+/// perhaps the block production time / 2) to avoid making requests for new
+/// blocks when there are none, but low enough that the block pace can catch up
+/// to new blocks.
 pub async fn rescan_delay(chain: Chain) {
     let delay_secs = match chain {
         Chain::Arbitrum => 5, // Subsecond block time
         Chain::Kusama => 7, // "
-        Chain::Optimism => 2, // Unclear, just experimenting
+        Chain::Optimism => 15, // Unclear, just experimenting
         Chain::Polkadot => 7, // 6s block time, server rate-limited, can't wait too long
         Chain::Solana => 1, // Need to go fast to keep up
         _ => DEFAULT_RESCAN_DELAY,
