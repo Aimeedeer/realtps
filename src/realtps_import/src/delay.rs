@@ -21,7 +21,7 @@ pub fn block_pace(chain: Chain) -> u64 {
     let msecs = match chain {
         Chain::Arbitrum => 400, // Subsecond block time
         Chain::Elrond => 1000, // 6s block time
-        Chain::Optimism => 750, // got blocked at 500ms, unclear what rate they want
+        Chain::Optimism => 900, // Got blocked at 750ms, unclear what rate they want
         // Need to go fast to keep up.
         // Solana's RpcClient will use its built in rate limiter when connecting to public nodes.
         Chain::Solana => 0,
