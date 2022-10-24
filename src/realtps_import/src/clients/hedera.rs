@@ -24,13 +24,13 @@ impl HederaClient {
     }
 }
 
-
 #[derive(serde::Deserialize)]
 struct HederaBlockResponse {
     blocks: Vec<HederaBlock>,
 }
 
-#[derive(serde::Deserialize)]
+#[allow(dead_code)]
+#[derive(serde::Deserialize, Debug)]
 struct HederaBlock {
     count: i64,
     hapi_version: String,
@@ -44,25 +44,29 @@ struct HederaBlock {
     logs_bloom: String,
 }
 
-#[derive(serde::Deserialize)]
+#[derive(serde::Deserialize, Debug)]
 struct Timestamp {
     to: String,
 }
 
 #[async_trait]
 impl Client for HederaClient {
+    // Hedera mirror node doesn't report the version number
     async fn client_version(&self) -> Result<String> {
         let recent_blocks = self.get_most_recent_block().await?;
         Ok(recent_blocks.blocks[0].hapi_version.clone())
     }
+
     async fn get_latest_block_number(&self) -> Result<u64> {
         let recent_blocks = self.get_most_recent_block().await?;
         Ok(recent_blocks.blocks[0].number as u64)
     }
+
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
         let url = format!("{}/api/v1/blocks/{}", &self.url, block_number);
         let response = self.client.get(url).send().await?;
         let block: HederaBlock = response.json().await?;
+
         Ok(Some(Block {
             chain: Chain::Hedera,
             block_number,
@@ -74,7 +78,7 @@ impl Client for HederaClient {
             timestamp: block.timestamp.to.parse::<f64>().unwrap() as u64,
             num_txs: block.count as u64,
             hash: block.hash,
-            parent_hash: block.previous_hash.clone(),
+            parent_hash: block.previous_hash,
         }))
     }
 }
