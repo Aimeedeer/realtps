@@ -1,5 +1,5 @@
-use crate::Job;
 use crate::Chain;
+use crate::Job;
 use anyhow::Result;
 use log::{debug, warn};
 use rand::{
@@ -19,8 +19,8 @@ const DEFAULT_RESCAN_DELAY: u64 = 30;
 /// The pace we want to request blocks at, in ms.
 pub fn block_pace(chain: Chain) -> u64 {
     let msecs = match chain {
-        Chain::Arbitrum => 400, // Subsecond block time
-        Chain::Elrond => 1000, // 6s block time
+        Chain::Arbitrum => 400,  // Subsecond block time
+        Chain::Elrond => 1000,   // 6s block time
         Chain::Optimism => 2000, // Got blocked at 1000ms, unclear what rate they want
         // Need to go fast to keep up.
         // Solana's RpcClient will use its built in rate limiter when connecting to public nodes.
@@ -39,11 +39,11 @@ pub fn block_pace(chain: Chain) -> u64 {
 /// to new blocks.
 pub async fn rescan_delay(chain: Chain) {
     let delay_secs = match chain {
-        Chain::Arbitrum => 5, // Subsecond block time
-        Chain::Kusama => 7, // "
+        Chain::Arbitrum => 5,  // Subsecond block time
+        Chain::Kusama => 7,    // "
         Chain::Optimism => 15, // Unclear, just experimenting
-        Chain::Polkadot => 7, // 6s block time, server rate-limited, can't wait too long
-        Chain::Solana => 1, // Need to go fast to keep up
+        Chain::Polkadot => 7,  // 6s block time, server rate-limited, can't wait too long
+        Chain::Solana => 1,    // Need to go fast to keep up
         _ => DEFAULT_RESCAN_DELAY,
     };
     let msecs = 1000 * delay_secs;
@@ -121,7 +121,10 @@ where
                     break Ok(None);
                 } else {
                     let delay_ms = base_delay_ms * try_num;
-                    warn!("for chain {} received None. retrying in {} ms", chain, delay_ms);
+                    warn!(
+                        "for chain {} received None. retrying in {} ms",
+                        chain, delay_ms
+                    );
                     delay(delay_ms).await;
                 }
             }

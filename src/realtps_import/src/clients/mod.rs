@@ -1,8 +1,8 @@
 mod algorand;
 mod elrond;
 mod ethers;
-mod near;
 mod hedera;
+mod near;
 mod solana;
 mod stellar;
 mod substrate;

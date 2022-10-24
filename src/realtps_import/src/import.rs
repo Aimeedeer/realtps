@@ -55,7 +55,10 @@ async fn import_no_rescan_delay(chain: Chain, client: &dyn Client, db: &Arc<dyn 
         let needed_blocks = live_head_block_number
             .checked_sub(highest_known_block_number)
             .expect("underflow");
-        info!("importing at least {} blocks for chain {}", needed_blocks, chain);
+        info!(
+            "importing at least {} blocks for chain {}",
+            needed_blocks, chain
+        );
     }
 
     sync(
