@@ -48,12 +48,12 @@ fn index() -> Template {
     for chain in Chain::all_chains() {
         if let Some(tps) = db
             .load_tps(chain)
-            .expect(&format!("No tps data for chain {}", &chain))
+            .unwrap_or_else(|_| panic!("No tps data for chain {}", &chain))
         {
             let mut is_data_too_old = false;
             if let Some(log_details) = db
                 .load_calculation_log(chain)
-                .expect(&format!("No calculation log for chain {}", &chain))
+                .unwrap_or_else(|_| panic!("No calculation log for chain {}", &chain))
             {
                 if log_details.calculating_start - log_details.newest_block_timestamp
                     > Duration::days(1)
@@ -90,7 +90,7 @@ fn log() -> Template {
     for chain in Chain::all_chains() {
         if let Some(log_details) = db
             .load_calculation_log(chain)
-            .expect(&format!("No calculation log for chain {}", &chain))
+            .unwrap_or_else(|_| panic!("No calculation log for chain {}", &chain))
         {
             let chain_id = chain;
             let chain_name = chain.description().to_string();

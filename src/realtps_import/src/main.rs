@@ -62,7 +62,7 @@ async fn main() -> Result<()> {
 
     let rpc_config = load_rpc_config(RPC_CONFIG_PATH)?;
 
-    Ok(run(opts, rpc_config).await?)
+    run(opts, rpc_config).await
 }
 
 async fn run(opts: Opts, rpc_config: RpcConfig) -> Result<()> {

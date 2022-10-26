@@ -13,7 +13,7 @@ pub struct AlgorandClient {
 impl AlgorandClient {
     pub fn new(urls: &str) -> Result<Self> {
         let urls: Vec<&str> = urls.split(';').collect();
-        let algod_url = urls.get(0).expect("algorand algod url");
+        let algod_url = urls.first().expect("algorand algod url");
         let indexer_url = urls.get(1).expect("algorand indexer url");
         Ok(Self {
             algod: Algod::with_headers(algod_url, vec![])?,

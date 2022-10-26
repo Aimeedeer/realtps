@@ -8,6 +8,7 @@ use realtps_common::{
     chain::Chain,
     db::{Block, Db},
 };
+use std::cmp::Ordering;
 use std::sync::Arc;
 
 pub async fn import(chain: Chain, client: &dyn Client, db: &Arc<dyn Db>) -> Result<()> {
@@ -33,32 +34,32 @@ async fn import_no_rescan_delay(chain: Chain, client: &dyn Client, db: &Arc<dyn 
 
     // If we've never synced this chain before, then just establish the first
     // few blocks, and the highest_known_block_number, and wait until next time.
-    {
-        let first_import = highest_known_block_number.is_none();
-        if first_import {
-            import_first_blocks(chain, client, db, live_head_block_number).await?;
-            return Ok(());
-        }
+    if highest_known_block_number.is_none() {
+        import_first_blocks(chain, client, db, live_head_block_number).await?;
+        return Ok(());
     }
 
-    // todo: this and the above could be a let-else expr
+    // Check if any new blocks need to be fetched
     let highest_known_block_number = highest_known_block_number.unwrap();
-
-    if live_head_block_number == highest_known_block_number {
-        info!("no new blocks for chain {}", chain);
-        return Ok(());
-    } else if live_head_block_number < highest_known_block_number {
-        warn!("live_head_block_number < highest_known_block_number for chain {}. head: {}; highest: {}",
+    match live_head_block_number.cmp(&highest_known_block_number) {
+        Ordering::Equal => {
+            info!("no new blocks for chain {}", chain);
+            return Ok(());
+        }
+        Ordering::Less => {
+            warn!("live_head_block_number < highest_known_block_number for chain {}. head: {}; highest: {}",
               chain, live_head_block_number, highest_known_block_number);
-        return Ok(());
-    } else {
-        let needed_blocks = live_head_block_number
-            .checked_sub(highest_known_block_number)
-            .expect("underflow");
-        info!(
-            "importing at least {} blocks for chain {}",
-            needed_blocks, chain
-        );
+            return Ok(());
+        }
+        Ordering::Greater => {
+            let needed_blocks = live_head_block_number
+                .checked_sub(highest_known_block_number)
+                .expect("underflow");
+            info!(
+                "importing at least {} blocks for chain {}",
+                needed_blocks, chain
+            );
+        }
     }
 
     sync(
@@ -123,8 +124,8 @@ async fn sync(
                     // number than our highest_known_block. This indicates a previous
                     // incomplete import. To avoid wasting a lot of time and bandwidth
                     // "fast-forward" through all the blocks we already know.
-                    let highest_unknown_block = fast_forward(chain, db, prev_stored_block).await?;
-                    highest_unknown_block
+
+                    fast_forward(chain, db, prev_stored_block).await?
                 }
             } else {
                 warn!(

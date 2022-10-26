@@ -59,7 +59,7 @@ impl Db for JsonDb {
     fn store_block(&self, block: Block) -> Result<()> {
         write_json_db(
             &format!("{}", block.chain),
-            &format!("{}", DB_DIR_BLOCKS),
+            DB_DIR_BLOCKS,
             &format!("{}", block.block_number),
             &block,
         )
@@ -68,7 +68,7 @@ impl Db for JsonDb {
     fn load_block(&self, chain: Chain, block_number: u64) -> Result<Option<Block>> {
         read_json_db(
             &format!("{}", chain),
-            &format!("{}", DB_DIR_BLOCKS),
+            DB_DIR_BLOCKS,
             &format!("{}", block_number),
         )
     }
@@ -76,35 +76,27 @@ impl Db for JsonDb {
     fn store_highest_block_number(&self, chain: Chain, block_number: u64) -> Result<()> {
         write_json_db(
             &format!("{}", chain),
-            &format!("{}", DB_DIR_META),
-            &format!("{}", HIGHEST_BLOCK_NUMBER),
+            DB_DIR_META,
+            HIGHEST_BLOCK_NUMBER,
             &block_number,
         )
     }
 
     fn load_highest_block_number(&self, chain: Chain) -> Result<Option<u64>> {
-        read_json_db(
-            &format!("{}", chain),
-            &format!("{}", DB_DIR_META),
-            &format!("{}", HIGHEST_BLOCK_NUMBER),
-        )
+        read_json_db(&format!("{}", chain), DB_DIR_META, HIGHEST_BLOCK_NUMBER)
     }
 
     fn store_tps(&self, chain: Chain, tps: f64) -> Result<()> {
         write_json_db(
             &format!("{}", chain),
-            &format!("{}", DB_DIR_META),
-            &format!("{}", TRANSACTIONS_PER_SECOND),
+            DB_DIR_META,
+            TRANSACTIONS_PER_SECOND,
             &tps,
         )
     }
 
     fn load_tps(&self, chain: Chain) -> Result<Option<f64>> {
-        read_json_db(
-            &format!("{}", chain),
-            &format!("{}", DB_DIR_META),
-            &format!("{}", TRANSACTIONS_PER_SECOND),
-        )
+        read_json_db(&format!("{}", chain), DB_DIR_META, TRANSACTIONS_PER_SECOND)
     }
 
     fn remove_block(&self, chain: Chain, block: u64) -> Result<()> {
@@ -114,20 +106,11 @@ impl Db for JsonDb {
     }
 
     fn store_calculation_log(&self, chain: Chain, log: &CalculationLog) -> Result<()> {
-        write_json_db(
-            &format!("{}", chain),
-            &format!("{}", DB_DIR_META),
-            &format!("{}", CALCULATION_LOG),
-            log,
-        )
+        write_json_db(&format!("{}", chain), DB_DIR_META, CALCULATION_LOG, log)
     }
 
     fn load_calculation_log(&self, chain: Chain) -> Result<Option<CalculationLog>> {
-        read_json_db(
-            &format!("{}", chain),
-            &format!("{}", DB_DIR_META),
-            &format!("{}", CALCULATION_LOG),
-        )
+        read_json_db(&format!("{}", chain), DB_DIR_META, CALCULATION_LOG)
     }
 }
 

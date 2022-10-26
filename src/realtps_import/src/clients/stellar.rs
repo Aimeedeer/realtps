@@ -81,7 +81,7 @@ mod test_stellar {
         let client = StellarClient::new(RPC_URL)?;
         let ver = client.client_version().await?;
         println!("client_version: {}", ver);
-        assert!(ver.len() > 0);
+        assert!(!ver.is_empty());
         Ok(())
     }
 

@@ -18,7 +18,7 @@ const DEFAULT_RESCAN_DELAY: u64 = 30;
 
 /// The pace we want to request blocks at, in ms.
 pub fn block_pace(chain: Chain) -> u64 {
-    let msecs = match chain {
+    match chain {
         Chain::Arbitrum => 400, // Subsecond block time
         Chain::Bitcoin => 2000,
         Chain::Elrond => 1000,   // 6s block time
@@ -27,9 +27,7 @@ pub fn block_pace(chain: Chain) -> u64 {
         // Solana's RpcClient will use its built in rate limiter when connecting to public nodes.
         Chain::Solana => 0,
         _ => DEFAULT_BLOCK_PACE,
-    };
-
-    msecs
+    }
 }
 
 /// Wait between imports, in s.
@@ -86,7 +84,8 @@ where
     let tries = 3;
     let base_delay_ms = 500;
     let mut try_num = 1;
-    let r = loop {
+
+    loop {
         let r = f().await;
         match r {
             Ok(r) => break Ok(r),
@@ -104,8 +103,7 @@ where
             }
         }
         try_num += 1;
-    };
-    r
+    }
 }
 
 pub async fn retry_if_none<'caller, F, T>(chain: Chain, f: F) -> Result<Option<T>>
@@ -115,7 +113,8 @@ where
     let tries = 3;
     let base_delay_ms = 500;
     let mut try_num = 1;
-    let r = loop {
+
+    loop {
         let r = f().await?;
         match r {
             Some(r) => break Ok(Some(r)),
@@ -133,6 +132,5 @@ where
             }
         }
         try_num += 1;
-    };
-    r
+    }
 }

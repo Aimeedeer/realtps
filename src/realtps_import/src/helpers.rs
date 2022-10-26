@@ -85,10 +85,8 @@ pub async fn remove_blocks(chain: Chain, db: &Arc<dyn Db>, blocks: Vec<u64>) -> 
 
     task::spawn_blocking(move || {
         for block in blocks {
-            db.remove_block(chain, block).expect(&format!(
-                "error removing block {} for chain {}",
-                block, chain
-            ));
+            db.remove_block(chain, block)
+                .unwrap_or_else(|_| panic!("error removing block {} for chain {}", block, chain));
         }
     })
     .await?;
