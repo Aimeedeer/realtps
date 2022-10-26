@@ -3,15 +3,9 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use log::{debug, trace};
 use realtps_common::{chain::Chain, db::Block};
-use solana_client::{
-    rpc_client::RpcClient,
-    rpc_config::RpcBlockConfig,
-};
-use solana_transaction_status::{TransactionDetails, UiTransactionEncoding, UiConfirmedBlock};
-use solana_sdk::{
-    commitment_config::CommitmentConfig,
-    message::VersionedMessage,
-};
+use solana_client::{rpc_client::RpcClient, rpc_config::RpcBlockConfig};
+use solana_sdk::{commitment_config::CommitmentConfig, message::VersionedMessage};
+use solana_transaction_status::{TransactionDetails, UiConfirmedBlock, UiTransactionEncoding};
 use std::sync::Arc;
 use tokio::task;
 
@@ -55,34 +49,30 @@ impl Client for SolanaClient {
             commitment: Some(CommitmentConfig::finalized()),
             max_supported_transaction_version: Some(0),
         };
-        
-        let block = task::spawn_blocking(move || {
-            client.get_block_with_config(block_number, config)
-        })
-        .await??;
+
+        let block =
+            task::spawn_blocking(move || client.get_block_with_config(block_number, config))
+                .await??;
 
         solana_block_to_block(block, block_number).map(Some)
     }
 }
 
-fn solana_block_to_block(
-    block: UiConfirmedBlock,
-    slot_number: u64,
-) -> Result<Block> {
+fn solana_block_to_block(block: UiConfirmedBlock, slot_number: u64) -> Result<Block> {
     fn calc_user_txs(block: &UiConfirmedBlock) -> u64 {
         let mut num_user_txs = 0;
-        
-        if let Some(block_txs) = &block.transactions { 
+
+        if let Some(block_txs) = &block.transactions {
             for tx_status in block_txs {
                 let tx = tx_status.transaction.decode().unwrap();
                 trace!("tx_meta: {:#?}", tx_status.meta.as_ref().unwrap());
                 trace!("tx: {:#?}", tx);
-                
+
                 let account_keys = match &tx.message {
                     VersionedMessage::Legacy(message) => &message.account_keys,
                     VersionedMessage::V0(message) => &message.account_keys,
                 };
-                
+
                 let mut num_vote_instrs = 0;
                 for instr in tx.message.instructions() {
                     let program_id_index = instr.program_id_index;
@@ -103,7 +93,7 @@ fn solana_block_to_block(
                     num_user_txs += 1;
                 }
             }
-            
+
             let vote_txs = block_txs
                 .len()
                 .checked_sub(num_user_txs)

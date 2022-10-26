@@ -39,7 +39,7 @@ pub fn block_pace(chain: Chain) -> u64 {
 /// to new blocks.
 pub async fn rescan_delay(chain: Chain) {
     let delay_secs = match chain {
-        Chain::Arbitrum => 5,  // Subsecond block time
+        Chain::Arbitrum => 5, // Subsecond block time
         Chain::Hedera => 10,
         Chain::Kusama => 7,    // Like Polkadot
         Chain::Optimism => 15, // Unclear, just experimenting
