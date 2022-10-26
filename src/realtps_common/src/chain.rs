@@ -20,6 +20,7 @@ pub enum ChainType {
 #[serde(rename_all = "lowercase")]
 #[derive(clap::ArgEnum)]
 pub enum Chain {
+    Acala,
     Algorand,
     Arbitrum,
     Astar,
@@ -54,6 +55,7 @@ pub enum Chain {
 impl Chain {
     pub fn all_chains() -> Vec<Chain> {
         vec![
+            Chain::Acala,
             Chain::Algorand,
             Chain::Arbitrum,
             Chain::Astar,
@@ -84,7 +86,6 @@ impl Chain {
             Chain::Rootstock,
             // todo banned?
             // Chain::SecretNetwork,
-            // todo broken
             Chain::Solana,
             Chain::Stellar,
             // todo forked, rpc disappeared
@@ -95,6 +96,7 @@ impl Chain {
     /// Chain names showed on the website
     pub fn description(&self) -> &'static str {
         match *self {
+            Chain::Acala => "Acala",
             Chain::Algorand => "Algorand",
             Chain::Arbitrum => "Arbitrum",
             Chain::Astar => "Astar",
@@ -130,31 +132,34 @@ impl Chain {
     pub fn chain_type(&self) -> ChainType {
         match self {
             Chain::Arbitrum
-            | Chain::Astar
-            | Chain::Avalanche
-            | Chain::Binance
-            | Chain::Celo
-            | Chain::Cronos
-            | Chain::Ethereum
-            | Chain::Fantom
-            | Chain::Harmony
-            | Chain::Heco
-            | Chain::KuCoin
-            | Chain::Moonbeam
-            | Chain::Moonriver
-            | Chain::OKEx
-            | Chain::Optimism
-            | Chain::Polygon
-            | Chain::Rootstock => ChainType::Ethers,
+                | Chain::Astar
+                | Chain::Avalanche
+                | Chain::Binance
+                | Chain::Celo
+                | Chain::Cronos
+                | Chain::Ethereum
+                | Chain::Fantom
+                | Chain::Harmony
+                | Chain::Heco
+                | Chain::KuCoin
+                | Chain::Moonbeam
+                | Chain::Moonriver
+                | Chain::OKEx
+                | Chain::Optimism
+                | Chain::Polygon
+                | Chain::Rootstock => ChainType::Ethers,
             Chain::Elrond => ChainType::Elrond,
             Chain::Hedera => ChainType::Hedera,
             Chain::Near => ChainType::Near,
             Chain::Solana => ChainType::Solana,
             Chain::Stellar => ChainType::Stellar,
-            Chain::CosmosHub | Chain::Osmosis | Chain::SecretNetwork | Chain::Terra => {
-                ChainType::Tendermint
-            }
-            Chain::Kusama | Chain::Polkadot => ChainType::Substrate,
+            Chain::CosmosHub
+                | Chain::Osmosis
+                | Chain::SecretNetwork
+                | Chain::Terra => ChainType::Tendermint,
+            Chain::Acala
+                | Chain::Kusama
+                | Chain::Polkadot => ChainType::Substrate,
             Chain::Algorand => ChainType::Algorand,
         }
     }
@@ -166,6 +171,7 @@ impl<'a> TryFrom<&'a str> for Chain {
 
     fn try_from(value: &'a str) -> Result<Self> {
         match value {
+            "acala" => Ok(Chain::Acala),
             "algorand" => Ok(Chain::Algorand),
             "arbitrum" => Ok(Chain::Arbitrum),
             "astar" => Ok(Chain::Astar),
