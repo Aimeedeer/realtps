@@ -85,7 +85,7 @@ impl Chain {
             // todo banned?
             // Chain::SecretNetwork,
             // todo broken
-            //Chain::Solana,
+            Chain::Solana,
             Chain::Stellar,
             // todo forked, rpc disappeared
             //Chain::Terra,
