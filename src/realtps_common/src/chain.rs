@@ -25,6 +25,7 @@ pub enum Chain {
     Arbitrum,
     Astar,
     Avalanche,
+    Bifrost,
     Binance,
     Celo,
     CosmosHub,
@@ -60,6 +61,7 @@ impl Chain {
             Chain::Arbitrum,
             Chain::Astar,
             Chain::Avalanche,
+            Chain::Bifrost,
             Chain::Binance,
             Chain::Celo,
             // todo rpc disappeared
@@ -101,6 +103,7 @@ impl Chain {
             Chain::Arbitrum => "Arbitrum",
             Chain::Astar => "Astar",
             Chain::Avalanche => "Avalanche C-Chain",
+            Chain::Bifrost => "Bifrost",
             Chain::Binance => "Binance Smart Chain",
             Chain::Celo => "Celo",
             Chain::CosmosHub => "Cosmos Hub",
@@ -158,6 +161,7 @@ impl Chain {
                 | Chain::SecretNetwork
                 | Chain::Terra => ChainType::Tendermint,
             Chain::Acala
+                | Chain::Bifrost
                 | Chain::Kusama
                 | Chain::Polkadot => ChainType::Substrate,
             Chain::Algorand => ChainType::Algorand,
@@ -176,6 +180,7 @@ impl<'a> TryFrom<&'a str> for Chain {
             "arbitrum" => Ok(Chain::Arbitrum),
             "astar" => Ok(Chain::Astar),
             "avalanche" => Ok(Chain::Avalanche),
+            "bifrost" => Ok(Chain::Bifrost),
             "binance" => Ok(Chain::Binance),
             "celo" => Ok(Chain::Celo),
             "cosmoshub" => Ok(Chain::CosmosHub),

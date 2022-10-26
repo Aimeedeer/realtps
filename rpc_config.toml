@@ -13,6 +13,7 @@ algorand = "https://mainnet-api.algonode.cloud;https://mainnet-idx.algonode.clou
 arbitrum = "https://arb1.arbitrum.io/rpc"
 astar = "https://evm.astar.network"
 avalanche = "https://api.avax.network/ext/bc/C/rpc"
+bifrost = "https://bifrost-rpc.liebi.com"
 binance = "https://bsc-dataseed.binance.org"
 celo = "https://forno.celo.org"
 cosmoshub = "https://rpc-cosmoshub.keplr.app"
