@@ -36,6 +36,7 @@ pub enum Chain {
     Harmony,
     Hedera,
     Heco,
+    Karura,
     KuCoin,
     Kusama,
     Moonbeam,
@@ -74,6 +75,7 @@ impl Chain {
             // todo ssl handshake failure
             // Chain::Heco,
             Chain::Hedera,
+            Chain::Karura,
             Chain::KuCoin,
             Chain::Kusama,
             Chain::Moonbeam,
@@ -114,6 +116,7 @@ impl Chain {
             Chain::Harmony => "Harmony",
             Chain::Hedera => "Hedera",
             Chain::Heco => "Heco",
+            Chain::Karura => "Karura",
             Chain::KuCoin => "KuCoin",
             Chain::Kusama => "Kusama",
             Chain::Moonbeam => "Moonbeam",
@@ -162,6 +165,7 @@ impl Chain {
                 | Chain::Terra => ChainType::Tendermint,
             Chain::Acala
                 | Chain::Bifrost
+                | Chain::Karura
                 | Chain::Kusama
                 | Chain::Polkadot => ChainType::Substrate,
             Chain::Algorand => ChainType::Algorand,
@@ -191,6 +195,7 @@ impl<'a> TryFrom<&'a str> for Chain {
             "harmony" => Ok(Chain::Harmony),
             "hedera" => Ok(Chain::Hedera),
             "heco" => Ok(Chain::Heco),
+            "karura" => Ok(Chain::Karura),
             "kucoin" => Ok(Chain::KuCoin),
             "kusama" => Ok(Chain::Kusama),
             "moonbeam" => Ok(Chain::Moonbeam),
