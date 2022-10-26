@@ -5,3 +5,7 @@ members = [
     "src/realtps_web",
     "src/realtps_import",
 ]
+
+[patch.crates-io]
+curve25519-dalek = { git = "https://github.com/Aimeedeer/curve25519-dalek", version = "3.2.1", branch = "solana-build" }
+aes-gcm-siv = { git = "https://github.com/Aimeedeer/AEADs", version = "0.10.3", branch = "solana-build" }

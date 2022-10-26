@@ -5,6 +5,7 @@ use log::{debug, trace};
 use realtps_common::{chain::Chain, db::Block};
 use solana_client::rpc_client::RpcClient;
 use solana_transaction_status::UiTransactionEncoding;
+use solana_sdk::message::VersionedMessage;
 use std::sync::Arc;
 use tokio::task;
 
@@ -60,9 +61,14 @@ fn solana_block_to_block(
             let tx = tx_status.transaction.decode().unwrap();
             trace!("tx_meta: {:#?}", tx_status.meta.as_ref().unwrap());
             trace!("tx: {:#?}", tx);
-            let account_keys = &tx.message.account_keys;
+            
+            let account_keys = match &tx.message {
+                VersionedMessage::Legacy(message) => &message.account_keys,
+                VersionedMessage::V0(message) => &message.account_keys,
+            };
+            
             let mut num_vote_instrs = 0;
-            for instr in &tx.message.instructions {
+            for instr in tx.message.instructions() {
                 let program_id_index = instr.program_id_index;
                 let program_id = account_keys[usize::from(program_id_index)];
 
@@ -73,7 +79,7 @@ fn solana_block_to_block(
                     trace!("non-vote instruction");
                 }
             }
-            if num_vote_instrs == tx.message.instructions.len() {
+            if num_vote_instrs == tx.message.instructions().len() {
                 trace!("it's a vote transaction");
             } else {
                 // This doesn't look like a vote transaction
