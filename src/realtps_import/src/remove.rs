@@ -20,7 +20,7 @@ pub async fn remove_old_data_for_chain(chain: Chain, db: Arc<dyn Db>) -> Result<
 
     let latest_timestamp = load_block(highest_block_number)
         .await?
-        .expect("firt block")
+        .expect("first block")
         .timestamp;
 
     let seconds_per_week = 60 * 60 * 24 * 7;

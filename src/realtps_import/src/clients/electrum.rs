@@ -1,5 +1,5 @@
 use crate::client::Client;
-use anyhow::{anyhow, bail, Result};
+use anyhow::Result;
 use async_trait::async_trait;
 use realtps_common::{chain::Chain, db::Block};
 use serde::Deserialize;
@@ -17,7 +17,6 @@ struct ElectrumBlock {
     timestamp: u32,
     tx_count: u32,
     previousblockhash: String,
-    nonce: u32,
 }
 
 impl ElectrumClient {
@@ -31,11 +30,11 @@ impl ElectrumClient {
 #[async_trait]
 impl Client for ElectrumClient {
     async fn client_version(&self) -> Result<String> {
-        let block_hash = reqwest::get(format!("{}{}", self.url, "blocks/tip/hash"))
+        let block_hash = reqwest::get(format!("{}/{}", self.url, "blocks/tip/hash"))
             .await?
             .text()
             .await?;
-        let block: ElectrumBlock = reqwest::get(format!("{}{}/{}", self.url, "block", block_hash))
+        let block: ElectrumBlock = reqwest::get(format!("{}/{}/{}", self.url, "block", block_hash))
             .await?
             .json()
             .await?;
@@ -44,7 +43,7 @@ impl Client for ElectrumClient {
     }
 
     async fn get_latest_block_number(&self) -> Result<u64> {
-        let block_number = reqwest::get(format!("{}{}", self.url, "blocks/tip/height"))
+        let block_number = reqwest::get(format!("{}/{}", self.url, "blocks/tip/height"))
             .await?
             .text()
             .await?;
@@ -53,17 +52,17 @@ impl Client for ElectrumClient {
     }
 
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
-        let block_hash = reqwest::get(format!("{}{}/{}", self.url, "block-height", block_number))
+        let block_hash = reqwest::get(format!("{}/{}/{}", self.url, "block-height", block_number))
             .await?
             .text()
             .await?;
-        let block: ElectrumBlock = reqwest::get(format!("{}{}/{}", self.url, "block", block_hash))
+        let block: ElectrumBlock = reqwest::get(format!("{}/{}/{}", self.url, "block", block_hash))
             .await?
             .json()
             .await?;
 
         let prev_block: ElectrumBlock = reqwest::get(format!(
-            "{}{}/{}",
+            "{}/{}/{}",
             self.url, "block", block.previousblockhash
         ))
         .await?
