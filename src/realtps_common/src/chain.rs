@@ -142,37 +142,34 @@ impl Chain {
     pub fn chain_type(&self) -> ChainType {
         match self {
             Chain::Arbitrum
-                | Chain::Astar
-                | Chain::Avalanche
-                | Chain::Binance
-                | Chain::Celo
-                | Chain::Cronos
-                | Chain::Ethereum
-                | Chain::Fantom
-                | Chain::Harmony
-                | Chain::Heco
-                | Chain::KuCoin
-                | Chain::Moonbeam
-                | Chain::Moonriver
-                | Chain::OKEx
-                | Chain::Optimism
-                | Chain::Polygon
-                | Chain::Rootstock => ChainType::Ethers,
+            | Chain::Astar
+            | Chain::Avalanche
+            | Chain::Binance
+            | Chain::Celo
+            | Chain::Cronos
+            | Chain::Ethereum
+            | Chain::Fantom
+            | Chain::Harmony
+            | Chain::Heco
+            | Chain::KuCoin
+            | Chain::Moonbeam
+            | Chain::Moonriver
+            | Chain::OKEx
+            | Chain::Optimism
+            | Chain::Polygon
+            | Chain::Rootstock => ChainType::Ethers,
             Chain::Bitcoin => ChainType::Bitcoin,
             Chain::Elrond => ChainType::Elrond,
             Chain::Hedera => ChainType::Hedera,
             Chain::Near => ChainType::Near,
             Chain::Solana => ChainType::Solana,
             Chain::Stellar => ChainType::Stellar,
-            Chain::CosmosHub
-                | Chain::Osmosis
-                | Chain::SecretNetwork
-                | Chain::Terra => ChainType::Tendermint,
-            Chain::Acala
-                | Chain::Bifrost
-                | Chain::Karura
-                | Chain::Kusama
-                | Chain::Polkadot => ChainType::Substrate,
+            Chain::CosmosHub | Chain::Osmosis | Chain::SecretNetwork | Chain::Terra => {
+                ChainType::Tendermint
+            }
+            Chain::Acala | Chain::Bifrost | Chain::Karura | Chain::Kusama | Chain::Polkadot => {
+                ChainType::Substrate
+            }
             Chain::Algorand => ChainType::Algorand,
         }
     }
