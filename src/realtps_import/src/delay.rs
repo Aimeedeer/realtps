@@ -19,7 +19,8 @@ const DEFAULT_RESCAN_DELAY: u64 = 30;
 /// The pace we want to request blocks at, in ms.
 pub fn block_pace(chain: Chain) -> u64 {
     let msecs = match chain {
-        Chain::Arbitrum => 400,  // Subsecond block time
+        Chain::Arbitrum => 400, // Subsecond block time
+        Chain::Bitcoin => 2000,
         Chain::Elrond => 1000,   // 6s block time
         Chain::Optimism => 2000, // Got blocked at 1000ms, unclear what rate they want
         // Need to go fast to keep up.
@@ -40,6 +41,7 @@ pub fn block_pace(chain: Chain) -> u64 {
 pub async fn rescan_delay(chain: Chain) {
     let delay_secs = match chain {
         Chain::Arbitrum => 5, // Subsecond block time
+        Chain::Bitcoin => 600,
         Chain::Hedera => 10,
         Chain::Kusama => 7,    // Like Polkadot
         Chain::Optimism => 15, // Unclear, just experimenting
