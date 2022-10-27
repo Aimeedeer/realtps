@@ -201,6 +201,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Option<Box<dyn Cli
 
     let client: Option<Box<dyn Client>> = match chain.chain_type() {
         ChainType::Algorand => Some(Box::new(AlgorandClient::new(&rpc_url)?)),
+        ChainType::Bitcoin => Some(Box::new(ElectrumClient::new(&rpc_url)?)),
         ChainType::Elrond => Some(Box::new(ElrondClient::new(&rpc_url)?)),
         ChainType::Ethers => Some(Box::new(EthersClient::new(chain, &rpc_url)?)),
         ChainType::Hedera => Some(Box::new(HederaClient::new(&rpc_url)?)),

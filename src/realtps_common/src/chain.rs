@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 pub enum ChainType {
+    Bitcoin,
     Elrond,
     Ethers,
     Near,
@@ -27,6 +28,7 @@ pub enum Chain {
     Avalanche,
     Bifrost,
     Binance,
+    Bitcoin,
     Celo,
     CosmosHub,
     Cronos,
@@ -64,6 +66,7 @@ impl Chain {
             Chain::Avalanche,
             Chain::Bifrost,
             Chain::Binance,
+            Chain::Bitcoin,
             Chain::Celo,
             // todo rpc disappeared
             // Chain::CosmosHub,
@@ -107,6 +110,7 @@ impl Chain {
             Chain::Avalanche => "Avalanche C-Chain",
             Chain::Bifrost => "Bifrost",
             Chain::Binance => "Binance Smart Chain",
+            Chain::Bitcoin => "Bitcoin",
             Chain::Celo => "Celo",
             Chain::CosmosHub => "Cosmos Hub",
             Chain::Cronos => "Cronos",
@@ -154,6 +158,7 @@ impl Chain {
                 | Chain::Optimism
                 | Chain::Polygon
                 | Chain::Rootstock => ChainType::Ethers,
+            Chain::Bitcoin => ChainType::Bitcoin,
             Chain::Elrond => ChainType::Elrond,
             Chain::Hedera => ChainType::Hedera,
             Chain::Near => ChainType::Near,
@@ -186,6 +191,7 @@ impl<'a> TryFrom<&'a str> for Chain {
             "avalanche" => Ok(Chain::Avalanche),
             "bifrost" => Ok(Chain::Bifrost),
             "binance" => Ok(Chain::Binance),
+            "bitcoin" => Ok(Chain::Bitcoin),
             "celo" => Ok(Chain::Celo),
             "cosmoshub" => Ok(Chain::CosmosHub),
             "cronos" => Ok(Chain::Cronos),
