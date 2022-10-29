@@ -5,12 +5,12 @@ use realtps_common::{chain::Chain, db::Block};
 use serde::Deserialize;
 use std::str::FromStr;
 
-pub struct ElectrumClient {
+pub struct EsploraClient {
     url: String,
 }
 
 #[derive(Deserialize, Debug)]
-struct ElectrumBlock {
+struct EsploraBlock {
     id: String,
     height: u64,
     version: u32,
@@ -19,22 +19,22 @@ struct ElectrumBlock {
     previousblockhash: String,
 }
 
-impl ElectrumClient {
+impl EsploraClient {
     pub fn new(url: &str) -> Result<Self> {
-        Ok(ElectrumClient {
+        Ok(EsploraClient {
             url: url.to_string(),
         })
     }
 }
 
 #[async_trait]
-impl Client for ElectrumClient {
+impl Client for EsploraClient {
     async fn client_version(&self) -> Result<String> {
         let block_hash = reqwest::get(format!("{}/{}", self.url, "blocks/tip/hash"))
             .await?
             .text()
             .await?;
-        let block: ElectrumBlock = reqwest::get(format!("{}/{}/{}", self.url, "block", block_hash))
+        let block: EsploraBlock = reqwest::get(format!("{}/{}/{}", self.url, "block", block_hash))
             .await?
             .json()
             .await?;
@@ -56,12 +56,12 @@ impl Client for ElectrumClient {
             .await?
             .text()
             .await?;
-        let block: ElectrumBlock = reqwest::get(format!("{}/{}/{}", self.url, "block", block_hash))
+        let block: EsploraBlock = reqwest::get(format!("{}/{}/{}", self.url, "block", block_hash))
             .await?
             .json()
             .await?;
 
-        let prev_block: ElectrumBlock = reqwest::get(format!(
+        let prev_block: EsploraBlock = reqwest::get(format!(
             "{}/{}/{}",
             self.url, "block", block.previousblockhash
         ))
