@@ -66,12 +66,18 @@ async fn main() -> Result<()> {
 }
 
 async fn run(opts: Opts, rpc_config: RpcConfig) -> Result<()> {
+    let chains = get_chains(opts.chain);
     let cmd = opts.cmd.unwrap_or(Command::Run);
 
-    let chains = get_chains(opts.chain);
+    let job_runner = match &cmd {
+        Command::Run | Command::Import => {
+            make_job_runner_with_clients(&chains, &rpc_config).await?
+        }
+        Command::Calculate | Command::Remove => make_job_runner()?,
+    };
+
     let init_jobs = init_jobs(&chains, cmd);
 
-    let job_runner = make_job_runner(&chains, &rpc_config).await?;
     let mut jobs: FuturesUnordered<_> = init_jobs
         .into_iter()
         .map(|job| job_runner.do_job(job))
@@ -156,7 +162,16 @@ fn init_jobs(chains: &[Chain], cmd: Command) -> Vec<Job> {
     }
 }
 
-async fn make_job_runner(chains: &[Chain], rpc_config: &RpcConfig) -> Result<JobRunner> {
+fn make_job_runner() -> Result<JobRunner> {
+    Ok(JobRunner {
+        db: Arc::new(JsonDb),
+        clients: HashMap::new(),
+    })
+}
+async fn make_job_runner_with_clients(
+    chains: &[Chain],
+    rpc_config: &RpcConfig,
+) -> Result<JobRunner> {
     let clients = make_all_clients(chains, rpc_config).await?;
 
     Ok(JobRunner {
