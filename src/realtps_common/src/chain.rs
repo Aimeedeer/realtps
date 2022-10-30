@@ -180,7 +180,8 @@ impl Chain {
     }
 }
 
-// For parsing command line used in `structopt`.
+// For serde deserializing.
+// Needs to be the same as whatever serde serializes.
 impl<'a> TryFrom<&'a str> for Chain {
     type Error = anyhow::Error;
 
