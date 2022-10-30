@@ -41,6 +41,7 @@ pub async fn rescan_delay(chain: Chain) {
         Chain::Arbitrum => 5, // Subsecond block time
         Chain::Bitcoin => 600,
         Chain::Hedera => 10,
+        Chain::InternetComputer => 1,
         Chain::Kusama => 7,    // Like Polkadot
         Chain::Optimism => 15, // Unclear, just experimenting
         Chain::Polkadot => 7,  // 6s block time, server rate-limited, can't wait too long

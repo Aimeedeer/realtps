@@ -4,16 +4,17 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 pub enum ChainType {
+    Algorand,
     Esplora, // Bitcoin
     Elrond,
     Ethers,
+    Hedera,
+    InternetComputer,
     Near,
     Solana,
-    Hedera,
-    Tendermint,
-    Substrate,
     Stellar,
-    Algorand,
+    Substrate,
+    Tendermint,
 }
 
 #[derive(Serialize, Deserialize, Debug, Copy, Clone, Hash, Eq, PartialEq)]
@@ -38,6 +39,7 @@ pub enum Chain {
     Harmony,
     Hedera,
     Heco,
+    InternetComputer,
     Karura,
     KuCoin,
     Kusama,
@@ -75,9 +77,10 @@ impl Chain {
             Chain::Ethereum,
             Chain::Fantom,
             Chain::Harmony,
+            Chain::InternetComputer,
+            Chain::Hedera,
             // todo ssl handshake failure
             // Chain::Heco,
-            Chain::Hedera,
             Chain::Karura,
             Chain::KuCoin,
             Chain::Kusama,
@@ -120,6 +123,7 @@ impl Chain {
             Chain::Harmony => "Harmony",
             Chain::Hedera => "Hedera",
             Chain::Heco => "Heco",
+            Chain::InternetComputer => "Internet Computer",
             Chain::Karura => "Karura",
             Chain::KuCoin => "KuCoin",
             Chain::Kusama => "Kusama",
@@ -161,6 +165,7 @@ impl Chain {
             Chain::Bitcoin => ChainType::Esplora,
             Chain::Elrond => ChainType::Elrond,
             Chain::Hedera => ChainType::Hedera,
+            Chain::InternetComputer => ChainType::InternetComputer,
             Chain::Near => ChainType::Near,
             Chain::Solana => ChainType::Solana,
             Chain::Stellar => ChainType::Stellar,
@@ -198,6 +203,7 @@ impl<'a> TryFrom<&'a str> for Chain {
             "harmony" => Ok(Chain::Harmony),
             "hedera" => Ok(Chain::Hedera),
             "heco" => Ok(Chain::Heco),
+            "internetcomputer" => Ok(Chain::InternetComputer),
             "karura" => Ok(Chain::Karura),
             "kucoin" => Ok(Chain::KuCoin),
             "kusama" => Ok(Chain::Kusama),
