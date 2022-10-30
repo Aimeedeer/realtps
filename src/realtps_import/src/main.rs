@@ -66,12 +66,18 @@ async fn main() -> Result<()> {
 }
 
 async fn run(opts: Opts, rpc_config: RpcConfig) -> Result<()> {
+    let chains = get_chains(opts.chain);
     let cmd = opts.cmd.unwrap_or(Command::Run);
 
-    let chains = get_chains(opts.chain);
+    let job_runner = match &cmd {
+        Command::Run | Command::Import => {
+            make_job_runner_with_clients(&chains, &rpc_config).await?
+        }
+        Command::Calculate | Command::Remove => make_job_runner()?,
+    };
+
     let init_jobs = init_jobs(&chains, cmd);
 
-    let job_runner = make_job_runner(&chains, &rpc_config).await?;
     let mut jobs: FuturesUnordered<_> = init_jobs
         .into_iter()
         .map(|job| job_runner.do_job(job))
@@ -156,7 +162,16 @@ fn init_jobs(chains: &[Chain], cmd: Command) -> Vec<Job> {
     }
 }
 
-async fn make_job_runner(chains: &[Chain], rpc_config: &RpcConfig) -> Result<JobRunner> {
+fn make_job_runner() -> Result<JobRunner> {
+    Ok(JobRunner {
+        db: Arc::new(JsonDb),
+        clients: HashMap::new(),
+    })
+}
+async fn make_job_runner_with_clients(
+    chains: &[Chain],
+    rpc_config: &RpcConfig,
+) -> Result<JobRunner> {
     let clients = make_all_clients(chains, rpc_config).await?;
 
     Ok(JobRunner {
@@ -201,7 +216,7 @@ async fn make_client(chain: Chain, rpc_url: String) -> Result<Option<Box<dyn Cli
 
     let client: Option<Box<dyn Client>> = match chain.chain_type() {
         ChainType::Algorand => Some(Box::new(AlgorandClient::new(&rpc_url)?)),
-        ChainType::Electrum => Some(Box::new(ElectrumClient::new(&rpc_url)?)),
+        ChainType::Esplora => Some(Box::new(EsploraClient::new(&rpc_url)?)),
         ChainType::Elrond => Some(Box::new(ElrondClient::new(&rpc_url)?)),
         ChainType::Ethers => Some(Box::new(EthersClient::new(chain, &rpc_url)?)),
         ChainType::Hedera => Some(Box::new(HederaClient::new(&rpc_url)?)),

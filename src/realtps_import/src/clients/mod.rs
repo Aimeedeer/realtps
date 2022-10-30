@@ -1,6 +1,6 @@
 mod algorand;
-mod electrum;
 mod elrond;
+mod esplora;
 mod ethers;
 mod hedera;
 mod near;
@@ -10,8 +10,8 @@ mod substrate;
 mod tendermint;
 
 pub use self::algorand::*;
-pub use self::electrum::*;
 pub use self::elrond::*;
+pub use self::esplora::*;
 pub use self::ethers::*;
 pub use self::hedera::*;
 pub use self::near::*;

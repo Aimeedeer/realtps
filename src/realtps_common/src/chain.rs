@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 pub enum ChainType {
-    Electrum, // Bitcoin
+    Esplora, // Bitcoin
     Elrond,
     Ethers,
     Near,
@@ -158,7 +158,7 @@ impl Chain {
             | Chain::Optimism
             | Chain::Polygon
             | Chain::Rootstock => ChainType::Ethers,
-            Chain::Bitcoin => ChainType::Electrum,
+            Chain::Bitcoin => ChainType::Esplora,
             Chain::Elrond => ChainType::Elrond,
             Chain::Hedera => ChainType::Hedera,
             Chain::Near => ChainType::Near,
