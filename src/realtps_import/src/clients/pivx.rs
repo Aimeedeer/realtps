@@ -22,7 +22,8 @@ impl PivxClient {
         );
         let resp = self.client.get(url).send().await?;
         let hash: String = resp.json().await?;
-        return Ok(hash);
+
+        Ok(hash)
     }
 }
 
@@ -38,7 +39,11 @@ struct PivxBlockInfo {
 #[async_trait]
 impl Client for PivxClient {
     async fn client_version(&self) -> Result<String> {
-        Ok("https://chainz.cryptoid.info".to_string()) // hardcoded since version is not available in API
+        // for checking if the API works only,
+        // not real node version
+        let block_number = self.get_latest_block_number().await?;
+
+        Ok(block_number.to_string())
     }
 
     async fn get_latest_block_number(&self) -> Result<u64> {
