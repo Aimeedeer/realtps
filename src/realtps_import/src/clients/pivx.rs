@@ -16,17 +16,20 @@ impl PivxClient {
         })
     }
     pub async fn get_block_hash(&self, block_number: u64) -> Result<String> {
-        let url = format!("{}/pivx/api.dws?q=getblockhash&height={}", &self.url, block_number);
+        let url = format!(
+            "{}/pivx/api.dws?q=getblockhash&height={}",
+            &self.url, block_number
+        );
         let resp = self.client.get(url).send().await?;
         let hash: String = resp.json().await?;
-        return Ok(hash)
+        return Ok(hash);
     }
 }
 
 #[derive(serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct PivxBlockInfo {
-    hash: String, 
+    hash: String,
     previousblockhash: String,
     tx: Vec<String>,
     time: u64,
@@ -49,9 +52,12 @@ impl Client for PivxClient {
         // use block hash to get full details
         let hash = self.get_block_hash(block_number).await?;
 
-        let url = format!("{}/explorer/block.raw.dws?coin=pivx&hash={}.js", &self.url, hash);
+        let url = format!(
+            "{}/explorer/block.raw.dws?coin=pivx&hash={}.js",
+            &self.url, hash
+        );
         let resp = self.client.get(url).send().await?;
-        let block_info : PivxBlockInfo = resp.json().await?;
+        let block_info: PivxBlockInfo = resp.json().await?;
 
         Ok(Some(Block {
             chain: Chain::Pivx,

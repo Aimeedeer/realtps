@@ -45,8 +45,8 @@ pub async fn rescan_delay(chain: Chain) {
         Chain::Kusama => 7000,    // Like Polkadot
         Chain::Optimism => 15000, // Unclear, just experimenting
         Chain::Pivx => 5000,
-        Chain::Polkadot => 7000,  // 6s block time, server rate-limited, can't wait too long
-        Chain::Solana => 1000,    // Need to go fast to keep up
+        Chain::Polkadot => 7000, // 6s block time, server rate-limited, can't wait too long
+        Chain::Solana => 1000,   // Need to go fast to keep up
         _ => DEFAULT_RESCAN_DELAY,
     };
 

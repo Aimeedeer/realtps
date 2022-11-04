@@ -44,7 +44,8 @@ impl Client for IcpClient {
         let url = format!("{}/network/options", &self.url);
         let resp = self.client.post(&url).json(&body).send().await?;
         let network_options: IcpNetworkOptionsResponse = resp.json().await?;
-        Ok(network_options.version
+        Ok(network_options
+            .version
             .get("rosetta_version")
             .ok_or_else(|| anyhow!("no rosetta_version key"))?
             .as_str()
@@ -61,7 +62,8 @@ impl Client for IcpClient {
         let url = format!("{}/network/status", &self.url);
         let resp = self.client.post(&url).json(&body).send().await?;
         let network_status: IcpNetworkStatusResponse = resp.json().await?;
-        Ok(network_status.current_block_identifier
+        Ok(network_status
+            .current_block_identifier
             .get("index")
             .ok_or_else(|| anyhow!("no index key"))?
             .as_u64()
@@ -113,7 +115,8 @@ impl Client for IcpClient {
             .get("timestamp")
             .ok_or_else(|| anyhow!("no timestamp key"))?
             .as_u64()
-            .ok_or_else(|| anyhow!("not a u64"))?/1000;
+            .ok_or_else(|| anyhow!("not a u64"))?
+            / 1000;
         let num_txs = block
             .get("transactions")
             .ok_or_else(|| anyhow!("no transactions key"))?
