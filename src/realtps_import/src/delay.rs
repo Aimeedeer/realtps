@@ -37,20 +37,21 @@ pub fn block_pace(chain: Chain) -> u64 {
 /// blocks when there are none, but low enough that the block pace can catch up
 /// to new blocks.
 pub async fn rescan_delay(chain: Chain) {
-    let delay_secs = match chain {
-        Chain::Arbitrum => 5, // Subsecond block time
-        Chain::Bitcoin => 600,
-        Chain::Hedera => 10,
-        Chain::InternetComputer => 1,
-        Chain::Kusama => 7,    // Like Polkadot
-        Chain::Optimism => 15, // Unclear, just experimenting
-        Chain::Polkadot => 7,  // 6s block time, server rate-limited, can't wait too long
-        Chain::Solana => 1,    // Need to go fast to keep up
+    let delay_msecs = match chain {
+        Chain::Arbitrum => 5000, // Subsecond block time
+        Chain::Bitcoin => 600000,
+        Chain::Hedera => 10000,
+        Chain::InternetComputer => 1000,
+        Chain::Kusama => 7000,    // Like Polkadot
+        Chain::Optimism => 15000, // Unclear, just experimenting
+        Chain::Pivx => 5000,
+        Chain::Polkadot => 7000,  // 6s block time, server rate-limited, can't wait too long
+        Chain::Solana => 1000,    // Need to go fast to keep up
         _ => DEFAULT_RESCAN_DELAY,
     };
-    let msecs = 1000 * delay_secs;
-    debug!("delaying {} ms to rescan chain {}", msecs, chain);
-    delay(msecs).await
+
+    debug!("delaying {} ms to rescan chain {}", delay_msecs, chain);
+    delay(delay_msecs).await
 }
 
 async fn delay(base_ms: u64) {

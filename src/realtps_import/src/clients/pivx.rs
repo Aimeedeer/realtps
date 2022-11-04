@@ -2,7 +2,6 @@ use crate::client::Client;
 use anyhow::Result;
 use async_trait::async_trait;
 use realtps_common::{chain::Chain, db::Block};
-use std::{thread, time};
 
 pub struct PivxClient {
     client: reqwest::Client,
@@ -38,19 +37,17 @@ impl Client for PivxClient {
     async fn client_version(&self) -> Result<String> {
         Ok("https://chainz.cryptoid.info".to_string()) // hardcoded since version is not available in API
     }
+
     async fn get_latest_block_number(&self) -> Result<u64> {
         let url = format!("{}/pivx/api.dws?q=getblockcount", &self.url);
         let resp = self.client.get(url).send().await?;
         let block_number: u64 = resp.json().await?;
         Ok(block_number)
     }
+
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
         // use block hash to get full details
         let hash = self.get_block_hash(block_number).await?;
-
-        // don't hammer their API
-        let delay = time::Duration::from_millis(500);
-        thread::sleep(delay);
 
         let url = format!("{}/explorer/block.raw.dws?coin=pivx&hash={}.js", &self.url, hash);
         let resp = self.client.get(url).send().await?;
@@ -64,7 +61,7 @@ impl Client for PivxClient {
             } else {
                 None
             },
-            timestamp: block_info.time as u64,
+            timestamp: block_info.time,
             num_txs: block_info.tx.len() as u64,
             hash: block_info.hash,
             parent_hash: block_info.previousblockhash,
@@ -80,7 +77,6 @@ mod test_pivx {
     // Block Hash; https://chainz.cryptoid.info/pivx/api.dws?q=getblockhash&height=3598398
     // Block 1: https://chainz.cryptoid.info/explorer/block.raw.dws?coin=pivx&hash=000005504fa4a6766e854b2a2c3f21cd276fd7305b84f416241fd4431acbd12d.js
     const API_URL: &str = "https://chainz.cryptoid.info";
-
 
     #[tokio::test]
     async fn client_version() -> Result<(), anyhow::Error> {
