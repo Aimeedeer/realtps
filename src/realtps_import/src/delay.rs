@@ -13,8 +13,8 @@ use tokio::time::{self, Duration};
 /// The default rate to request blocks at, in ms.
 const DEFAULT_BLOCK_PACE: u64 = 500;
 
-/// The default time to wait between imports, in s.
-const DEFAULT_RESCAN_DELAY: u64 = 30;
+/// The default time to wait between imports, in ms.
+const DEFAULT_RESCAN_DELAY: u64 = 30000;
 
 /// The pace we want to request blocks at, in ms.
 pub fn block_pace(chain: Chain) -> u64 {
