@@ -1,3 +1,4 @@
+#![allow(clippy::all)]
 use crate::client::Client;
 use crate::delay;
 use crate::helpers::*;

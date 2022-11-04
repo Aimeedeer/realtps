@@ -147,8 +147,8 @@ fn storage_key(pallet: &'static str, storage: &'static str) -> Vec<u8> {
     let storage = sp_core::twox_128(storage.as_bytes());
 
     let mut bytes = vec![];
-    bytes.extend(&pallet);
-    bytes.extend(&storage);
+    bytes.extend(pallet);
+    bytes.extend(storage);
 
     bytes
 }
