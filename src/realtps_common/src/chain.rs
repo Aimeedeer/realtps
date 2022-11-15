@@ -204,7 +204,6 @@ impl<'a> TryFrom<&'a str> for Chain {
             "harmony" => Ok(Chain::Harmony),
             "hedera" => Ok(Chain::Hedera),
             "heco" => Ok(Chain::Heco),
-            "internetcomputer" => Ok(Chain::InternetComputer),
             "karura" => Ok(Chain::Karura),
             "kucoin" => Ok(Chain::KuCoin),
             "kusama" => Ok(Chain::Kusama),
