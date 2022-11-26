@@ -68,7 +68,8 @@ impl Chain {
             Chain::Avalanche,
             Chain::Bifrost,
             Chain::Binance,
-            Chain::Bitcoin,
+            // client bug #71
+            // Chain::Bitcoin,
             Chain::Celo,
             // todo rpc disappeared
             // Chain::CosmosHub,
