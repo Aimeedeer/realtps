@@ -1,5 +1,5 @@
 mod algorand;
-mod elrond;
+mod multiversx;
 mod esplora;
 mod ethers;
 mod hedera;
@@ -11,7 +11,7 @@ mod substrate;
 mod tendermint;
 
 pub use self::algorand::*;
-pub use self::elrond::*;
+pub use self::multiversx::*;
 pub use self::esplora::*;
 pub use self::ethers::*;
 pub use self::hedera::*;
