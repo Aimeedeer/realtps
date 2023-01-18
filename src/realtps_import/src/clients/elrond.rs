@@ -3,14 +3,14 @@ use anyhow::{anyhow, Result};
 use async_trait::async_trait;
 use realtps_common::{chain::Chain, db::Block};
 
-pub struct ElrondClient {
+pub struct MultiversXClient {
     client: reqwest::Client,
     url: String,
 }
 
-impl ElrondClient {
+impl MultiversXClient {
     pub fn new(url: &str) -> Result<Self> {
-        Ok(ElrondClient {
+        Ok(MultiversXClient {
             client: reqwest::Client::new(),
             url: url.to_string(),
         })
@@ -18,7 +18,7 @@ impl ElrondClient {
 }
 
 #[derive(serde::Deserialize, Debug)]
-struct ElrondResponse {
+struct MultiversXResponse {
     data: serde_json::Value,
     error: Option<String>,
     #[allow(unused)]
@@ -26,11 +26,11 @@ struct ElrondResponse {
 }
 
 #[async_trait]
-impl Client for ElrondClient {
+impl Client for MultiversXClient {
     async fn client_version(&self) -> Result<String> {
         let url = format!("{}/network/config", self.url);
         let resp = self.client.get(url).send().await?;
-        let resp: ElrondResponse = resp.json().await?;
+        let resp: MultiversXResponse = resp.json().await?;
         match (resp.data, resp.error) {
             (serde_json::Value::Null, Some(err)) => Err(anyhow!("{}", err)),
             (serde_json::Value::Null, None) => Err(anyhow!("missing error response")),
@@ -49,7 +49,7 @@ impl Client for ElrondClient {
         let metablock_shard = 4294967295_u32;
         let url = format!("{}/network/status/{}", self.url, metablock_shard);
         let resp = self.client.get(url).send().await?;
-        let resp: ElrondResponse = resp.json().await?;
+        let resp: MultiversXResponse = resp.json().await?;
         match (resp.data, resp.error) {
             (serde_json::Value::Null, Some(err)) => Err(anyhow!("{}", err)),
             (serde_json::Value::Null, None) => Err(anyhow!("missing error response")),
@@ -66,7 +66,7 @@ impl Client for ElrondClient {
     async fn get_block(&self, block_number: u64) -> Result<Option<Block>> {
         let url = format!("{}/hyperblock/by-nonce/{}", self.url, block_number);
         let resp = self.client.get(url).send().await?;
-        let resp: ElrondResponse = resp.json().await?;
+        let resp: MultiversXResponse = resp.json().await?;
         match (resp.data, resp.error) {
             (serde_json::Value::Null, Some(err)) => Err(anyhow!("{}", err)),
             (serde_json::Value::Null, None) => Err(anyhow!("missing error response")),
@@ -105,7 +105,7 @@ impl Client for ElrondClient {
                 let prev_block_number = Some({
                     let url = format!("{}/hyperblock/by-hash/{}", self.url, parent_hash);
                     let resp = self.client.get(url).send().await?;
-                    let resp: ElrondResponse = resp.json().await?;
+                    let resp: MultiversXResponse = resp.json().await?;
                     match (resp.data, resp.error) {
                         (serde_json::Value::Null, Some(err)) => Err(anyhow!("{}", err)),
                         (serde_json::Value::Null, None) => Err(anyhow!("missing error response")),
@@ -123,7 +123,7 @@ impl Client for ElrondClient {
                 });
 
                 Ok(Some(Block {
-                    chain: Chain::Elrond,
+                    chain: Chain::MultiversX,
                     block_number,
                     prev_block_number,
                     timestamp,
