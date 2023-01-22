@@ -28,7 +28,8 @@ struct StellarLedgerResponse {
     hash: String,
     prev_hash: String,
     closed_at: chrono::DateTime<chrono::Utc>,
-    operation_count: u32,
+    successful_transaction_count: u32,
+    failed_transaction_count: u32,
 }
 
 #[async_trait]
@@ -47,6 +48,11 @@ impl Client for StellarClient {
         let url = format!("{}/ledgers/{}", &self.url, block_number);
         let resp = self.client.get(url).send().await?;
         let ledger: StellarLedgerResponse = resp.json().await?;
+
+        let num_txs = (ledger.successful_transaction_count as u64)
+            .checked_add(ledger.failed_transaction_count as u64)
+            .expect("overflow");
+
         Ok(Some(Block {
             chain: Chain::Stellar,
             block_number,
@@ -56,7 +62,7 @@ impl Client for StellarClient {
                 None
             },
             timestamp: ledger.closed_at.timestamp() as u64,
-            num_txs: ledger.operation_count as u64,
+            num_txs,
             // NB: operation_count corresponds most-closely to what is usually
             // meant by a "transaction" -- a payment, a trade, etc. Stellar's
             // transaction format is structured such that users can bundle
