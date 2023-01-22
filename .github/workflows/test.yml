@@ -1,20 +1,21 @@
 name: Test
-'on': pull_request
+on: [pull_request, push]
+
 jobs:
   checks-and-tests:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout the source code
-      uses: actions/checkout@v3
-      
-    - name: Install toolchain
-    - uses: dtolnay/rust-toolchain@stable
+      - name: Checkout the source code
+        uses: actions/checkout@v3
 
-    - name: display rust toolchain
-      run: rustup show
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
 
-    - name: Check all features compilation
-      run: cargo check --verbose --all-features
+      - name: Display rust toolchain
+        run: rustup show
 
-    - name: Run all tests
-      run: cargo test --all-features
+      - name: Check all features compilation
+        run: cargo check --verbose --all-features
+
+      - name: Run all tests
+        run: cargo test --all-features
