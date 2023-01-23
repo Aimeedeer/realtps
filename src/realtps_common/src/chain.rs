@@ -6,7 +6,7 @@ use std::fmt;
 pub enum ChainType {
     Algorand,
     Esplora, // Bitcoin
-    Elrond,
+    MultiversX,
     Ethers,
     Hedera,
     Near,
@@ -33,7 +33,7 @@ pub enum Chain {
     Celo,
     CosmosHub,
     Cronos,
-    Elrond,
+    MultiversX,
     Ethereum,
     Fantom,
     Harmony,
@@ -74,7 +74,7 @@ impl Chain {
             // todo rpc disappeared
             // Chain::CosmosHub,
             Chain::Cronos,
-            Chain::Elrond,
+            Chain::MultiversX,
             Chain::Ethereum,
             Chain::Fantom,
             Chain::Harmony,
@@ -118,7 +118,7 @@ impl Chain {
             Chain::Celo => "Celo",
             Chain::CosmosHub => "Cosmos Hub",
             Chain::Cronos => "Cronos",
-            Chain::Elrond => "Elrond",
+            Chain::MultiversX => "MultiversX",
             Chain::Ethereum => "Ethereum",
             Chain::Fantom => "Fantom",
             Chain::Harmony => "Harmony",
@@ -164,7 +164,7 @@ impl Chain {
             | Chain::Polygon
             | Chain::Rootstock => ChainType::Ethers,
             Chain::Bitcoin => ChainType::Esplora,
-            Chain::Elrond => ChainType::Elrond,
+            Chain::MultiversX => ChainType::MultiversX,
             Chain::Hedera => ChainType::Hedera,
             Chain::Near => ChainType::Near,
             Chain::Pivx => ChainType::Pivx,
@@ -199,7 +199,7 @@ impl<'a> TryFrom<&'a str> for Chain {
             "celo" => Ok(Chain::Celo),
             "cosmoshub" => Ok(Chain::CosmosHub),
             "cronos" => Ok(Chain::Cronos),
-            "elrond" => Ok(Chain::Elrond),
+            "multiversx" => Ok(Chain::MultiversX),
             "ethereum" => Ok(Chain::Ethereum),
             "fantom" => Ok(Chain::Fantom),
             "harmony" => Ok(Chain::Harmony),
