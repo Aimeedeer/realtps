@@ -30,6 +30,7 @@ struct StellarLedgerResponse {
     closed_at: chrono::DateTime<chrono::Utc>,
     successful_transaction_count: u32,
     failed_transaction_count: u32,
+    operation_count: u32,
 }
 
 #[async_trait]
@@ -63,13 +64,6 @@ impl Client for StellarClient {
             },
             timestamp: ledger.closed_at.timestamp() as u64,
             num_txs,
-            // NB: operation_count corresponds most-closely to what is usually
-            // meant by a "transaction" -- a payment, a trade, etc. Stellar's
-            // transaction format is structured such that users can bundle
-            // together multiple operations into a composite unit for purposes
-            // of atomicity which, since it's the outermost atomic unit, is the
-            // unit in the protocol called a "transaction": operations are
-            // sub-transactions, within the outer transaction object.
             hash: ledger.hash,
             parent_hash: ledger.prev_hash,
         }))
