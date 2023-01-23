@@ -38,7 +38,7 @@ impl JobRunner {
             Ok(new_jobs) => new_jobs,
             Err(e) => {
                 print_error(&e);
-                error!("error running job. repeating");
+                error!("error running job: {}. repeating", &e);
                 delay::job_error_delay(&job).await;
                 vec![job]
             }
