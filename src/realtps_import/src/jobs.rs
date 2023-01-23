@@ -37,8 +37,7 @@ impl JobRunner {
         match r {
             Ok(new_jobs) => new_jobs,
             Err(e) => {
-                print_error(&e);
-                error!("error running job. repeating");
+                print_error("error running job", &e);
                 delay::job_error_delay(&job).await;
                 vec![job]
             }
@@ -78,10 +77,7 @@ impl JobRunner {
                     let db = self.db.clone();
                     task::spawn_blocking(move || db.store_tps(calcs.chain, calcs.tps)).await??;
                 }
-                Err(e) => {
-                    print_error(&e);
-                    error!("error calculating for {}", chain);
-                }
+                Err(e) => print_error(&format!("error calculating for {}", chain), &e),
             }
         }
 
@@ -111,8 +107,8 @@ impl JobRunner {
     }
 }
 
-fn print_error(e: &anyhow::Error) {
-    error!("error: {}", e);
+fn print_error(msg: &str, e: &anyhow::Error) {
+    error!("error: {}: {}", msg, e);
     let mut source = e.source();
     while let Some(source_) = source {
         error!("source: {}", source_);
