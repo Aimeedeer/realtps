@@ -91,7 +91,8 @@ impl Chain {
             Chain::Optimism,
             // todo banned
             // Chain::Osmosis,
-            Chain::Pivx,
+            // fixme broken rpc #93
+            // Chain::Pivx,
             Chain::Polkadot,
             Chain::Polygon,
             Chain::Rootstock,
