@@ -65,7 +65,8 @@ impl Chain {
             Chain::Algorand,
             Chain::Arbitrum,
             Chain::Astar,
-            Chain::Avalanche,
+            // #96
+            //Chain::Avalanche,
             Chain::Bifrost,
             Chain::Binance,
             // client bug #71
