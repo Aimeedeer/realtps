@@ -37,7 +37,11 @@ impl JobRunner {
         match r {
             Ok(new_jobs) => new_jobs,
             Err(e) => {
-                print_error("error running job", &e);
+                match job {
+                    Job::Import(chain) => print_error(&format!("error running job for {chain}"), &e),
+                    Job::Calculate(_) | Job::Remove(_) => print_error(&format!("error running job {:?}", &job), &e),
+                }
+
                 delay::job_error_delay(&job).await;
                 vec![job]
             }
