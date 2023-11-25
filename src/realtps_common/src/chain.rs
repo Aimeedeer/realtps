@@ -87,7 +87,8 @@ impl Chain {
             Chain::Kusama,
             Chain::Moonbeam,
             Chain::Moonriver,
-            Chain::Near,
+            //todo broken
+            //Chain::Near,
             Chain::OKEx,
             Chain::Optimism,
             // todo banned
